@@ -60,9 +60,10 @@ public class ShowProjectGitReadOnlyUrlPresenterTest extends BaseTest {
                                                            service,
                                                            appContext,
                                                            constant,
-                                                           console,
                                                            notificationManager,
-                                                           dtoUnmarshallerFactory);
+                                                           dtoUnmarshallerFactory,
+                                                           gitOutputConsoleFactory,
+                                                           consolesPanelPresenter);
     }
 
     @Test

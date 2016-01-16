@@ -25,7 +25,9 @@ import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
-import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsole;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -48,19 +50,21 @@ import static org.eclipse.che.ide.ext.git.client.merge.Reference.RefType.REMOTE_
  */
 @Singleton
 public class MergePresenter implements MergeView.ActionDelegate {
+    public static final String MERGE_COMMAND_NAME    = "Git merge";
     public static final String LOCAL_BRANCHES_TITLE  = "Local Branches";
     public static final String REMOTE_BRANCHES_TITLE = "Remote Branches";
 
     private final DtoUnmarshallerFactory   dtoUnmarshallerFactory;
     private final MergeView                view;
     private final ProjectExplorerPresenter projectExplorer;
+    private final GitOutputConsoleFactory  gitOutputConsoleFactory;
+    private final ConsolesPanelPresenter   consolesPanelPresenter;
     private final GitServiceClient         service;
     private final EventBus                 eventBus;
     private final GitLocalizationConstant  constant;
     private final EditorAgent              editorAgent;
     private final AppContext               appContext;
     private final NotificationManager      notificationManager;
-    private final GitOutputPartPresenter   console;
     private final String                   workspaceId;
 
     private Reference selectedReference;
@@ -70,15 +74,17 @@ public class MergePresenter implements MergeView.ActionDelegate {
                           EventBus eventBus,
                           EditorAgent editorAgent,
                           GitServiceClient service,
-                          GitOutputPartPresenter console,
                           GitLocalizationConstant constant,
                           AppContext appContext,
                           NotificationManager notificationManager,
                           DtoUnmarshallerFactory dtoUnmarshallerFactory,
-                          ProjectExplorerPresenter projectExplorer) {
+                          ProjectExplorerPresenter projectExplorer,
+                          GitOutputConsoleFactory gitOutputConsoleFactory,
+                          ConsolesPanelPresenter consolesPanelPresenter) {
         this.view = view;
-        this.console = console;
         this.projectExplorer = projectExplorer;
+        this.gitOutputConsoleFactory = gitOutputConsoleFactory;
+        this.consolesPanelPresenter = consolesPanelPresenter;
         this.view.setDelegate(this);
         this.service = service;
         this.eventBus = eventBus;
@@ -87,13 +93,14 @@ public class MergePresenter implements MergeView.ActionDelegate {
         this.appContext = appContext;
         this.notificationManager = notificationManager;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
-        
+
         this.workspaceId = appContext.getWorkspaceId();
     }
 
     /** Show dialog. */
     public void showDialog() {
         final ProjectConfigDto project = appContext.getCurrentProject().getRootProject();
+        final GitOutputConsole console = gitOutputConsoleFactory.create(MERGE_COMMAND_NAME);
         selectedReference = null;
         view.setEnableMergeButton(false);
 
@@ -114,6 +121,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
                                @Override
                                protected void onFailure(Throwable exception) {
                                    console.printError(exception.getMessage());
+                                   consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                                    notificationManager.notify(constant.branchesListFailed(), FAIL, true, project);
                                }
                            });
@@ -136,6 +144,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
                                @Override
                                protected void onFailure(Throwable exception) {
                                    console.printError(exception.getMessage());
+                                   consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                                    notificationManager.notify(constant.branchesListFailed(), FAIL, true, project);
                                }
                            });
@@ -158,11 +167,13 @@ public class MergePresenter implements MergeView.ActionDelegate {
         for (EditorPartPresenter partPresenter : editorAgent.getOpenedEditors().values()) {
             openedEditors.add(partPresenter);
         }
+        final GitOutputConsole console = gitOutputConsoleFactory.create(MERGE_COMMAND_NAME);
         service.merge(workspaceId, appContext.getCurrentProject().getRootProject(), selectedReference.getDisplayName(),
                       new AsyncRequestCallback<MergeResult>(dtoUnmarshallerFactory.newUnmarshaller(MergeResult.class)) {
                           @Override
                           protected void onSuccess(final MergeResult result) {
                               console.printInfo(formMergeMessage(result));
+                              consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                               notificationManager.notify(formMergeMessage(result), appContext.getCurrentProject().getRootProject());
                               refreshProject(openedEditors);
                           }
@@ -170,6 +181,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
                           @Override
                           protected void onFailure(Throwable exception) {
                               console.printError(exception.getMessage());
+                              consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                               notificationManager
                                       .notify(constant.mergeFailed(), FAIL, true, appContext.getCurrentProject().getRootProject());
                           }

@@ -22,8 +22,10 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.project.ProjectUpdatedEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
-import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.ext.git.client.GitRepositoryInitializer;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsole;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.loging.Log;
@@ -40,32 +42,37 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAI
  */
 @Singleton
 public class InitRepositoryPresenter {
+    public static final String INIT_COMMAND_NAME = "Git init";
+
     private final GitRepositoryInitializer gitRepositoryInitializer;
     private final ProjectServiceClient     projectService;
     private final DtoUnmarshallerFactory   dtoUnmarshaller;
     private final EventBus                 eventBus;
+    private final GitOutputConsoleFactory  gitOutputConsoleFactory;
+    private final ConsolesPanelPresenter   consolesPanelPresenter;
     private final AppContext               appContext;
     private final GitLocalizationConstant  constant;
-    private final GitOutputPartPresenter   console;
     private final NotificationManager      notificationManager;
 
     @Inject
     public InitRepositoryPresenter(AppContext appContext,
                                    GitLocalizationConstant constant,
-                                   GitOutputPartPresenter console,
                                    NotificationManager notificationManager,
                                    GitRepositoryInitializer gitRepositoryInitializer,
                                    ProjectServiceClient projectServiceClient,
                                    DtoUnmarshallerFactory dtoUnmarshaller,
-                                   EventBus eventBus) {
+                                   EventBus eventBus,
+                                   GitOutputConsoleFactory gitOutputConsoleFactory,
+                                   ConsolesPanelPresenter consolesPanelPresenter) {
         this.appContext = appContext;
         this.constant = constant;
-        this.console = console;
         this.notificationManager = notificationManager;
         this.gitRepositoryInitializer = gitRepositoryInitializer;
         this.projectService = projectServiceClient;
         this.dtoUnmarshaller = dtoUnmarshaller;
         this.eventBus = eventBus;
+        this.gitOutputConsoleFactory = gitOutputConsoleFactory;
+        this.consolesPanelPresenter = consolesPanelPresenter;
     }
 
     public void initRepository() {
@@ -75,16 +82,18 @@ public class InitRepositoryPresenter {
             Log.error(getClass(), "Open the project before initialize repository");
             return;
         }
-
+        final GitOutputConsole console = gitOutputConsoleFactory.create(INIT_COMMAND_NAME);
         gitRepositoryInitializer.initGitRepository(currentProject.getRootProject(), new AsyncCallback<Void>() {
             @Override
             public void onFailure(Throwable caught) {
-                handleError(caught);
+                handleError(caught, console);
+                consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
             }
 
             @Override
             public void onSuccess(Void result) {
                 console.printInfo(constant.initSuccess());
+                consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                 notificationManager.notify(constant.initSuccess(), currentProject.getRootProject());
                 getRootProject(currentProject.getRootProject());
             }
@@ -97,7 +106,7 @@ public class InitRepositoryPresenter {
      * @param e
      *         exception what happened
      */
-    private void handleError(@NotNull Throwable e) {
+    private void handleError(@NotNull Throwable e, GitOutputConsole console) {
         String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.initFailed();
         console.printError(errorMessage);
         notificationManager.notify(constant.initFailed(), FAIL, true, appContext.getCurrentProject().getRootProject());

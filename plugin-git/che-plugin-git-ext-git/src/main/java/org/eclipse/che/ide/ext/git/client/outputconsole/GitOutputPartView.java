@@ -8,18 +8,17 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.git.client;
+package org.eclipse.che.ide.ext.git.client.outputconsole;
 
 import org.eclipse.che.ide.api.mvp.View;
-import org.eclipse.che.ide.api.parts.base.BaseActionDelegate;
 
 /**
- * View of {@link GitOutputPartPresenter}.
+ * View of {@link GitOutputConsolePresenter}.
  *
- * @author <a href="mailto:aplotnikov@codenvy.com">Andrey Plotnikov</a>
+ * @author Andrey Plotnikov
  */
 public interface GitOutputPartView extends View<GitOutputPartView.ActionDelegate> {
-    public interface ActionDelegate extends BaseActionDelegate {
+    public interface ActionDelegate {
         /**
          * Handle user clicks on clear console button.
          */
@@ -29,8 +28,6 @@ public interface GitOutputPartView extends View<GitOutputPartView.ActionDelegate
          */
         void onScrollClicked();
     }
-
-    void setVisible(boolean visible);
 
     /**
      * Print text in console area.

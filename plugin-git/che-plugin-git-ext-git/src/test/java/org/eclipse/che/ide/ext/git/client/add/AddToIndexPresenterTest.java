@@ -41,9 +41,11 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.eclipse.che.ide.ext.git.client.add.AddToIndexPresenter.ADD_TO_INDEX_COMMAND_NAME;
 
 /**
  * Testing {@link AddToIndexPresenter} functionality.
@@ -77,7 +79,8 @@ public class AddToIndexPresenterTest extends BaseTest {
                                             appContext,
                                             dtoUnmarshallerFactory,
                                             constant,
-                                            console,
+                                            gitOutputConsoleFactory,
+                                            consolesPanelPresenter,
                                             service,
                                             notificationManager,
                                             projectExplorer);
@@ -94,10 +97,12 @@ public class AddToIndexPresenterTest extends BaseTest {
         Method onFailure = GwtReflectionUtils.getMethod(callback.getClass(), "onFailure");
         onFailure.invoke(callback, mock(Throwable.class));
 
+        verify(gitOutputConsoleFactory).create(ADD_TO_INDEX_COMMAND_NAME);
         verify(console).printError(anyString());
-        verify(notificationManager).notify(anyString(), eq(rootProjectConfig));
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
+        verify(notificationManager).notify(anyString(), anyObject(), eq(true), eq(rootProjectConfig));
         verify(view, never()).showDialog();
-        verify(constant).statusFailed();
+        verify(constant, times(2)).statusFailed();
     }
 
     @Test
@@ -113,7 +118,9 @@ public class AddToIndexPresenterTest extends BaseTest {
         Method onSuccess = GwtReflectionUtils.getMethod(callback.getClass(), "onSuccess");
         onSuccess.invoke(callback, this.statusResponse);
 
+        verify(gitOutputConsoleFactory).create(ADD_TO_INDEX_COMMAND_NAME);
         verify(console).printInfo(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), eq(rootProjectConfig));
         verify(view, never()).showDialog();
         verify(constant, times(2)).nothingAddToIndex();
@@ -253,6 +260,8 @@ public class AddToIndexPresenterTest extends BaseTest {
 
     @Test
     public void testOnAddClickedWhenAddWSRequestIsSuccessful() throws Exception {
+        reset(gitOutputConsoleFactory);
+        when(gitOutputConsoleFactory.create(anyString())).thenReturn(console);
         when(view.isUpdated()).thenReturn(NEED_UPDATING);
         when(constant.addSuccess()).thenReturn(MESSAGE);
 
@@ -271,13 +280,17 @@ public class AddToIndexPresenterTest extends BaseTest {
         verify(view).close();
         verify(service).add(anyString(), eq(rootProjectConfig), eq(NEED_UPDATING), (List<String>)anyObject(),
                             (RequestCallback<Void>)anyObject());
+        verify(gitOutputConsoleFactory, times(2)).create(ADD_TO_INDEX_COMMAND_NAME);
         verify(console).printInfo(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), eq(rootProjectConfig));
         verify(constant, times(2)).addSuccess();
     }
 
     @Test
     public void testOnAddClickedWhenAddWSRequestIsFailed() throws Exception {
+        reset(gitOutputConsoleFactory);
+        when(gitOutputConsoleFactory.create(anyString())).thenReturn(console);
         when(view.isUpdated()).thenReturn(NEED_UPDATING);
 
         presenter.showDialog();
@@ -293,13 +306,17 @@ public class AddToIndexPresenterTest extends BaseTest {
 
         verify(view).isUpdated();
         verify(view).close();
+        verify(gitOutputConsoleFactory, times(2)).create(ADD_TO_INDEX_COMMAND_NAME);
         verify(console).printError(anyString());
-        verify(notificationManager).notify(anyString(), eq(rootProjectConfig));
-        verify(constant).addFailed();
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
+        verify(notificationManager).notify(anyString(), anyObject(), eq(true), eq(rootProjectConfig));
+        verify(constant, times(2)).addFailed();
     }
 
     @Test
     public void testOnAddClickedWhenAddRequestIsFailed() throws Exception {
+        reset(gitOutputConsoleFactory);
+        when(gitOutputConsoleFactory.create(anyString())).thenReturn(console);
         doThrow(WebSocketException.class).when(service)
                                          .add(anyString(), anyObject(), anyBoolean(), anyObject(), anyObject());
         when(view.isUpdated()).thenReturn(NEED_UPDATING);
@@ -310,9 +327,11 @@ public class AddToIndexPresenterTest extends BaseTest {
         verify(view).isUpdated();
         verify(service).add(anyString(), eq(rootProjectConfig), eq(NEED_UPDATING), anyObject(), anyObject());
         verify(view).close();
+        verify(gitOutputConsoleFactory, times(2)).create(ADD_TO_INDEX_COMMAND_NAME);
         verify(console).printError(anyString());
-        verify(notificationManager).notify(anyString(), eq(rootProjectConfig));
-        verify(constant).addFailed();
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
+        verify(notificationManager).notify(anyString(), anyObject(), eq(true), eq(rootProjectConfig));
+        verify(constant, times(2)).addFailed();
     }
 
     @Test

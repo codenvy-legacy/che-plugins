@@ -14,8 +14,9 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-import org.eclipse.che.api.machine.shared.dto.MachineProcessDto;
-import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
+import org.eclipse.che.ide.api.outputconsole.OutputConsole;
+import org.eclipse.che.ide.extension.machine.client.MachineResources;
+import org.vectomatic.dom.svg.ui.SVGResource;
 
 /**
  * Console panel for some text outputs.
@@ -25,12 +26,16 @@ import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration
 public class DefaultOutputConsole implements OutputConsole {
 
     private final OutputConsoleView view;
+    private final MachineResources  resources;
     private       String            title;
 
     @Inject
-    public DefaultOutputConsole(OutputConsoleView view, @Assisted String title) {
+    public DefaultOutputConsole(OutputConsoleView view,
+                                MachineResources resources,
+                                @Assisted String title) {
         this.view = view;
         this.title = title;
+        this.resources = resources;
 
         this.view.hideCommand();
         this.view.hidePreview();
@@ -74,25 +79,13 @@ public class DefaultOutputConsole implements OutputConsole {
 
     /** {@inheritDoc} */
     @Override
-    public CommandConfiguration getCommand() {
-        return null;
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public String getTitle() {
         return title;
     }
 
-    /** {@inheritDoc} */
     @Override
-    public void listenToOutput(String wsChannel) {
-
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void attachToProcess(MachineProcessDto process) {
+    public SVGResource getTitleIcon() {
+        return resources.output();
     }
 
     /** {@inheritDoc} */

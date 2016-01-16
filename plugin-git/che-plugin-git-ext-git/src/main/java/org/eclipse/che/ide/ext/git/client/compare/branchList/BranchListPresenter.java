@@ -22,9 +22,11 @@ import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
-import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.ext.git.client.compare.ComparePresenter;
 import org.eclipse.che.ide.ext.git.client.compare.changedList.ChangedListPresenter;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsole;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.project.node.ResourceBasedNode;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
@@ -50,18 +52,21 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAI
  */
 @Singleton
 public class BranchListPresenter implements BranchListView.ActionDelegate {
+    public static final String BRANCH_LIST_COMMAND_NAME = "Git list of branches";
+
     private final ComparePresenter         comparePresenter;
     private final ChangedListPresenter     changedListPresenter;
     private final DtoUnmarshallerFactory   dtoUnmarshallerFactory;
+    private final GitOutputConsoleFactory  gitOutputConsoleFactory;
+    private final ConsolesPanelPresenter   consolesPanelPresenter;
     private final BranchListView           view;
-    private final GitOutputPartPresenter   gitConsole;
     private final DialogFactory            dialogFactory;
     private final ProjectExplorerPresenter projectExplorer;
     private final GitServiceClient         gitService;
     private final GitLocalizationConstant  locale;
     private final AppContext               appContext;
     private final NotificationManager      notificationManager;
-    private final String                  workspaceId;
+    private final String                   workspaceId;
 
     private CurrentProject project;
     private Branch         selectedBranch;
@@ -75,13 +80,13 @@ public class BranchListPresenter implements BranchListView.ActionDelegate {
                                AppContext appContext,
                                NotificationManager notificationManager,
                                DtoUnmarshallerFactory dtoUnmarshallerFactory,
-                               GitOutputPartPresenter gitConsole,
                                DialogFactory dialogFactory,
-                               ProjectExplorerPresenter projectExplorer) {
+                               ProjectExplorerPresenter projectExplorer,
+                               GitOutputConsoleFactory gitOutputConsoleFactory,
+                               ConsolesPanelPresenter consolesPanelPresenter) {
         this.view = view;
         this.comparePresenter = comparePresenter;
         this.changedListPresenter = changedListPresenter;
-        this.gitConsole = gitConsole;
         this.dialogFactory = dialogFactory;
         this.projectExplorer = projectExplorer;
         this.gitService = service;
@@ -89,6 +94,8 @@ public class BranchListPresenter implements BranchListView.ActionDelegate {
         this.appContext = appContext;
         this.notificationManager = notificationManager;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
+        this.gitOutputConsoleFactory = gitOutputConsoleFactory;
+        this.consolesPanelPresenter = consolesPanelPresenter;
         this.workspaceId = appContext.getWorkspaceId();
 
         this.view.setDelegate(this);
@@ -188,7 +195,9 @@ public class BranchListPresenter implements BranchListView.ActionDelegate {
                                   protected void onFailure(Throwable exception) {
                                       final String errorMessage =
                                               (exception.getMessage() != null) ? exception.getMessage() : locale.branchesListFailed();
-                                      gitConsole.printError(errorMessage);
+                                      GitOutputConsole console = gitOutputConsoleFactory.create(BRANCH_LIST_COMMAND_NAME);
+                                      console.printError(errorMessage);
+                                      consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                                       notificationManager.notify(exception.getMessage(), FAIL, false);
                                   }
                               }

@@ -31,6 +31,7 @@ import org.eclipse.che.ide.ui.tree.NodeRenderer;
 import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 import org.eclipse.che.ide.util.dom.Elements;
 import org.vectomatic.dom.svg.ui.SVGImage;
+import org.vectomatic.dom.svg.ui.SVGResource;
 
 /**
  * Renderer for {@ProcessTreeNode} UI presentation.
@@ -88,10 +89,10 @@ public class ProcessTreeRenderer implements NodeRenderer<ProcessTreeNode> {
         newTerminalButton.setTextContent("+");
         root.appendChild(newTerminalButton);
 
-        Tooltip.create((elemental.dom.Element) newTerminalButton,
-                BOTTOM,
-                MIDDLE,
-                locale.viewNewTerminalTooltip());
+        Tooltip.create((elemental.dom.Element)newTerminalButton,
+                       BOTTOM,
+                       MIDDLE,
+                       locale.viewNewTerminalTooltip());
 
 
         Element statusElement = Elements.createSpanElement(resources.getCss().machineStatus());
@@ -162,11 +163,13 @@ public class ProcessTreeRenderer implements NodeRenderer<ProcessTreeNode> {
         root.appendChild(createCloseElement(node));
         root.appendChild(createStopProcessElement(node));
 
-        SpanElement iconElement = Elements.createSpanElement(resources.getCss().processIcon());
-        SVGImage icon = new SVGImage(resources.output());
-        iconElement.appendChild((Node)icon.getElement());
-        iconElement.setClassName(resources.getCss().processIcon());
-        root.appendChild(iconElement);
+        SVGResource icon = node.getTitleIcon();
+        if (icon != null) {
+            SpanElement iconElement = Elements.createSpanElement(resources.getCss().processIcon());
+            iconElement.appendChild((Node)new SVGImage(icon).getElement());
+            iconElement.setClassName(resources.getCss().processIcon());
+            root.appendChild(iconElement);
+        }
 
         Element nameElement = Elements.createSpanElement();
         nameElement.setTextContent(node.getName());
@@ -178,11 +181,13 @@ public class ProcessTreeRenderer implements NodeRenderer<ProcessTreeNode> {
     private SpanElement createTerminalElement(ProcessTreeNode node) {
         SpanElement root = Elements.createSpanElement();
 
-        SpanElement iconElement = Elements.createSpanElement();
-        SVGImage icon = new SVGImage(resources.terminal());
-        iconElement.appendChild((Node) icon.getElement());
-        iconElement.setClassName(resources.getCss().processIcon());
-        root.appendChild(iconElement);
+        SVGResource icon = node.getTitleIcon();
+        if (icon != null) {
+            SpanElement iconElement = Elements.createSpanElement();
+            iconElement.appendChild((Node)new SVGImage(icon).getElement());
+            iconElement.setClassName(resources.getCss().processIcon());
+            root.appendChild(iconElement);
+        }
 
         root.appendChild(createCloseElement(node));
 

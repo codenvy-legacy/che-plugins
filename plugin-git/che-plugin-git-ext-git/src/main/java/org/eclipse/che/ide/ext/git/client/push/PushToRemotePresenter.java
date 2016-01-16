@@ -24,7 +24,9 @@ import org.eclipse.che.ide.commons.exception.UnauthorizedException;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.git.client.BranchFilterByRemote;
 import org.eclipse.che.ide.ext.git.client.BranchSearcher;
-import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsole;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.StringMapUnmarshaller;
@@ -44,6 +46,8 @@ import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_REMOTE;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.PROGRESS;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.SUCCESS;
+import static org.eclipse.che.ide.ext.git.client.remote.RemotePresenter.REMOTE_REPO_COMMAND_NAME;
+import static org.eclipse.che.ide.ext.git.client.compare.branchList.BranchListPresenter.BRANCH_LIST_COMMAND_NAME;
 
 /**
  * Presenter for pushing changes to remote repository.
@@ -53,15 +57,19 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.SUC
  */
 @Singleton
 public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
+    public static final String PUSH_COMMAND_NAME   = "Git push";
+    public static final String CONFIG_COMMAND_NAME = "Git config";
+
+    private final GitOutputConsoleFactory gitOutputConsoleFactory;
+    private final ConsolesPanelPresenter  consolesPanelPresenter;
     private final DtoFactory              dtoFactory;
     private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
-    private final GitOutputPartPresenter  console;
     private final BranchSearcher          branchSearcher;
-    private       PushToRemoteView        view;
-    private       GitServiceClient        service;
-    private       AppContext              appContext;
-    private       GitLocalizationConstant constant;
-    private       NotificationManager     notificationManager;
+    private final PushToRemoteView        view;
+    private final GitServiceClient        service;
+    private final AppContext              appContext;
+    private final GitLocalizationConstant constant;
+    private final NotificationManager     notificationManager;
     private       CurrentProject          project;
     private       String                  workspaceId;
 
@@ -69,15 +77,14 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
     public PushToRemotePresenter(DtoFactory dtoFactory,
                                  PushToRemoteView view,
                                  GitServiceClient service,
-                                 GitOutputPartPresenter console,
                                  AppContext appContext,
                                  GitLocalizationConstant constant,
                                  NotificationManager notificationManager,
                                  DtoUnmarshallerFactory dtoUnmarshallerFactory,
-                                 BranchSearcher branchSearcher) {
+                                 BranchSearcher branchSearcher,
+                                 GitOutputConsoleFactory gitOutputConsoleFactory,
+                                 ConsolesPanelPresenter consolesPanelPresenter) {
         this.dtoFactory = dtoFactory;
-        this.view = view;
-        this.console = console;
         this.branchSearcher = branchSearcher;
 
         this.view = view;
@@ -88,6 +95,8 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
         this.constant = constant;
         this.notificationManager = notificationManager;
         this.workspaceId = appContext.getWorkspaceId();
+        this.gitOutputConsoleFactory = gitOutputConsoleFactory;
+        this.consolesPanelPresenter = consolesPanelPresenter;
     }
 
     /** Show dialog. */
@@ -116,7 +125,9 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
                                protected void onFailure(Throwable exception) {
                                    String errorMessage =
                                            exception.getMessage() != null ? exception.getMessage() : constant.remoteListFailed();
+                                   GitOutputConsole console = gitOutputConsoleFactory.create(REMOTE_REPO_COMMAND_NAME);
                                    console.printError(errorMessage);
+                                   consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                                    notificationManager.notify(constant.remoteListFailed(), FAIL, true, project.getRootProject());
                                    view.setEnablePushButton(false);
                                }
@@ -149,7 +160,9 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
             @Override
             public void onFailure(Throwable exception) {
                 String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.localBranchesListFailed();
+                GitOutputConsole console = gitOutputConsoleFactory.create(BRANCH_LIST_COMMAND_NAME);
                 console.printError(errorMessage);
+                consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                 notificationManager.notify(constant.localBranchesListFailed(), FAIL, true, project.getRootProject());
                 view.setEnablePushButton(false);
             }
@@ -197,7 +210,9 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
 
                     @Override
                     public void onFailure(Throwable caught) {
+                        GitOutputConsole console = gitOutputConsoleFactory.create(CONFIG_COMMAND_NAME);
                         console.printError(constant.failedGettingConfig());
+                        consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                         notificationManager.notify(constant.failedGettingConfig(), FAIL, true, project.getRootProject());
                     }
                 });
@@ -206,7 +221,9 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
             @Override
             public void onFailure(Throwable exception) {
                 String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.remoteBranchesListFailed();
+                GitOutputConsole console = gitOutputConsoleFactory.create(BRANCH_LIST_COMMAND_NAME);
                 console.printError(errorMessage);
+                consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                 notificationManager.notify(constant.remoteBranchesListFailed(), FAIL, true, project.getRootProject());
                 view.setEnablePushButton(false);
             }
@@ -278,11 +295,13 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
                 notificationManager.notify(constant.pushProcess(), PROGRESS, true, project.getRootProject());
 
         final String repository = view.getRepository();
+        final GitOutputConsole console = gitOutputConsoleFactory.create(PUSH_COMMAND_NAME);
         service.push(workspaceId, project.getRootProject(), getRefs(), repository, false,
                      new AsyncRequestCallback<PushResponse>(dtoUnmarshallerFactory.newUnmarshaller(PushResponse.class)) {
                          @Override
                          protected void onSuccess(PushResponse result) {
                              console.printInfo(result.getCommandOutput());
+                             consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                              notification.setStatus(SUCCESS);
                              if (result.getCommandOutput().contains("Everything up-to-date")) {
                                  notification.setTitle(constant.pushUpToDate());
@@ -293,7 +312,8 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
 
                          @Override
                          protected void onFailure(Throwable exception) {
-                             handleError(exception, notification);
+                             handleError(exception, notification, console);
+                             consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                          }
                      });
         view.close();
@@ -331,7 +351,7 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
      * @param throwable
      *         exception what happened
      */
-    void handleError(@NotNull Throwable throwable, StatusNotification notification) {
+    void handleError(@NotNull Throwable throwable, StatusNotification notification, GitOutputConsole console) {
         notification.setStatus(FAIL);
         if (throwable instanceof UnauthorizedException) {
             console.printError(constant.messagesNotAuthorized());

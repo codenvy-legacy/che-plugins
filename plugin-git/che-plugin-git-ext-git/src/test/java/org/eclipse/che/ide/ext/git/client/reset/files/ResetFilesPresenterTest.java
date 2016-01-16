@@ -57,12 +57,13 @@ public class ResetFilesPresenterTest extends BaseTest {
         presenter = new ResetFilesPresenter(view,
                                             service,
                                             appContext,
-                                            console,
                                             constant,
                                             notificationManager,
                                             dtoFactory,
                                             dtoUnmarshallerFactory,
-                                            dialogFactory);
+                                            dialogFactory,
+                                            gitOutputConsoleFactory,
+                                            consolesPanelPresenter);
         when(dtoFactory.createDto(IndexFile.class)).thenReturn(mock(IndexFile.class));
     }
 

@@ -41,6 +41,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.eclipse.che.ide.ext.git.client.merge.MergePresenter.MERGE_COMMAND_NAME;
 
 /**
  * Testing {@link MergePresenter} functionality.
@@ -75,12 +76,13 @@ public class MergePresenterTest extends BaseTest {
                                        eventBus,
                                        editorAgent,
                                        service,
-                                       console,
                                        constant,
                                        appContext,
                                        notificationManager,
                                        dtoUnmarshallerFactory,
-                                       projectExplorer);
+                                       projectExplorer,
+                                       gitOutputConsoleFactory,
+                                       consolesPanelPresenter);
         NavigableMap<String, EditorPartPresenter> partPresenterMap = new TreeMap<>();
         partPresenterMap.put("partPresenter", partPresenter);
 
@@ -148,7 +150,9 @@ public class MergePresenterTest extends BaseTest {
 
         verify(service).branchList(anyString(), eq(rootProjectConfig), eq(LIST_LOCAL), (AsyncRequestCallback<List<Branch>>)anyObject());
         verify(service).branchList(anyString(), eq(rootProjectConfig), eq(LIST_REMOTE), (AsyncRequestCallback<List<Branch>>)anyObject());
+        verify(gitOutputConsoleFactory).create(MERGE_COMMAND_NAME);
         verify(console, times(2)).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager, times(2)).notify(anyString(), rootProjectConfig);
     }
 
@@ -178,7 +182,9 @@ public class MergePresenterTest extends BaseTest {
         verify(appContext).getCurrentProject();
         verify(partPresenter).getEditorInput();
         verify(file).getPath();
+        verify(gitOutputConsoleFactory).create(MERGE_COMMAND_NAME);
         verify(console).printInfo(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 

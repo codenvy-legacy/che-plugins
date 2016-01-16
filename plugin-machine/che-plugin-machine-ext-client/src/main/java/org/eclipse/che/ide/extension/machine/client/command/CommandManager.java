@@ -27,12 +27,11 @@ import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandPropertyValueProvider;
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandPropertyValueProviderRegistry;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
-import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandOutputConsole;
 import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.eclipse.che.ide.util.UUID;
 
 import javax.validation.constraints.NotNull;
-
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 
 /**
@@ -84,9 +83,9 @@ public class CommandManager {
 
         final String outputChannel = "process:output:" + UUID.uuid();
 
-        final OutputConsole console = commandConsoleFactory.create(configuration, devMachineId);
+        final CommandOutputConsole console = commandConsoleFactory.create(configuration, devMachineId);
         console.listenToOutput(outputChannel);
-        consolesPanelPresenter.addCommand(devMachineId, configuration, console);
+        consolesPanelPresenter.addCommandOutput(devMachineId, console);
         workspaceAgent.setActivePart(consolesPanelPresenter);
 
         final String commandLine = substituteProperties(configuration.toCommandLine());
