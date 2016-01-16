@@ -596,7 +596,6 @@ public class Debugger implements EventsHandler {
                 } else if (event instanceof com.sun.jdi.event.StepEvent) {
                     resume = processStepEvent((com.sun.jdi.event.StepEvent)event);
                 } else if (event instanceof com.sun.jdi.event.VMDisconnectEvent) {
-                    disconnect();
                     resume = processDisconnectEvent((com.sun.jdi.event.VMDisconnectEvent)event);
                 } else if (event instanceof com.sun.jdi.event.ClassPrepareEvent) {
                     resume = processClassPrepareEvent((com.sun.jdi.event.ClassPrepareEvent)event);
@@ -674,9 +673,9 @@ public class Debugger implements EventsHandler {
     }
 
     private boolean processDisconnectEvent(com.sun.jdi.event.VMDisconnectEvent event) {
+        publishWebSocketMessage(null, DISCONNECTED_CHANNEL + id);
         eventsCollector.stop();
         instances.remove(id);
-        publishWebSocketMessage(null, DISCONNECTED_CHANNEL + id);
         return true;
     }
 
