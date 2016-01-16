@@ -287,6 +287,8 @@ public class RenamePresenter implements ActionDelegate {
             public void apply(ChangeCreationResult arg) throws OperationException {
                 if (!arg.isCanShowPreviewPage()) {
                     view.showErrorMessage(arg.getStatus());
+
+                    loader.hide();
                     return;
                 }
 
