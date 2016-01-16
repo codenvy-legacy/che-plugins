@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command;
 
-import org.eclipse.che.api.core.model.machine.Command;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.CommandDto;
 import org.eclipse.che.api.machine.shared.dto.MachineProcessDto;
@@ -124,7 +123,7 @@ public class CommandManagerTest {
         verify(machineServiceClient).executeCommand(eq(devMachineId), anyObject(), anyString());
         verify(processPromise).then(processCaptor.capture());
         processCaptor.getValue().apply(process);
-        verify(outputConsole).attachToProcess(eq(pid));
+        verify(outputConsole).attachToProcess(process);
     }
 
     @Test

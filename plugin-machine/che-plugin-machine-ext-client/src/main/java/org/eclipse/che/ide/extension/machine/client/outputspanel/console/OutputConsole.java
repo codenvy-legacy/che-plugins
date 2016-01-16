@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.outputspanel.console;
 
+import org.eclipse.che.api.machine.shared.dto.MachineProcessDto;
 import org.eclipse.che.ide.api.mvp.Presenter;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 
@@ -29,8 +30,8 @@ public interface OutputConsole extends Presenter {
     /** Start listening to the output on the given WebSocket channel. */
     void listenToOutput(String wsChannel);
 
-    /** Set ID of the process launched by the command. */
-    void attachToProcess(int pid);
+    /** Attaches to the process launched by the command. */
+    void attachToProcess(MachineProcessDto process);
 
     /** Checks whether the console is finished outputting or not. In other words - whether the process is alive or not. */
     boolean isFinished();
