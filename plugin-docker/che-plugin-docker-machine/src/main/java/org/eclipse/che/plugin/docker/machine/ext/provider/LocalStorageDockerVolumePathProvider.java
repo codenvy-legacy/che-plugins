@@ -23,7 +23,7 @@ import javax.inject.Singleton;
 @Singleton
 public class LocalStorageDockerVolumePathProvider implements Provider<String> {
     @Inject
-    @Named("local.storage.path")
+    @Named("che.conf.storage")
     private String localStoragePath;
 
     @Override

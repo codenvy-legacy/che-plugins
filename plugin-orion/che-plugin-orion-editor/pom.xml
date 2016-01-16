@@ -115,7 +115,7 @@
                             <patchDirectory>${patches.location}</patchDirectory>
                             <patches>
                                 <patch>built-codeEdit-amd.js.diff</patch>
-                                <patch>javascriptPlugin.js.diff</patch>
+                                <patch>Bug482536.diff</patch>
                             </patches>
                             <optimizations>false</optimizations>
                             <strictPatching>true</strictPatching>
@@ -134,7 +134,7 @@
                         <exclude>**/org/eclipse/che/ide/editor/orion/public/orion/**</exclude>
                         <exclude>**/org/eclipse/che/ide/editor/orion/public/built-codeEdit-10.0/**</exclude>
                         <exclude>**/patches/built-codeEdit-amd.js.diff</exclude>
-                        <exclude>**/patches/javascriptPlugin.js.diff</exclude>
+                        <exclude>**/patches/Bug482536.diff</exclude>
                     </excludes>
                 </configuration>
             </plugin>

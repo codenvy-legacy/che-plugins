@@ -121,31 +121,34 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     /** The logger. */
     private static final Logger LOG = Logger.getLogger(OrionEditorWidget.class.getSimpleName());
 
-    @UiField
-    SimplePanel panel;
-
-    /** The instance of the orion editor native element style. */
-    @UiField
-    EditorElementStyle editorElementStyle;
-
     private final OrionCodeEditWidgetOverlay codeEditWidgetModule;
     private final ModuleHolder               moduleHolder;
     private final EventBus                   eventBus;
-    private       OrionEditorViewOverlay     editorViewOverlay;
-
-    private       OrionEditorOverlay         editorOverlay;
-    private       String                     modeName;
-    private       OrionExtRulerOverlay       orionLineNumberRuler;
     private final KeyModeInstances           keyModeInstances;
     private final JavaScriptObject           uiUtilsOverlay;
     private final KeymapPrefReader           keymapPrefReader;
     private final ContentAssistWidgetFactory contentAssistWidgetFactory;
 
+    @UiField
+    SimplePanel        panel;
+    /** The instance of the orion editor native element style. */
+    @UiField
+    EditorElementStyle editorElementStyle;
+
+    private OrionEditorViewOverlay editorViewOverlay;
+    private OrionEditorOverlay     editorOverlay;
+    private String                 modeName;
+    private OrionExtRulerOverlay   orionLineNumberRuler;
     /** Component that handles undo/redo. */
-    private HandlesUndoRedo undoRedo;
+    private HandlesUndoRedo        undoRedo;
 
     private OrionDocument       embeddedDocument;
     private OrionKeyModeOverlay cheContentAssistMode;
+
+    private Keymap                          keymap;
+    private Provider<OrionKeyBindingModule> keyBindingModuleProvider;
+    private ContentAssistWidget             assistWidget;
+    private Gutter                          gutter;
 
     private boolean changeHandlerAdded      = false;
     private boolean focusHandlerAdded       = false;
@@ -153,11 +156,6 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     private boolean scrollHandlerAdded      = false;
     private boolean cursorHandlerAdded      = false;
     private boolean gutterClickHandlerAdded = false;
-
-    private Keymap                          keymap;
-    private Provider<OrionKeyBindingModule> keyBindingModuleProvider;
-    private ContentAssistWidget             assistWidget;
-    private Gutter                          gutter;
 
     /** Component that handles line styling. */
     private LineStyler lineStyler;
@@ -191,8 +189,40 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         panel.getElement().setId("orion-parent-" + Document.get().createUniqueId());
         panel.getElement().addClassName(this.editorElementStyle.editorParent());
 
-        codeEditWidgetModule.createEditorView(panel.getElement(), getConfiguration())
+        codeEditWidgetModule.createEditorView(panel.getElement(), JavaScriptObject.createObject())
                             .then(new EditorViewCreatedOperation(widgetInitializedCallback));
+    }
+
+    private static JavaScriptObject getEditorSettings() {
+        final JSONObject json = new JSONObject();
+
+        json.put("theme", new JSONObject(OrionTextThemeOverlay.getDefautTheme()));
+
+        // TextViewOptions (tabs)
+        json.put("expandTab", JSONBoolean.getInstance(true));
+        json.put("tabSize", new JSONNumber(4));
+
+        // SourceCodeActions (typing)
+        json.put("autoPairParentheses", JSONBoolean.getInstance(true));
+        json.put("autoPairBraces", JSONBoolean.getInstance(true));
+        json.put("autoPairSquareBrackets", JSONBoolean.getInstance(true));
+        json.put("autoPairAngleBrackets", JSONBoolean.getInstance(true));
+        json.put("autoPairQuotations", JSONBoolean.getInstance(true));
+        json.put("autoCompleteComments", JSONBoolean.getInstance(true));
+        json.put("smartIndentation", JSONBoolean.getInstance(true));
+
+        // editor features (rulers)
+        json.put("annotationRuler", JSONBoolean.getInstance(true));
+        json.put("lineNumberRuler", JSONBoolean.getInstance(true));
+        json.put("foldingRuler", JSONBoolean.getInstance(true));
+        json.put("overviewRuler", JSONBoolean.getInstance(true));
+        json.put("zoomRuler", JSONBoolean.getInstance(true));
+
+        // language tools
+        json.put("showOccurrences", JSONBoolean.getInstance(true));
+        json.put("contentAssistAutoTrigger", JSONBoolean.getInstance(true));
+
+        return json.getJavaScriptObject();
     }
 
     private Gutter initBreakpointRuler(ModuleHolder moduleHolder) {
@@ -216,23 +246,9 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
         this.editorOverlay.getUndoStack().reset();
     }
 
-    private JavaScriptObject getConfiguration() {
-        final JSONObject json = new JSONObject();
-
-        json.put("theme", new JSONObject(OrionTextThemeOverlay.getDefautTheme()));
-        json.put("noComputeSize", JSONBoolean.getInstance(true));
-        json.put("showZoomRuler", JSONBoolean.getInstance(true));
-        json.put("expandTab", JSONBoolean.getInstance(true));
-        json.put("tabSize", new JSONNumber(4));
-        json.put("autoPairParentheses", JSONBoolean.getInstance(true));
-        json.put("autoPairBraces", JSONBoolean.getInstance(true));
-        json.put("autoPairSquareBrackets", JSONBoolean.getInstance(true));
-        json.put("autoPairAngleBrackets", JSONBoolean.getInstance(true));
-        json.put("autoPairQuotations", JSONBoolean.getInstance(true));
-        json.put("autoCompleteComments", JSONBoolean.getInstance(true));
-        json.put("smartIndentation", JSONBoolean.getInstance(true));
-
-        return json.getJavaScriptObject();
+    @Override
+    public String getMode() {
+        return modeName;
     }
 
     public void setMode(final String modeName) {
@@ -246,20 +262,14 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     }
 
     @Override
-    public String getMode() {
-        return modeName;
+    public boolean isReadOnly() {
+        return this.editorOverlay.getTextView().getOptions().isReadOnly();
     }
 
     @Override
     public void setReadOnly(final boolean isReadOnly) {
         this.editorOverlay.getTextView().getOptions().setReadOnly(isReadOnly);
         this.editorOverlay.getTextView().update();
-    }
-
-
-    @Override
-    public boolean isReadOnly() {
-        return this.editorOverlay.getTextView().getOptions().isReadOnly();
     }
 
     @Override
@@ -773,6 +783,8 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
                                                                             editorOverlay.getTextView());
             assistWidget = contentAssistWidgetFactory.create(OrionEditorWidget.this, cheContentAssistMode);
             gutter = initBreakpointRuler(moduleHolder);
+
+            editorViewOverlay.updateSettings(getEditorSettings());
 
             widgetInitializedCallback.initialized(OrionEditorWidget.this);
         }

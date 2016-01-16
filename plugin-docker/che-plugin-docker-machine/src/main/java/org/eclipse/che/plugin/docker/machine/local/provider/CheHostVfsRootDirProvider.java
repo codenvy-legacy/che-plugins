@@ -25,7 +25,7 @@ import java.nio.file.Path;
 /**
  * Provide path to the project folder on hosted machine
  *
- * <p>On Unix managed by vfs.local.fs_root_dir property.<br>
+ * <p>On Unix managed by che.user.workspaces.storage.<br>
  * On Windows MUST be locate in "user.home" directory in case limitation windows+docker
  *
  * @author Vitalii Parfonov
@@ -37,7 +37,7 @@ public class CheHostVfsRootDirProvider implements Provider<String> {
     private static final Logger LOG = LoggerFactory.getLogger(CheHostVfsRootDirProvider.class);
 
     @Inject
-    @Named("vfs.local.fs_root_dir")
+    @Named("che.user.workspaces.storage")
     private String fsRootDir;
 
     @Override
