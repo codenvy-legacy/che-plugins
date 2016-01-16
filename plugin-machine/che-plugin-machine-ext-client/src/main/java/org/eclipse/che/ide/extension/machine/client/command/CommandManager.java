@@ -99,8 +99,8 @@ public class CommandManager {
         final Promise<MachineProcessDto> processPromise = machineServiceClient.executeCommand(devMachineId, command, outputChannel);
         processPromise.then(new Operation<MachineProcessDto>() {
             @Override
-            public void apply(MachineProcessDto arg) throws OperationException {
-                console.attachToProcess(arg.getPid());
+            public void apply(MachineProcessDto process) throws OperationException {
+                console.attachToProcess(process);
             }
         });
     }

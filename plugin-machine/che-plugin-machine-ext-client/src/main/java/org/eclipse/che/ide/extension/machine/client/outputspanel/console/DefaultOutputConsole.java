@@ -14,6 +14,7 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
+import org.eclipse.che.api.machine.shared.dto.MachineProcessDto;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 
 /**
@@ -91,8 +92,7 @@ public class DefaultOutputConsole implements OutputConsole {
 
     /** {@inheritDoc} */
     @Override
-    public void attachToProcess(int pid) {
-
+    public void attachToProcess(MachineProcessDto process) {
     }
 
     /** {@inheritDoc} */

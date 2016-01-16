@@ -13,12 +13,15 @@ package org.eclipse.che.ide.extension.machine.client.outputspanel.console;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.gwt.client.OutputMessageUnmarshaller;
+import org.eclipse.che.api.machine.shared.dto.MachineProcessDto;
 import org.eclipse.che.api.machine.shared.dto.event.MachineProcessEvent;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandManager;
+import org.eclipse.che.ide.extension.machine.client.processes.event.ProcessFinishedEvent;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.MessageBus;
@@ -43,6 +46,7 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
     private final MachineServiceClient   machineServiceClient;
     private final CommandConfiguration   commandConfiguration;
     private final String                 machineId;
+    private final EventBus               eventBus;
 
     private MessageBus     messageBus;
     private int            pid;
@@ -56,6 +60,7 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
                                 final MessageBusProvider messageBusProvider,
                                 MachineServiceClient machineServiceClient,
                                 CommandManager commandManager,
+                                EventBus eventBus,
                                 @Assisted CommandConfiguration commandConfiguration,
                                 @Assisted String machineId) {
         this.view = view;
@@ -63,11 +68,10 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
         this.machineServiceClient = machineServiceClient;
         this.commandConfiguration = commandConfiguration;
         this.machineId = machineId;
-        messageBus = messageBusProvider.getMessageBus();
+        this.messageBus = messageBusProvider.getMessageBus();
+        this.eventBus = eventBus;
 
         view.setDelegate(this);
-
-        view.printCommandLine(commandManager.substituteProperties(commandConfiguration.toCommandLine()));
 
         final String previewUrl = commandConfiguration.getAttributes().get(PREVIEW_URL_ATTR);
         if (!isNullOrEmpty(previewUrl)) {
@@ -112,22 +116,31 @@ public class CommandOutputConsole implements OutputConsole, OutputConsoleView.Ac
     }
 
     @Override
-    public void attachToProcess(final int pid) {
-        this.pid = pid;
+    public void attachToProcess(final MachineProcessDto process) {
+        this.pid = process.getPid();
+
+        view.printCommandLine(process.getCommandLine());
 
         final Unmarshallable<MachineProcessEvent> unmarshaller = dtoUnmarshallerFactory.newWSUnmarshaller(MachineProcessEvent.class);
         final String processStateChannel = "machine:process:" + machineId;
         final MessageHandler handler = new SubscriptionHandler<MachineProcessEvent>(unmarshaller) {
             @Override
             protected void onMessageReceived(MachineProcessEvent result) {
-                if (pid != result.getProcessId()) {
+                final int processId = result.getProcessId();
+
+                if (pid != processId) {
                     return;
                 }
 
                 switch (result.getEventType()) {
                     case STOPPED:
+                        isFinished = true;
+                        eventBus.fireEvent(new ProcessFinishedEvent());
                     case ERROR:
                         isFinished = true;
+
+                        eventBus.fireEvent(new ProcessFinishedEvent());
+
                         wsUnsubscribe(processStateChannel, this);
                         wsUnsubscribe(outputChannel, outputHandler);
 
