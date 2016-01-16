@@ -43,6 +43,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.eclipse.che.ide.ext.git.client.remote.RemotePresenter.REMOTE_REPO_COMMAND_NAME;
 
 /**
  * Testing {@link RemotePresenter} functionality.
@@ -79,7 +80,8 @@ public class RemotePresenterTest extends BaseTest {
                                         addRemoteRepositoryPresenter,
                                         notificationManager,
                                         dtoUnmarshallerFactory,
-                                        console);
+                                        gitOutputConsoleFactory,
+                                        consolesPanelPresenter);
 
         when(selectedRemote.getName()).thenReturn(REPOSITORY_NAME);
     }
@@ -184,7 +186,9 @@ public class RemotePresenterTest extends BaseTest {
 
         verify(service, never()).remoteList(anyString(), anyObject(), anyString(), eq(SHOW_ALL_INFORMATION),
                                             (AsyncRequestCallback<List<Remote>>)anyObject());
+        verify(gitOutputConsoleFactory).create(REMOTE_REPO_COMMAND_NAME);
         verify(console).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager, never()).notify(anyString(), eq(rootProjectConfig));
         verify(notificationManager).notify(anyString(), eq(StatusNotification.Status.FAIL), eq(true), eq(rootProjectConfig));
         verify(constant).remoteAddFailed();
@@ -239,7 +243,9 @@ public class RemotePresenterTest extends BaseTest {
 
         verify(service).remoteDelete(anyString(), eq(rootProjectConfig), eq(REPOSITORY_NAME), (AsyncRequestCallback<String>)anyObject());
         verify(constant).remoteDeleteFailed();
+        verify(gitOutputConsoleFactory).create(REMOTE_REPO_COMMAND_NAME);
         verify(console).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager, never()).notify(anyString(), eq(rootProjectConfig));
         verify(notificationManager).notify(anyString(), eq(StatusNotification.Status.FAIL), eq(true), eq(rootProjectConfig));
     }

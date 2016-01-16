@@ -37,6 +37,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.eclipse.che.ide.ext.git.client.fetch.FetchPresenter.FETCH_COMMAND_NAME;
 
 /**
  * Testing {@link FetchPresenter} functionality.
@@ -62,13 +63,14 @@ public class FetchPresenterTest extends BaseTest {
         when(appContext.getWorkspaceId()).thenReturn("id");
         presenter = new FetchPresenter(dtoFactory,
                                        view,
-                                       console,
                                        service,
                                        appContext,
                                        constant,
                                        notificationManager,
                                        dtoUnmarshallerFactory,
-                                       branchSearcher);
+                                       branchSearcher,
+                                       gitOutputConsoleFactory,
+                                       consolesPanelPresenter);
         when(view.getRepositoryName()).thenReturn(REPOSITORY_NAME);
         when(view.getRepositoryUrl()).thenReturn(REMOTE_URI);
         when(view.getLocalBranch()).thenReturn(LOCAL_BRANCH);
@@ -170,7 +172,9 @@ public class FetchPresenterTest extends BaseTest {
         verify(service).remoteList(anyString(), eq(rootProjectConfig), anyString(), eq(SHOW_ALL_INFORMATION),
                                    (AsyncRequestCallback<List<Remote>>)anyObject());
         verify(constant).branchesListFailed();
+        verify(gitOutputConsoleFactory).create(FETCH_COMMAND_NAME);
         verify(console).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(view).setEnableFetchButton(eq(DISABLE_BUTTON));
     }
@@ -223,7 +227,9 @@ public class FetchPresenterTest extends BaseTest {
         verify(service).fetch(anyString(), eq(rootProjectConfig), eq(REPOSITORY_NAME), (List<String>)anyObject(),
                               eq(NO_REMOVE_DELETE_REFS), (RequestCallback<String>)anyObject());
         verify(view).close();
+        verify(gitOutputConsoleFactory).create(FETCH_COMMAND_NAME);
         verify(console).printInfo(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(constant, times(2)).fetchSuccess(eq(REMOTE_URI));
     }
@@ -254,7 +260,9 @@ public class FetchPresenterTest extends BaseTest {
                               eq(NO_REMOVE_DELETE_REFS), (RequestCallback<String>)anyObject());
         verify(view).close();
         verify(constant, times(2)).fetchFail(eq(REMOTE_URI));
+        verify(gitOutputConsoleFactory).create(FETCH_COMMAND_NAME);
         verify(console).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 

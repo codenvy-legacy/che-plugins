@@ -44,6 +44,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.eclipse.che.ide.ext.git.client.checkout.CheckoutReferencePresenter.CHECKOUT_COMMAND_NAME;
 
 /**
  * Testing {@link CheckoutReferencePresenter} functionality.
@@ -231,7 +232,9 @@ public class CheckoutReferenceTest extends BaseTest {
         verifyNoMoreInteractions(checkoutRequest);
         verify(view).close();
         verify(eventBus, never()).fireEvent(Matchers.<OpenProjectEvent>anyObject());
+        verify(gitOutputConsoleFactory).create(CHECKOUT_COMMAND_NAME);
         verify(console).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 }
