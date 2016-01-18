@@ -22,8 +22,7 @@ import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CurrentProjectPathProvider;
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CurrentProjectRelativePathProvider;
-import org.eclipse.che.ide.extension.machine.client.command.valueproviders.MachinePortProvider;
-import org.eclipse.che.ide.extension.machine.client.command.valueproviders.MachineHostNameProvider;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.ServerPortProvider;
 import org.eclipse.che.ide.extension.maven.client.MavenResources;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
@@ -104,7 +103,7 @@ public class MavenCommandType implements CommandType {
 
     @Override
     public String getPreviewUrlTemplate() {
-        return Window.Location.getProtocol() + "//" + MachineHostNameProvider.KEY + ":" +
-               MachinePortProvider.KEY_TEMPLATE.replace("%", DEF_PORT) + "/" + currentProjectRelativePathProvider.getKey();
+        return Window.Location.getProtocol() + "//" + ServerPortProvider.KEY_TEMPLATE.replace("%", DEF_PORT) + "/" +
+               currentProjectRelativePathProvider.getKey();
     }
 }
