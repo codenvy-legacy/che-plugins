@@ -111,8 +111,8 @@ public class ContributionTemplateStore extends TemplateStore {
 //			}
 //		}
 
-		readIncludedTemplates(templates,"/templates/default-templates.xml");
-		readIncludedTemplates(templates,"/templates/default-codetemplates.xml");
+		readIncludedTemplates(templates,"/org/eclipse/templates/default-templates.xml");
+		readIncludedTemplates(templates,"/org/eclipse/templates/default-codetemplates.xml");
 		return templates;
 	}
 
