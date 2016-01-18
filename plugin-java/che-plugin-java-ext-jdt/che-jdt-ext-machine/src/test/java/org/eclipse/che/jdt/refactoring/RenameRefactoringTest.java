@@ -20,7 +20,9 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringPreview;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameSettings;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ValidateNewName;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.junit.After;
 import org.junit.Before;
@@ -109,6 +111,20 @@ public class RenameRefactoringTest extends RefactoringTest {
         assertThat(refactoring.isMastShowWizard()).isTrue();
         assertThat(refactoring.getWizardType()).isEqualTo(RenameRefactoringSession.RenameWizard.PACKAGE);
     }
+
+
+    @Test
+    public void testRenamePackage() throws Exception {
+        final IPackageFragment packageFragment = getRoot().createPackageFragment("p.a.b.c", true, null);
+        RenameRefactoringSession refactoring = manager.createRenameRefactoring(packageFragment, null, -1, false);
+        assertThat(refactoring).isNotNull();
+        assertThat(refactoring.getSessionId()).isNotNull().isNotEmpty();
+        final ValidateNewName validateNewName = new DtoServerImpls.ValidateNewNameImpl().withNewName("p.x.s.z");
+        validateNewName.setSessionId(refactoring.getSessionId());
+        final RefactoringStatus status = manager.renameValidateNewName(validateNewName);
+        assertThat(status.getSeverity()).isEqualTo(RefactoringStatus.OK);
+    }
+
 
     @Test
     public void testCreateRename() throws Exception {
