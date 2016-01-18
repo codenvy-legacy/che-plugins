@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command;
 
-import org.eclipse.che.api.core.model.machine.Command;
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.CommandDto;
 import org.eclipse.che.api.machine.shared.dto.MachineProcessDto;
@@ -25,7 +24,7 @@ import org.eclipse.che.ide.extension.machine.client.command.valueproviders.Comma
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CommandPropertyValueProviderRegistry;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerPresenter;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
-import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandOutputConsole;
 import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -91,7 +90,7 @@ public class CommandManagerTest {
     public void shouldExecuteCommand() throws Exception {
         String devMachineId = "devMachineId";
         when(appContext.getDevMachineId()).thenReturn(devMachineId);
-        OutputConsole outputConsole = mock(OutputConsole.class);
+        CommandOutputConsole outputConsole = mock(CommandOutputConsole.class);
         when(commandConsoleFactory.create(any(CommandConfiguration.class), anyString())).thenReturn(outputConsole);
         when(machineServiceClient.executeCommand(anyString(), anyObject(), anyString())).thenReturn(processPromise);
 
@@ -118,13 +117,13 @@ public class CommandManagerTest {
         verify(appContext).getDevMachineId();
         verify(commandConsoleFactory).create(eq(command), eq(devMachineId));
         verify(outputConsole).listenToOutput(anyString());
-        verify(consolesPanelPresenter).addCommand(eq(devMachineId), eq(command), eq(outputConsole));
+        verify(consolesPanelPresenter).addCommandOutput(eq(devMachineId), eq(outputConsole));
         verify(workspaceAgent).setActivePart(eq(consolesPanelPresenter));
         verify(command).toCommandLine();
         verify(machineServiceClient).executeCommand(eq(devMachineId), anyObject(), anyString());
         verify(processPromise).then(processCaptor.capture());
         processCaptor.getValue().apply(process);
-        verify(outputConsole).attachToProcess(eq(pid));
+        verify(outputConsole).attachToProcess(process);
     }
 
     @Test

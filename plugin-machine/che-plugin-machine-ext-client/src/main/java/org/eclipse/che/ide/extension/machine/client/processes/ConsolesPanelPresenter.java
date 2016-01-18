@@ -37,17 +37,17 @@ import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
-import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
-import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.CommandTypeRegistry;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.TerminalFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandOutputConsole;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.DefaultOutputConsole;
-import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
 import org.eclipse.che.ide.extension.machine.client.perspective.terminal.TerminalPresenter;
+import org.eclipse.che.ide.extension.machine.client.processes.event.ProcessFinishedEvent;
+import org.eclipse.che.ide.extension.machine.client.processes.event.ProcessFinishedHandler;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.loging.Log;
@@ -55,18 +55,18 @@ import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Collections.emptyList;
+import org.eclipse.che.ide.api.outputconsole.OutputConsole;
+
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
-import static org.eclipse.che.ide.extension.machine.client.processes.ProcessTreeNode.ProcessNodeType.ROOT_NODE;
-import static org.eclipse.che.ide.extension.machine.client.processes.ProcessTreeNode.ProcessNodeType.MACHINE_NODE;
-import static org.eclipse.che.ide.extension.machine.client.processes.ProcessTreeNode.ProcessNodeType.COMMAND_NODE;
-import static org.eclipse.che.ide.extension.machine.client.processes.ProcessTreeNode.ProcessNodeType.TERMINAL_NODE;
 import static org.eclipse.che.ide.extension.machine.client.perspective.terminal.TerminalPresenter.TerminalStateListener;
+import static org.eclipse.che.ide.extension.machine.client.processes.ProcessTreeNode.ProcessNodeType.COMMAND_NODE;
+import static org.eclipse.che.ide.extension.machine.client.processes.ProcessTreeNode.ProcessNodeType.MACHINE_NODE;
+import static org.eclipse.che.ide.extension.machine.client.processes.ProcessTreeNode.ProcessNodeType.ROOT_NODE;
+import static org.eclipse.che.ide.extension.machine.client.processes.ProcessTreeNode.ProcessNodeType.TERMINAL_NODE;
 
 /**
  * Presenter for managing machines process and terminals.
@@ -76,7 +76,7 @@ import static org.eclipse.che.ide.extension.machine.client.perspective.terminal.
  * @author Vlad Zhukovskyi
  */
 @Singleton
-public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPanelView.ActionDelegate, HasView {
+public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPanelView.ActionDelegate, HasView, ProcessFinishedHandler {
 
     private static final String DEFAULT_TERMINAL_NAME = "Terminal";
 
@@ -99,50 +99,6 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
     ProcessTreeNode                rootNode;
     Map<String, TerminalPresenter> terminals;
     Map<String, OutputConsole>     commandConsoles;
-
-    private CommandType sshCommandType = new CommandType() {
-        @Override
-        public String getId() {
-            return "ssh";
-        }
-
-        @Override
-        public String getDisplayName() {
-            return "SSH";
-        }
-
-        @Override
-        public SVGResource getIcon() {
-            return null;
-        }
-
-        @Override
-        public Collection<CommandConfigurationPage<? extends CommandConfiguration>> getConfigurationPages() {
-            return emptyList();
-        }
-
-        @Override
-        public CommandConfigurationFactory<? extends CommandConfiguration> getConfigurationFactory() {
-            return null;
-        }
-
-        @Override
-        public String getCommandTemplate() {
-            return "";
-        }
-
-        @Override
-        public String getPreviewUrlTemplate() {
-            return "";
-        }
-    };
-
-    private CommandConfiguration sshConfiguration = new CommandConfiguration(sshCommandType, "SSH", null) {
-        @Override
-        public String toCommandLine() {
-            return "";
-        }
-    };
 
     @Inject
     public ConsolesPanelPresenter(ConsolesPanelView view,
@@ -190,6 +146,17 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
 
             }
         });
+
+        eventBus.addHandler(ProcessFinishedEvent.TYPE, this);
+    }
+
+    @Override
+    public void onProcessFinished() {
+        for (Map.Entry<String, OutputConsole> entry : commandConsoles.entrySet()) {
+            if (entry.getValue().isFinished()) {
+                view.hideStopButton(entry.getKey());
+            }
+        }
     }
 
     @Override
@@ -226,7 +193,7 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
 
     /** Get the list of all available machines. */
     public void fetchMachines() {
-        String workspaceId = appContext.getWorkspace().getId();
+        String workspaceId = appContext.getWorkspaceId();
 
         Promise<List<MachineDto>> machinesPromise = machineService.getWorkspaceMachines(workspaceId);
 
@@ -235,11 +202,11 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
             public void apply(List<MachineDto> machines) throws OperationException {
                 List<ProcessTreeNode> rootChildren = new ArrayList<>();
 
-                rootNode = new ProcessTreeNode(ROOT_NODE, null, null, rootChildren);
+                rootNode = new ProcessTreeNode(ROOT_NODE, null, null, null, rootChildren);
                 for (MachineDto descriptor : machines) {
                     if (descriptor.isDev()) {
                         List<ProcessTreeNode> processTreeNodes = new ArrayList<ProcessTreeNode>();
-                        ProcessTreeNode machineNode = new ProcessTreeNode(MACHINE_NODE, rootNode, descriptor, processTreeNodes);
+                        ProcessTreeNode machineNode = new ProcessTreeNode(MACHINE_NODE, rootNode, descriptor, null, processTreeNodes);
                         rootChildren.add(machineNode);
                         view.setProcessesData(rootNode);
 
@@ -266,11 +233,11 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
                     if (type != null) {
                         final CommandConfiguration configuration = type.getConfigurationFactory().createFromDto(commandDto);
 
-                        final OutputConsole console = commandConsoleFactory.create(configuration, machineId);
+                        final CommandOutputConsole console = commandConsoleFactory.create(configuration, machineId);
                         console.listenToOutput(machineProcessDto.getOutputChannel());
-                        console.attachToProcess(machineProcessDto.getPid());
+                        console.attachToProcess(machineProcessDto);
 
-                        addCommand(machineId, configuration, console);
+                        addCommandOutput(machineId, console);
                         isOutputAvailable = true;
                     }
 
@@ -293,14 +260,10 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
      *
      * @param machineId
      *         id of machine in which the command will be executed
-     * @param configuration
-     *         command configuration of the command which will be executed
      * @param outputConsole
      *         the console for command output
      */
-
-    public void addCommand(@NotNull String machineId, @NotNull final CommandConfiguration configuration,
-                           @NotNull OutputConsole outputConsole) {
+    public void addCommandOutput(@NotNull String machineId, @NotNull OutputConsole outputConsole) {
         ProcessTreeNode machineTreeNode = findProcessTreeNodeById(machineId);
         if (machineTreeNode == null) {
             notificationManager.notify(localizationConstant.failedToExecuteCommand(), localizationConstant.machineNotFound(machineId),
@@ -310,19 +273,22 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
         }
 
         String commandId;
-        ProcessTreeNode processTreeNode = getProcessTreeNodeByName(configuration.getName(), machineTreeNode);
+        String outputConsoleTitle = outputConsole.getTitle();
+        ProcessTreeNode processTreeNode = getProcessTreeNodeByName(outputConsoleTitle, machineTreeNode);
         if (processTreeNode != null && isCommandStopped(processTreeNode.getId())) {
             commandId = processTreeNode.getId();
             view.hideProcessOutput(commandId);
-            updateCommandOutput(commandId, outputConsole);
         } else {
-            ProcessTreeNode commandNode = new ProcessTreeNode(COMMAND_NODE, machineTreeNode, configuration, null);
+            ProcessTreeNode commandNode =
+                    new ProcessTreeNode(COMMAND_NODE, machineTreeNode, outputConsoleTitle, outputConsole.getTitleIcon(), null);
             commandId = commandNode.getId();
             view.addProcessNode(commandNode);
             addChildToMachineNode(commandNode, machineTreeNode);
-            view.refreshStopProcessButtonState(commandId);
-            updateCommandOutput(commandId, outputConsole);
         }
+
+        view.refreshStopProcessButtonState(commandId);
+        updateCommandOutput(commandId, outputConsole);
+        workspaceAgent.setActivePart(this);
     }
 
     /**
@@ -331,7 +297,6 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
      * @param machineId
      *         id of machine in which the terminal will be added
      */
-
     @Override
     public void onAddTerminal(@NotNull final String machineId) {
         machineService.getMachine(machineId).then(new Operation<MachineDto>() {
@@ -350,7 +315,8 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
                 final TerminalPresenter newTerminal = terminalFactory.create(machine);
                 final IsWidget terminalWidget = newTerminal.getView();
                 final String terminalName = getUniqueTerminalName(machineTreeNode);
-                final ProcessTreeNode terminalNode = new ProcessTreeNode(TERMINAL_NODE, machineTreeNode, terminalName, null);
+                final ProcessTreeNode terminalNode =
+                        new ProcessTreeNode(TERMINAL_NODE, machineTreeNode, terminalName, resources.terminal(), null);
                 addChildToMachineNode(terminalNode, machineTreeNode);
 
                 final String terminalId = terminalNode.getId();
@@ -387,8 +353,8 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
 
         MachineDto machine = (MachineDto)machineTreeNode.getData();
 
-        OutputConsole defaultConsole = commandConsoleFactory.create("");
-        addCommand(machineId, sshConfiguration, defaultConsole);
+        OutputConsole defaultConsole = commandConsoleFactory.create("SSH");
+        addCommandOutput(machineId, defaultConsole);
 
         String machineName = machine.getName();
         String sshServiceAddress = getSshServerAddress(machine);
@@ -408,15 +374,16 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
     /**
      * Returns the ssh service address in format - host:port (example - localhost:32899)
      *
-     * @param machine machine to retrieve address
+     * @param machine
+     *         machine to retrieve address
      * @return ssh service address in format host:port
      */
     private String getSshServerAddress(MachineDto machine) {
-       if (machine.getMetadata().getServers().containsKey(SSH_PORT)) {
-           return machine.getMetadata().getServers().get(SSH_PORT).getAddress();
-       } else {
-           return null;
-       }
+        if (machine.getMetadata().getServers().containsKey(SSH_PORT)) {
+            return machine.getMetadata().getServers().get(SSH_PORT).getAddress();
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -438,6 +405,17 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
     @Override
     public void onCommandSelected(@NotNull String commandId) {
         view.showProcessOutput(commandId);
+
+        for (Map.Entry<String, OutputConsole> entry : commandConsoles.entrySet()) {
+            view.hideStopButton(entry.getKey());
+        }
+
+        OutputConsole console = commandConsoles.get(commandId);
+
+        if (console.isFinished()) {
+            return;
+        }
+
         view.refreshStopProcessButtonState(commandId);
     }
 
@@ -499,7 +477,7 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
         ProcessTreeNode neighborNode = view.getNodeByIndex(neighborIndex);
         removeChildFromMachineNode(node, parentNode);
         view.selectNode(neighborNode);
-        view.refreshStopProcessButtonState(neighborNode.getId());
+        view.hideStopButton(neighborNode.getId());
 
         view.showProcessOutput(neighborNode.getId());
         view.hideProcessOutput(processId);

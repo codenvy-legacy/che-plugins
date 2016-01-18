@@ -28,6 +28,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.eclipse.che.ide.ext.git.client.init.InitRepositoryPresenter.INIT_COMMAND_NAME;
 
 /**
  * Testing {@link InitRepositoryPresenter} functionality.
@@ -47,12 +48,13 @@ public class InitRepositoryPresenterTest extends BaseTest {
 
         presenter = new InitRepositoryPresenter(appContext,
                                                 constant,
-                                                console,
                                                 notificationManager,
                                                 gitRepositoryInitializer,
                                                 projectServiceClient,
                                                 dtoUnmarshallerFactory,
-                                                eventBus);
+                                                eventBus,
+                                                gitOutputConsoleFactory,
+                                                consolesPanelPresenter);
     }
 
     @Test
@@ -71,7 +73,9 @@ public class InitRepositoryPresenterTest extends BaseTest {
         presenter.initRepository();
 
         verify(gitRepositoryInitializer).initGitRepository(eq(rootProjectConfig), (AsyncCallback<Void>)anyObject());
+        verify(gitOutputConsoleFactory).create(INIT_COMMAND_NAME);
         verify(console).printInfo(eq(constant.initSuccess()));
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 
@@ -92,7 +96,9 @@ public class InitRepositoryPresenterTest extends BaseTest {
 
         verify(gitRepositoryInitializer).initGitRepository(eq(rootProjectConfig), (AsyncCallback<Void>)anyObject());
         verify(constant).initFailed();
+        verify(gitOutputConsoleFactory).create(INIT_COMMAND_NAME);
         verify(console).printError(eq(constant.initFailed()));
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 }

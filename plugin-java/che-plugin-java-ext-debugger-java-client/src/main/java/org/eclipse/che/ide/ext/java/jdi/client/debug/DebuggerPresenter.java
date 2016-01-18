@@ -198,8 +198,20 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
             public void onExtServerStarted(ExtServerStateEvent event) {
                 messageBus = messageBusProvider.getMachineMessageBus();
                 debuggerInfo = loadDebugInfo();
+
                 if (isDebuggerConnected()) {
-                    onDebuggerConnected();
+                    service.checkEvents(debuggerInfo.getId(), new AsyncRequestCallback<DebuggerEventList>() {
+                        @Override
+                        protected void onSuccess(DebuggerEventList result) {
+                            onDebuggerConnected();
+                        }
+
+                        @Override
+                        protected void onFailure(Throwable exception) {
+                            debuggerInfo = EmptyDebuggerInfo.INSTANCE;
+                            preserveDebugInfo();
+                        }
+                    });
                 }
             }
 

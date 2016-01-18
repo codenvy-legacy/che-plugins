@@ -123,4 +123,7 @@ public interface GitResources extends ClientBundle {
 
     @Source("controls/git-url.svg")
     SVGResource projectReadOnlyGitUrl();
+
+    @Source("controls/git-output-icon.svg")
+    SVGResource gitOutput();
 }

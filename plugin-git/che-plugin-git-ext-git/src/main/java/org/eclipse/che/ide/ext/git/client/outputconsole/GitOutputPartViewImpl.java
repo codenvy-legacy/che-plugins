@@ -8,21 +8,21 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.git.client;
+package org.eclipse.che.ide.ext.git.client.outputconsole;
 
 import org.eclipse.che.ide.api.parts.PartStackUIResources;
-import org.eclipse.che.ide.api.parts.base.BaseView;
 
 import com.google.gwt.safehtml.shared.SimpleHtmlSanitizer;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
+import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.ui.button.ConsoleButton;
 import org.eclipse.che.ide.ui.button.ConsoleButtonFactory;
 import org.vectomatic.dom.svg.ui.SVGResource;
@@ -33,10 +33,10 @@ import javax.validation.constraints.NotNull;
 /**
  * Implements {@link GitOutputPartView}.
  *
- * @author <a href="mailto:aplotnikov@codenvy.com">Andrey Plotnikov</a>
+ * @author Andrey Plotnikov
  */
-@Singleton
-public class GitOutputPartViewImpl extends BaseView<GitOutputPartView.ActionDelegate> implements GitOutputPartView {
+
+public class GitOutputPartViewImpl extends Composite implements GitOutputPartView {
 
     private final ConsoleButtonFactory consoleButtonFactory;
 
@@ -46,6 +46,8 @@ public class GitOutputPartViewImpl extends BaseView<GitOutputPartView.ActionDele
     private static final String INFO_COLOR    = "lightgreen";
     private static final String WARNING_COLOR = "cyan";
     private static final String ERROR_COLOR   = "#F62217";
+
+    private ActionDelegate delegate;
 
     @UiField
     FlowPanel buttons;
@@ -61,11 +63,8 @@ public class GitOutputPartViewImpl extends BaseView<GitOutputPartView.ActionDele
                                  PartStackUIResources resources,
                                  GitOutputPartViewImplUiBinder uiBinder,
                                  ConsoleButtonFactory consoleButtonFactory) {
-        super(resources);
         this.consoleButtonFactory = consoleButtonFactory;
-        setContentWidget(uiBinder.createAndBindUi(this));
-
-        minimizeButton.ensureDebugId("console-minimizeBut");
+        initWidget(uiBinder.createAndBindUi(this));
 
         ConsoleButton.ActionDelegate scrollBottomDelegate = new ConsoleButton.ActionDelegate() {
             @Override
@@ -149,6 +148,11 @@ public class GitOutputPartViewImpl extends BaseView<GitOutputPartView.ActionDele
     @Override
     public void scrollBottom() {
         scrollPanel.getElement().setScrollTop(scrollPanel.getElement().getScrollHeight());
+    }
+
+    @Override
+    public void setDelegate(ActionDelegate delegate) {
+        this.delegate = delegate;
     }
 
     @NotNull

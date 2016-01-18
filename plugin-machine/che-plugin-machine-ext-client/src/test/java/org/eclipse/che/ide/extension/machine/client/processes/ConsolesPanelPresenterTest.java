@@ -28,6 +28,8 @@ import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.notification.StatusNotification;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandOutputConsole;
+import org.eclipse.che.ide.api.outputconsole.OutputConsole;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
@@ -40,7 +42,6 @@ import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFacto
 import org.eclipse.che.ide.extension.machine.client.inject.factories.TerminalFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.Machine;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
-import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
 import org.eclipse.che.ide.extension.machine.client.perspective.terminal.TerminalPresenter;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.ui.dialogs.confirm.ConfirmDialog;
@@ -55,9 +56,9 @@ import org.mockito.Mock;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.eclipse.che.ide.extension.machine.client.processes.ProcessTreeNode.ProcessNodeType.ROOT_NODE;
-import static org.eclipse.che.ide.extension.machine.client.processes.ProcessTreeNode.ProcessNodeType.MACHINE_NODE;
 import static org.eclipse.che.ide.extension.machine.client.processes.ProcessTreeNode.ProcessNodeType.COMMAND_NODE;
+import static org.eclipse.che.ide.extension.machine.client.processes.ProcessTreeNode.ProcessNodeType.MACHINE_NODE;
+import static org.eclipse.che.ide.extension.machine.client.processes.ProcessTreeNode.ProcessNodeType.ROOT_NODE;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyObject;
@@ -111,6 +112,8 @@ public class ConsolesPanelPresenterTest {
     private EventBus                    eventBus;
     @Mock
     private UsersWorkspaceDto           workspace;
+    @Mock
+    private OutputConsole               outputConsole;
 
     @Mock
     private Promise<List<MachineDto>> machinesPromise;
@@ -138,8 +141,7 @@ public class ConsolesPanelPresenterTest {
 
     @Before
     public void setUp() {
-        when(appContext.getWorkspace()).thenReturn(workspace);
-        when(workspace.getId()).thenReturn(WORKSPACE_ID);
+        when(appContext.getWorkspaceId()).thenReturn(WORKSPACE_ID);
 
         when(machineService.getWorkspaceMachines(anyString())).thenReturn(machinesPromise);
         when(machineService.getMachine(anyString())).thenReturn(machinePromise);
@@ -159,7 +161,7 @@ public class ConsolesPanelPresenterTest {
         CommandType commandType = mock(CommandType.class);
         CommandConfiguration commandConfiguration = mock(CommandConfiguration.class);
         CommandConfigurationFactory commandConfigurationFactory = mock(CommandConfigurationFactory.class);
-        OutputConsole outputConsole = mock(OutputConsole.class);
+        CommandOutputConsole outputConsole = mock(CommandOutputConsole.class);
         when(commandTypeRegistry.getCommandTypeById(anyString())).thenReturn(commandType);
         when(commandType.getConfigurationFactory()).thenReturn(commandConfigurationFactory);
         when(commandConfigurationFactory.createFromDto(anyObject())).thenReturn(commandConfiguration);
@@ -190,8 +192,8 @@ public class ConsolesPanelPresenterTest {
         processesCaptor.getValue().apply(processes);
 
         verify(outputConsole).listenToOutput(eq(OUTPUT_CHANNEL));
-        verify(outputConsole).attachToProcess(eq(PID));
-        verify(workspaceAgent).setActivePart(eq(presenter));
+        verify(outputConsole).attachToProcess(machineProcessDto);
+        verify(workspaceAgent, times(2)).setActivePart(eq(presenter));
     }
 
     @Test
@@ -203,13 +205,12 @@ public class ConsolesPanelPresenterTest {
 
         when(appContext.getWorkspace()).thenReturn(workspace);
         DevMachineStateEvent devMachineStateEvent = mock(DevMachineStateEvent.class);
-        verify(eventBus).addHandler(anyObject(), devMachineStateHandlerCaptor.capture());
+        verify(eventBus, times(2)).addHandler(anyObject(), devMachineStateHandlerCaptor.capture());
 
-        DevMachineStateHandler devMachineStateHandler = devMachineStateHandlerCaptor.getValue();
+        DevMachineStateHandler devMachineStateHandler = devMachineStateHandlerCaptor.getAllValues().get(0);
         devMachineStateHandler.onMachineStarted(devMachineStateEvent);
 
-        verify(appContext, times(2)).getWorkspace();
-        verify(workspace, times(2)).getId();
+        verify(appContext, times(2)).getWorkspaceId();
         verify(machineService, times(2)).getWorkspaceMachines(eq(WORKSPACE_ID));
         verify(machinesPromise, times(2)).then(machinesCaptor.capture());
         machinesCaptor.getValue().apply(machines);
@@ -219,12 +220,12 @@ public class ConsolesPanelPresenterTest {
     @Test
     public void shouldShowErrorWhenMachineNodeIsNull() throws Exception {
         List<ProcessTreeNode> children = new ArrayList<>();
-        presenter.rootNode = new ProcessTreeNode(ROOT_NODE, null, null, children);
+        presenter.rootNode = new ProcessTreeNode(ROOT_NODE, null, null, null, children);
 
-        CommandConfiguration commandConfiguration = mock(CommandConfiguration.class);
         OutputConsole outputConsole = mock(OutputConsole.class);
+        CommandConfiguration commandConfiguration = mock(CommandConfiguration.class);
 
-        presenter.addCommand(MACHINE_ID, commandConfiguration, outputConsole);
+        presenter.addCommandOutput(MACHINE_ID, outputConsole);
         verify(notificationManager).notify(anyString(), anyString(), any(StatusNotification.Status.class), anyBoolean());
         verify(localizationConstant, times(2)).machineNotFound(eq(MACHINE_ID));
     }
@@ -235,13 +236,12 @@ public class ConsolesPanelPresenterTest {
         when(machineNode.getId()).thenReturn(MACHINE_ID);
         List<ProcessTreeNode> children = new ArrayList<>();
         children.add(machineNode);
-        presenter.rootNode = new ProcessTreeNode(ROOT_NODE, null, null, children);
+        presenter.rootNode = new ProcessTreeNode(ROOT_NODE, null, null, null, children);
 
         CommandConfiguration commandConfiguration = mock(CommandConfiguration.class);
         when(commandConfiguration.getName()).thenReturn(PROCESS_NAME);
-        OutputConsole outputConsole = mock(OutputConsole.class);
 
-        presenter.addCommand(MACHINE_ID, commandConfiguration, outputConsole);
+        presenter.addCommandOutput(MACHINE_ID, outputConsole);
 
         verify(view).addProcessNode(anyObject());
         verify(view, never()).hideProcessOutput(anyString());
@@ -259,27 +259,26 @@ public class ConsolesPanelPresenterTest {
 
     @Test
     public void shouldReplaceCommandOutput() throws Exception {
-        OutputConsole outputConsole = mock(OutputConsole.class);
         MachineDto machineDto = mock(MachineDto.class);
         CommandConfiguration commandConfiguration = mock(CommandConfiguration.class);
         when(machineDto.getId()).thenReturn(MACHINE_ID);
         when(commandConfiguration.getName()).thenReturn(PROCESS_NAME);
 
         List<ProcessTreeNode> children = new ArrayList<>();
-        ProcessTreeNode commandNode = new ProcessTreeNode(COMMAND_NODE, null, commandConfiguration, children);
+        ProcessTreeNode commandNode = new ProcessTreeNode(COMMAND_NODE, null, PROCESS_NAME, null, children);
         children.add(commandNode);
-        ProcessTreeNode machineNode = new ProcessTreeNode(MACHINE_NODE, null, machineDto, children);
+        ProcessTreeNode machineNode = new ProcessTreeNode(MACHINE_NODE, null, machineDto, null, children);
         children.add(machineNode);
         when(machineNode.getId()).thenReturn(MACHINE_ID);
 
         String commandId = commandNode.getId();
-        presenter.rootNode = new ProcessTreeNode(ROOT_NODE, null, null, children);
+        presenter.rootNode = new ProcessTreeNode(ROOT_NODE, null, null, null, children);
         presenter.commandConsoles.put(commandId, outputConsole);
 
-
         when(outputConsole.isFinished()).thenReturn(true);
+        when(outputConsole.getTitle()).thenReturn(PROCESS_NAME);
 
-        presenter.addCommand(MACHINE_ID, commandConfiguration, outputConsole);
+        presenter.addCommandOutput(MACHINE_ID, outputConsole);
 
         verify(view, never()).addProcessNode(anyObject());
         verify(view, never()).setProcessesData(anyObject());
@@ -303,7 +302,7 @@ public class ConsolesPanelPresenterTest {
         when(machineNode.getId()).thenReturn(MACHINE_ID);
         List<ProcessTreeNode> children = new ArrayList<>();
         children.add(machineNode);
-        presenter.rootNode = new ProcessTreeNode(ROOT_NODE, null, null, children);
+        presenter.rootNode = new ProcessTreeNode(ROOT_NODE, null, null, null, children);
 
         Machine machine = mock(Machine.class);
         when(entityFactory.createMachine(anyObject())).thenReturn(machine);
@@ -332,10 +331,43 @@ public class ConsolesPanelPresenterTest {
 
     @Test
     public void shouldShowCommanOutputWhenCommandSelected() throws Exception {
+        presenter.commandConsoles.put(PROCESS_ID, outputConsole);
+
         presenter.onCommandSelected(PROCESS_ID);
 
         verify(view).showProcessOutput(eq(PROCESS_ID));
         verify(view).refreshStopProcessButtonState(eq(PROCESS_ID));
+    }
+
+    @Test
+    public void stopButtonShouldBeHiddenWhenConsoleHasFinishedProcess() {
+        when(outputConsole.isFinished()).thenReturn(true);
+        presenter.commandConsoles.put(PROCESS_ID, outputConsole);
+
+        presenter.onCommandSelected(PROCESS_ID);
+
+        verify(view).hideStopButton(PROCESS_ID);
+        verify(view, never()).refreshStopProcessButtonState(PROCESS_ID);
+    }
+
+    @Test
+    public void stopButtonStateShouldBeRefreshedWhenConsoleHasRunningProcess() {
+        when(outputConsole.isFinished()).thenReturn(false);
+        presenter.commandConsoles.put(PROCESS_ID, outputConsole);
+
+        presenter.onCommandSelected(PROCESS_ID);
+
+        verify(view).refreshStopProcessButtonState(PROCESS_ID);
+    }
+
+    @Test
+    public void stopButtonShouldBeHiddenWhenProcessFinished() {
+        when(outputConsole.isFinished()).thenReturn(true);
+        presenter.commandConsoles.put(PROCESS_ID, outputConsole);
+
+        presenter.onProcessFinished();
+
+        verify(view).hideStopButton(PROCESS_ID);
     }
 
     @Test
@@ -345,11 +377,11 @@ public class ConsolesPanelPresenterTest {
         when(machineNode.getId()).thenReturn(MACHINE_ID);
         List<ProcessTreeNode> children = new ArrayList<>();
         children.add(machineNode);
-        presenter.rootNode = new ProcessTreeNode(ROOT_NODE, null, null, children);
+        presenter.rootNode = new ProcessTreeNode(ROOT_NODE, null, null, null, children);
 
-        OutputConsole outputConsole = mock(OutputConsole.class);
         when(outputConsole.isFinished()).thenReturn(false);
         presenter.commandConsoles.put(PROCESS_ID, outputConsole);
+        //noinspection ConstantConditions
         machineNode.getChildren().add(commandNode);
 
         when(commandNode.getId()).thenReturn(PROCESS_ID);
@@ -371,9 +403,8 @@ public class ConsolesPanelPresenterTest {
         when(machineNode.getId()).thenReturn(MACHINE_ID);
         List<ProcessTreeNode> children = new ArrayList<>();
         children.add(machineNode);
-        presenter.rootNode = new ProcessTreeNode(ROOT_NODE, null, null, children);
+        presenter.rootNode = new ProcessTreeNode(ROOT_NODE, null, null, null, children);
 
-        OutputConsole outputConsole = mock(OutputConsole.class);
         when(outputConsole.isFinished()).thenReturn(true);
         presenter.commandConsoles.put(PROCESS_ID, outputConsole);
         machineNode.getChildren().add(commandNode);
@@ -398,7 +429,6 @@ public class ConsolesPanelPresenterTest {
         ConfirmDialog confirmDialog = mock(ConfirmDialog.class);
         ProcessTreeNode commandNode = mock(ProcessTreeNode.class);
 
-        OutputConsole outputConsole = mock(OutputConsole.class);
         when(outputConsole.isFinished()).thenReturn(false);
         presenter.commandConsoles.put(PROCESS_ID, outputConsole);
 
@@ -433,7 +463,7 @@ public class ConsolesPanelPresenterTest {
         when(machineNode.getId()).thenReturn(MACHINE_ID);
         List<ProcessTreeNode> children = new ArrayList<>();
         children.add(machineNode);
-        presenter.rootNode = new ProcessTreeNode(ROOT_NODE, null, null, children);
+        presenter.rootNode = new ProcessTreeNode(ROOT_NODE, null, null, null, children);
         presenter.terminals.put(PROCESS_ID, terminal);
 
         when(terminalNode.getId()).thenReturn(PROCESS_ID);

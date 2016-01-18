@@ -21,7 +21,9 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.dto.DtoFactory;
-import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsole;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
@@ -30,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.eclipse.che.api.git.shared.ResetRequest.ResetType;
+import static org.eclipse.che.ide.ext.git.client.status.StatusCommandPresenter.STATUS_COMMAND_NAME;
 
 /**
  * Presenter for resetting files from index.
@@ -43,17 +46,20 @@ import static org.eclipse.che.api.git.shared.ResetRequest.ResetType;
  */
 @Singleton
 public class ResetFilesPresenter implements ResetFilesView.ActionDelegate {
-    private final GitOutputPartPresenter  console;
+    private static final String RESET_COMMAND_NAME = "Git reset";
+
     private final DtoFactory              dtoFactory;
     private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
     private final DialogFactory           dialogFactory;
+    private final GitOutputConsoleFactory gitOutputConsoleFactory;
+    private final ConsolesPanelPresenter  consolesPanelPresenter;
     private final ResetFilesView          view;
     private final GitServiceClient        service;
     private final AppContext              appContext;
     private final GitLocalizationConstant constant;
     private final NotificationManager     notificationManager;
     private final String                  workspaceId;
-    
+
     private CurrentProject  project;
     private List<IndexFile> indexedFiles;
 
@@ -62,23 +68,25 @@ public class ResetFilesPresenter implements ResetFilesView.ActionDelegate {
     public ResetFilesPresenter(ResetFilesView view,
                                GitServiceClient service,
                                AppContext appContext,
-                               GitOutputPartPresenter console,
                                GitLocalizationConstant constant,
                                NotificationManager notificationManager,
                                DtoFactory dtoFactory,
                                DtoUnmarshallerFactory dtoUnmarshallerFactory,
-                               DialogFactory dialogFactory) {
+                               DialogFactory dialogFactory,
+                               GitOutputConsoleFactory gitOutputConsoleFactory,
+                               ConsolesPanelPresenter consolesPanelPresenter) {
         this.view = view;
-        this.console = console;
         this.dtoFactory = dtoFactory;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.dialogFactory = dialogFactory;
+        this.gitOutputConsoleFactory = gitOutputConsoleFactory;
+        this.consolesPanelPresenter = consolesPanelPresenter;
         this.view.setDelegate(this);
         this.service = service;
         this.appContext = appContext;
         this.constant = constant;
         this.notificationManager = notificationManager;
-        
+
         this.workspaceId = appContext.getWorkspaceId();
     }
 
@@ -122,7 +130,9 @@ public class ResetFilesPresenter implements ResetFilesView.ActionDelegate {
                            @Override
                            protected void onFailure(Throwable exception) {
                                String errorMassage = exception.getMessage() != null ? exception.getMessage() : constant.statusFailed();
+                               GitOutputConsole console = gitOutputConsoleFactory.create(STATUS_COMMAND_NAME);
                                console.printError(errorMassage);
+                               consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                                notificationManager.notify(errorMassage, project.getRootProject());
                            }
                        });
@@ -137,10 +147,11 @@ public class ResetFilesPresenter implements ResetFilesView.ActionDelegate {
                 files.add(indexFile.getPath());
             }
         }
-
+        final GitOutputConsole console = gitOutputConsoleFactory.create(RESET_COMMAND_NAME);
         if (files.isEmpty()) {
             view.close();
             console.printInfo(constant.nothingToReset());
+            consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
             notificationManager.notify(constant.nothingToReset(), project.getRootProject());
             return;
         }
@@ -150,6 +161,7 @@ public class ResetFilesPresenter implements ResetFilesView.ActionDelegate {
             @Override
             protected void onSuccess(Void result) {
                 console.printInfo(constant.resetFilesSuccessfully());
+                consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                 notificationManager.notify(constant.resetFilesSuccessfully(), project.getRootProject());
             }
 
@@ -157,6 +169,7 @@ public class ResetFilesPresenter implements ResetFilesView.ActionDelegate {
             protected void onFailure(Throwable exception) {
                 String errorMassage = exception.getMessage() != null ? exception.getMessage() : constant.resetFilesFailed();
                 console.printError(errorMassage);
+                consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                 notificationManager.notify(errorMassage, project.getRootProject());
             }
         });

@@ -378,6 +378,6 @@ div.processHeaderTitle {
     opacity: 1;
 }
 
-.selectedProcess {
-
+.hideStopButton .processesPanelStopButtonForProcess {
+    display: none;
 }
