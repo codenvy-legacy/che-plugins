@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,6 +43,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.eclipse.che.ide.ext.git.client.push.PushToRemotePresenter.PUSH_COMMAND_NAME;
 
 /**
  * Testing {@link PushToRemotePresenter} functionality.
@@ -108,12 +109,13 @@ public class PushToRemotePresenterTest extends BaseTest {
         presenter = new PushToRemotePresenter(dtoFactory,
                                               view,
                                               service,
-                                              console,
                                               appContext,
                                               constant,
                                               notificationManager,
                                               dtoUnmarshallerFactory,
-                                              branchSearcher);
+                                              branchSearcher,
+                                              gitOutputConsoleFactory,
+                                              consolesPanelPresenter);
     }
 
     @Test
@@ -214,7 +216,9 @@ public class PushToRemotePresenterTest extends BaseTest {
 
 
         verify(constant, times(2)).remoteBranchesListFailed();
+        verify(gitOutputConsoleFactory).create(anyString());
         verify(console).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 
@@ -235,7 +239,9 @@ public class PushToRemotePresenterTest extends BaseTest {
 
 
         verify(constant, times(2)).failedGettingConfig();
+        verify(gitOutputConsoleFactory).create(anyString());
         verify(console).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 
@@ -270,7 +276,9 @@ public class PushToRemotePresenterTest extends BaseTest {
                                    (AsyncRequestCallback<List<Remote>>)anyObject());
 
         verify(constant, times(2)).localBranchesListFailed();
+        verify(gitOutputConsoleFactory).create(anyString());
         verify(console).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(view).setEnablePushButton(eq(DISABLE_BUTTON));
     }
@@ -289,7 +297,9 @@ public class PushToRemotePresenterTest extends BaseTest {
         verify(service).remoteList(anyString(), eq(rootProjectConfig), anyString(), eq(SHOW_ALL_INFORMATION),
                                    (AsyncRequestCallback<List<Remote>>)anyObject());
         verify(constant, times(2)).remoteListFailed();
+        verify(gitOutputConsoleFactory).create(anyString());
         verify(console).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(view).setEnablePushButton(eq(DISABLE_BUTTON));
     }
@@ -310,8 +320,10 @@ public class PushToRemotePresenterTest extends BaseTest {
         verify(service).push(anyString(), eq(rootProjectConfig), anyListOf(String.class), eq(REPOSITORY_NAME), eq(DISABLE_CHECK),
                              (AsyncRequestCallback<PushResponse>)anyObject());
         verify(view).close();
+        verify(gitOutputConsoleFactory).create(PUSH_COMMAND_NAME);
         verify(console).printInfo(anyString());
         verify(constant).pushSuccess(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 
@@ -331,7 +343,9 @@ public class PushToRemotePresenterTest extends BaseTest {
         verify(service).push(anyString(), eq(rootProjectConfig), anyListOf(String.class), eq(REPOSITORY_NAME), eq(DISABLE_CHECK),
                              (AsyncRequestCallback<PushResponse>)anyObject());
         verify(view).close();
+        verify(gitOutputConsoleFactory).create(PUSH_COMMAND_NAME);
         verify(console).printInfo(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(constant).pushUpToDate();
         verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
@@ -351,7 +365,9 @@ public class PushToRemotePresenterTest extends BaseTest {
                              (AsyncRequestCallback<PushResponse>)anyObject());
         verify(view).close();
         verify(constant, times(2)).pushFail();
+        verify(gitOutputConsoleFactory).create(PUSH_COMMAND_NAME);
         verify(console).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 
@@ -366,7 +382,7 @@ public class PushToRemotePresenterTest extends BaseTest {
     public void testShowDefaultMessageOnUnauthorizedException() {
         when(constant.messagesNotAuthorized()).thenReturn("Not authorized");
 
-        presenter.handleError(mock(UnauthorizedException.class), notification);
+        presenter.handleError(mock(UnauthorizedException.class), notification, console);
 
         verify(notification).setContent("Not authorized");
     }
@@ -375,7 +391,7 @@ public class PushToRemotePresenterTest extends BaseTest {
     public void testShowDefaultMessageOnExceptionWithoutMessage() {
         when(constant.pushFail()).thenReturn("Push fail");
 
-        presenter.handleError(mock(Throwable.class), notification);
+        presenter.handleError(mock(Throwable.class), notification, console);
 
         verify(notification).setContent("Push fail");
     }
@@ -386,7 +402,7 @@ public class PushToRemotePresenterTest extends BaseTest {
         Exception exception = mock(Exception.class);
         when(exception.getMessage()).thenReturn(errorMessage);
 
-        presenter.handleError(exception, notification);
+        presenter.handleError(exception, notification, console);
 
         verify(notification).setContent("Error");
     }

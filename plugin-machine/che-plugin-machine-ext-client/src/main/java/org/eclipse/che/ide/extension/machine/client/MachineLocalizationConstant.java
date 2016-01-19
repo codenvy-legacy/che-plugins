@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -333,6 +333,18 @@ public interface MachineLocalizationConstant extends Messages {
     @Key("view.processes.terminal.node.title")
     String viewProcessesTerminalNodeTitle(String terminalIndex);
 
+    @Key("view.stop.process.tooltip")
+    String viewStropProcessTooltip();
+
+    @Key("view.new.terminal.tooltip")
+    String viewNewTerminalTooltip();
+
+    @Key("view.machine.running.tooltip")
+    String viewMachineRunningTooltip();
+
+    @Key("view.close.processOutput.tooltip")
+    String viewCloseProcessOutputTooltip();
+
     @Key("failed.to.execute.command")
     String failedToExecuteCommand();
 
@@ -344,4 +356,10 @@ public interface MachineLocalizationConstant extends Messages {
 
     @Key("failed.to.find.machine")
     String failedToFindMachine(String machineId);
+
+    @Key("failed.to.get.processes")
+    String failedToGetProcesses(String machineId);
+
+    @Key("ssh.connect.info")
+    String sshConnectInfo(String machineName, String machineHost, String machinePort);
 }

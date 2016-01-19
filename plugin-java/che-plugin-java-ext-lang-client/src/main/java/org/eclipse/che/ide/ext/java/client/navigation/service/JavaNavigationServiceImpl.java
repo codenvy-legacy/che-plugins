@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,11 +21,13 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.ext.java.shared.Jar;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
 import org.eclipse.che.ide.ext.java.shared.OpenDeclarationDescriptor;
+import org.eclipse.che.ide.ext.java.shared.dto.ImplementationsDescriptorDTO;
 import org.eclipse.che.ide.ext.java.shared.dto.model.CompilationUnit;
 import org.eclipse.che.ide.ext.java.shared.dto.model.JavaProject;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.AsyncRequestFactory;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
+import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
 
 import java.util.List;
 
@@ -41,6 +43,7 @@ import static org.eclipse.che.ide.rest.HTTPHeader.ACCEPT;
 public class JavaNavigationServiceImpl implements JavaNavigationService {
 
     private final String                 restContext;
+    private final LoaderFactory          loaderFactory;
     private final AsyncRequestFactory    requestFactory;
     private final String                 workspaceId;
     private final DtoUnmarshallerFactory unmarshallerFactory;
@@ -48,9 +51,11 @@ public class JavaNavigationServiceImpl implements JavaNavigationService {
     @Inject
     public JavaNavigationServiceImpl(@Named("cheExtensionPath") String restContext,
                                      AppContext appContext,
+                                     LoaderFactory loaderFactory,
                                      DtoUnmarshallerFactory unmarshallerFactory,
                                      AsyncRequestFactory asyncRequestFactory) {
         this.restContext = restContext;
+        this.loaderFactory = loaderFactory;
         this.requestFactory = asyncRequestFactory;
         this.workspaceId = appContext.getWorkspace().getId();
         this.unmarshallerFactory = unmarshallerFactory;
@@ -115,6 +120,17 @@ public class JavaNavigationServiceImpl implements JavaNavigationService {
                               .send(newCallback(callback, unmarshallerFactory.newUnmarshaller(CompilationUnit.class)));
             }
         });
+    }
+
+    @Override
+    public Promise<ImplementationsDescriptorDTO> getImplementations(String projectPath, String fqn, int offset) {
+        final String url = restContext + "/jdt/" + workspaceId + "/navigation/implementations?projectpath=" + projectPath + "&fqn=" + fqn +
+                           "&offset=" + offset;
+
+        return requestFactory.createGetRequest(url)
+                             .header(ACCEPT, APPLICATION_JSON)
+                             .loader(loaderFactory.newLoader())
+                             .send(unmarshallerFactory.newUnmarshaller(ImplementationsDescriptorDTO.class));
     }
 
     @Override

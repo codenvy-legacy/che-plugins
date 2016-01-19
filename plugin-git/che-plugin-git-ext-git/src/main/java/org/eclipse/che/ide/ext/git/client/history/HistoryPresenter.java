@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,8 +35,10 @@ import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.ext.git.client.DateTimeFormatter;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
-import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.ext.git.client.GitResources;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsole;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.StringUnmarshaller;
@@ -59,6 +61,9 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAI
  */
 @Singleton
 public class HistoryPresenter extends BasePresenter implements HistoryView.ActionDelegate {
+    public static final String LOG_COMMAND_NAME  = "Git log";
+    public static final String DIFF_COMMAND_NAME = "Git diff";
+
     private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
     private final HistoryView             view;
     private final GitServiceClient        service;
@@ -66,8 +71,9 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
     private final GitResources            resources;
     private final AppContext              appContext;
     private final WorkspaceAgent          workspaceAgent;
-    private final GitOutputPartPresenter  console;
     private final DateTimeFormatter       dateTimeFormatter;
+    private final GitOutputConsoleFactory gitOutputConsoleFactory;
+    private final ConsolesPanelPresenter  consolesPanelPresenter;
     private final String                  workspaceId;
     /** If <code>true</code> then show all changes in project, if <code>false</code> then show changes of the selected resource. */
     private       boolean                 showChangesInProject;
@@ -85,15 +91,17 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
                             GitServiceClient service,
                             final WorkspaceAgent workspaceAgent,
                             GitLocalizationConstant constant,
-                            GitOutputPartPresenter console,
                             AppContext appContext,
                             NotificationManager notificationManager,
                             DtoUnmarshallerFactory dtoUnmarshallerFactory,
                             DateTimeFormatter dateTimeFormatter,
-                            SelectionAgent selectionAgent) {
+                            SelectionAgent selectionAgent,
+                            GitOutputConsoleFactory gitOutputConsoleFactory,
+                            ConsolesPanelPresenter consolesPanelPresenter) {
         this.view = view;
-        this.console = console;
         this.dateTimeFormatter = dateTimeFormatter;
+        this.gitOutputConsoleFactory = gitOutputConsoleFactory;
+        this.consolesPanelPresenter = consolesPanelPresenter;
         this.view.setDelegate(this);
         this.view.setTitle(constant.historyTitle());
         this.resources = resources;
@@ -158,7 +166,9 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
                         protected void onFailure(Throwable exception) {
                             nothingToDisplay(null);
                             String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.logFailed();
+                            GitOutputConsole console = gitOutputConsoleFactory.create(LOG_COMMAND_NAME);
                             console.printError(errorMessage);
+                            consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                             notificationManager.notify(constant.logFailed(), FAIL, true, project);
                         }
                     });
@@ -353,7 +363,9 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
                          protected void onFailure(Throwable exception) {
                              nothingToDisplay(revision);
                              String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.diffFailed();
+                             GitOutputConsole console = gitOutputConsoleFactory.create(DIFF_COMMAND_NAME);
                              console.printError(errorMessage);
+                             consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                              notificationManager.notify(constant.diffFailed(), FAIL, true, project);
                          }
                      });
@@ -391,7 +403,9 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
                              protected void onFailure(Throwable exception) {
                                  nothingToDisplay(revisionB);
                                  String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.diffFailed();
+                                 GitOutputConsole console = gitOutputConsoleFactory.create(DIFF_COMMAND_NAME);
                                  console.printError(errorMessage);
+                                 consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                                  notificationManager.notify(constant.diffFailed(), FAIL, true, project);
                              }
                          });

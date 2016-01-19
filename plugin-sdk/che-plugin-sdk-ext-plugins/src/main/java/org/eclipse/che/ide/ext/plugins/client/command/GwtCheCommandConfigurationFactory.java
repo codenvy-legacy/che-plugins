@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,7 +41,8 @@ public class GwtCheCommandConfigurationFactory extends CommandConfigurationFacto
             throw new IllegalArgumentException("Not a valid GWT4CHE command: " + descriptor.getCommandLine());
         }
 
-        final GwtCheCommandConfiguration configuration = new GwtCheCommandConfiguration(getCommandType(), descriptor.getName());
+        final GwtCheCommandConfiguration configuration =
+                new GwtCheCommandConfiguration(getCommandType(), descriptor.getName(), descriptor.getAttributes());
         final CommandLine cmd = new CommandLine(descriptor.getCommandLine());
 
         final String classPathArgument = cmd.getArgument(2);

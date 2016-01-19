@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,10 @@ package org.eclipse.che.ide.ext.github.client.authenticator;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
+import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.api.ssh.gwt.client.SshServiceClient;
+import org.eclipse.che.api.ssh.shared.dto.SshPairDto;
 import org.eclipse.che.api.user.shared.dto.ProfileDescriptor;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
@@ -20,16 +24,15 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.app.CurrentUser;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.github.client.GitHubLocalizationConstant;
-import org.eclipse.che.ide.ext.ssh.client.SshKeyProvider;
-import org.eclipse.che.ide.ext.ssh.client.SshKeyService;
-import org.eclipse.che.ide.ext.ssh.dto.KeyItem;
-import org.eclipse.che.ide.rest.AsyncRequestCallback;
+import org.eclipse.che.ide.ext.git.ssh.client.GitSshKeyUploaderRegistry;
+import org.eclipse.che.ide.ext.git.ssh.client.SshKeyUploader;
+import org.eclipse.che.ide.ext.git.ssh.client.manage.SshKeyManagerPresenter;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.ui.dialogs.message.MessageDialog;
 import org.eclipse.che.security.oauth.OAuthStatus;
-import org.eclipse.che.test.GwtReflectionUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -37,22 +40,20 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Matchers.anyObject;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.RETURNS_DEFAULTS;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-
-import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -65,18 +66,22 @@ public class GitHubAuthenticatorImplTest {
     public static final String GITHUB_HOST = "github.com";
 
     @Captor
-    private ArgumentCaptor<AsyncCallback<OAuthStatus>> asyncCallbackCaptor;
-
-    @Captor
     private ArgumentCaptor<AsyncCallback<Void>> generateKeyCallbackCaptor;
 
     @Captor
-    private ArgumentCaptor<AsyncRequestCallback<List<KeyItem>>> getAllKeysCallbackCaptor;
+    private ArgumentCaptor<Operation<List<SshPairDto>>> operationSshPairDTOsCapture;
+
+    @Captor
+    private ArgumentCaptor<Operation<Void>> operationVoid;
+
+    private Promise<List<SshPairDto>> sshPairDTOsPromise;
+
+    private Promise<Void> voidPromise;
 
     @Mock
     private GitHubAuthenticatorView    view;
     @Mock
-    private SshKeyService              sshKeyService;
+    private SshServiceClient           sshServiceClient;
     @Mock
     private DialogFactory              dialogFactory;
     @Mock
@@ -87,8 +92,32 @@ public class GitHubAuthenticatorImplTest {
     private GitHubLocalizationConstant locale;
     @Mock
     private AppContext                 appContext;
+    @Mock
+    private GitSshKeyUploaderRegistry  registry;
     @InjectMocks
     private GitHubAuthenticatorImpl    gitHubAuthenticator;
+
+    @Before
+    @SuppressWarnings("unchecked")
+    public void setUp() throws Exception {
+        sshPairDTOsPromise = createPromise();
+        voidPromise = createPromise();
+
+        when(sshServiceClient.getPairs(anyString())).thenReturn(sshPairDTOsPromise);
+        when(sshServiceClient.deletePair(anyString(), anyString())).thenReturn(voidPromise);
+    }
+
+    private Promise createPromise() {
+        return mock(Promise.class, new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                if (invocation.getMethod().getReturnType().isInstance(invocation.getMock())) {
+                    return invocation.getMock();
+                }
+                return RETURNS_DEFAULTS.answer(invocation);
+            }
+        });
+    }
 
     @Test
     public void delegateShouldBeSet() throws Exception {
@@ -109,14 +138,13 @@ public class GitHubAuthenticatorImplTest {
         String userId = "userId";
         OAuthStatus authStatus = mock(OAuthStatus.class);
 
-        SshKeyProvider keyProvider = mock(SshKeyProvider.class);
-        Map<String, SshKeyProvider> providers = new HashMap<>();
-        providers.put(GITHUB_HOST, keyProvider);
+        SshKeyUploader sshKeyUploader = mock(SshKeyUploader.class);
 
         CurrentUser user = mock(CurrentUser.class);
         ProfileDescriptor profile = mock(ProfileDescriptor.class);
         when(view.isGenerateKeysSelected()).thenReturn(true);
-        when(sshKeyService.getSshKeyProviders()).thenReturn(providers);
+
+        when(registry.getUploader(GITHUB_HOST)).thenReturn(sshKeyUploader);
 
         when(appContext.getCurrentUser()).thenReturn(user);
         when(user.getProfile()).thenReturn(profile);
@@ -125,18 +153,15 @@ public class GitHubAuthenticatorImplTest {
         gitHubAuthenticator.onAuthenticated(authStatus);
 
         verify(view).isGenerateKeysSelected();
-        verify(sshKeyService, times(2)).getSshKeyProviders();
+        verify(registry).getUploader(eq(GITHUB_HOST));
         verify(appContext).getCurrentUser();
-        verify(keyProvider).generateKey(eq(userId), Matchers.<AsyncCallback<Void>>anyObject());
+        verify(sshKeyUploader).uploadKey(eq(userId), Matchers.<AsyncCallback<Void>>anyObject());
     }
 
     @Test
     public void onAuthenticatedWhenGenerateKeysIsNotSelected() throws Exception {
         String userId = "userId";
         OAuthStatus authStatus = mock(OAuthStatus.class);
-        Map<String, SshKeyProvider> providers = new HashMap<>();
-        SshKeyProvider keyProvider = mock(SshKeyProvider.class);
-        providers.put(GITHUB_HOST, keyProvider);
 
         CurrentUser user = mock(CurrentUser.class);
         ProfileDescriptor profile = mock(ProfileDescriptor.class);
@@ -149,22 +174,19 @@ public class GitHubAuthenticatorImplTest {
         gitHubAuthenticator.onAuthenticated(authStatus);
 
         verify(view).isGenerateKeysSelected();
-        verify(sshKeyService, never()).getSshKeyProviders();
-        verify(keyProvider, never()).generateKey(anyString(), (AsyncCallback<Void>)anyObject());
+        verifyNoMoreInteractions(registry);
     }
 
     @Test
     public void onAuthenticatedWhenGenerateKeysIsSuccess() throws Exception {
         String userId = "userId";
         OAuthStatus authStatus = mock(OAuthStatus.class);
-        SshKeyProvider keyProvider = mock(SshKeyProvider.class);
-        Map<String, SshKeyProvider> providers = new HashMap<>();
-        providers.put(GITHUB_HOST, keyProvider);
+        SshKeyUploader keyProvider = mock(SshKeyUploader.class);
 
         CurrentUser user = mock(CurrentUser.class);
         ProfileDescriptor profile = mock(ProfileDescriptor.class);
         when(view.isGenerateKeysSelected()).thenReturn(true);
-        when(sshKeyService.getSshKeyProviders()).thenReturn(providers);
+        when(registry.getUploader(GITHUB_HOST)).thenReturn(keyProvider);
 
         CurrentProject currentProject = mock(CurrentProject.class);
         ProjectConfigDto projectConfigDto = mock(ProjectConfigDto.class);
@@ -178,12 +200,12 @@ public class GitHubAuthenticatorImplTest {
         gitHubAuthenticator.authorize(getCallBack());
         gitHubAuthenticator.onAuthenticated(authStatus);
 
-        verify(keyProvider).generateKey(eq(userId), generateKeyCallbackCaptor.capture());
+        verify(keyProvider).uploadKey(eq(userId), generateKeyCallbackCaptor.capture());
         AsyncCallback<Void> generateKeyCallback = generateKeyCallbackCaptor.getValue();
         generateKeyCallback.onSuccess(null);
 
         verify(view).isGenerateKeysSelected();
-        verify(sshKeyService, times(2)).getSshKeyProviders();
+        verify(registry).getUploader(eq(GITHUB_HOST));
         verify(appContext).getCurrentUser();
         verify(notificationManager).notify(anyString(), eq(projectConfigDto));
     }
@@ -193,15 +215,13 @@ public class GitHubAuthenticatorImplTest {
         String userId = "userId";
         OAuthStatus authStatus = mock(OAuthStatus.class);
 
-        SshKeyProvider keyProvider = mock(SshKeyProvider.class);
-        Map<String, SshKeyProvider> providers = new HashMap<>();
-        providers.put(GITHUB_HOST, keyProvider);
+        SshKeyUploader keyProvider = mock(SshKeyUploader.class);
 
         CurrentUser user = mock(CurrentUser.class);
         ProfileDescriptor profile = mock(ProfileDescriptor.class);
         MessageDialog messageDialog = mock(MessageDialog.class);
         when(view.isGenerateKeysSelected()).thenReturn(true);
-        when(sshKeyService.getSshKeyProviders()).thenReturn(providers);
+        when(registry.getUploader(GITHUB_HOST)).thenReturn(keyProvider);
 
         when(appContext.getCurrentUser()).thenReturn(user);
         when(user.getProfile()).thenReturn(profile);
@@ -211,59 +231,57 @@ public class GitHubAuthenticatorImplTest {
         gitHubAuthenticator.authorize(getCallBack());
         gitHubAuthenticator.onAuthenticated(authStatus);
 
-        verify(keyProvider).generateKey(eq(userId), generateKeyCallbackCaptor.capture());
+        verify(keyProvider).uploadKey(eq(userId), generateKeyCallbackCaptor.capture());
         AsyncCallback<Void> generateKeyCallback = generateKeyCallbackCaptor.getValue();
         generateKeyCallback.onFailure(new Exception(""));
 
         verify(view).isGenerateKeysSelected();
-        verify(sshKeyService, times(2)).getSshKeyProviders();
+        verify(registry).getUploader(eq(GITHUB_HOST));
         verify(appContext).getCurrentUser();
         verify(dialogFactory).createMessageDialog(anyString(), anyString(), Matchers.<ConfirmCallback>anyObject());
         verify(messageDialog).show();
-        verify(sshKeyService).getAllKeys(Matchers.<AsyncRequestCallback<List<KeyItem>>> anyObject());
+        verify(sshServiceClient).getPairs(eq(SshKeyManagerPresenter.GIT_SSH_SERVICE));
     }
 
     @Test
     public void onAuthenticatedWhenGetFailedKeyIsSuccess() throws Exception {
         String userId = "userId";
-        KeyItem key = mock(KeyItem.class);
-        List<KeyItem> keys = new ArrayList<>();
-        keys.add(key);
+        SshPairDto pair = mock(SshPairDto.class);
+        List<SshPairDto> pairs = new ArrayList<>();
+        pairs.add(pair);
         OAuthStatus authStatus = mock(OAuthStatus.class);
-        SshKeyProvider keyProvider = mock(SshKeyProvider.class);
-        Map<String, SshKeyProvider> providers = new HashMap<>();
-        providers.put(GITHUB_HOST, keyProvider);
+        SshKeyUploader keyUploader = mock(SshKeyUploader.class);
 
         CurrentUser user = mock(CurrentUser.class);
         ProfileDescriptor profile = mock(ProfileDescriptor.class);
         MessageDialog messageDialog = mock(MessageDialog.class);
         when(view.isGenerateKeysSelected()).thenReturn(true);
-        when(sshKeyService.getSshKeyProviders()).thenReturn(providers);
+        when(registry.getUploader(GITHUB_HOST)).thenReturn(keyUploader);
 
         when(appContext.getCurrentUser()).thenReturn(user);
         when(user.getProfile()).thenReturn(profile);
         when(profile.getId()).thenReturn(userId);
         when(dialogFactory.createMessageDialog(anyString(), anyString(), Matchers.<ConfirmCallback>anyObject())).thenReturn(messageDialog);
-        when(key.getHost()).thenReturn(GITHUB_HOST);
+        when(pair.getName()).thenReturn(GITHUB_HOST);
+        when(pair.getService()).thenReturn(SshKeyManagerPresenter.GIT_SSH_SERVICE);
 
         gitHubAuthenticator.authorize(getCallBack());
         gitHubAuthenticator.onAuthenticated(authStatus);
 
-        verify(keyProvider).generateKey(eq(userId), generateKeyCallbackCaptor.capture());
+        verify(keyUploader).uploadKey(eq(userId), generateKeyCallbackCaptor.capture());
         AsyncCallback<Void> generateKeyCallback = generateKeyCallbackCaptor.getValue();
         generateKeyCallback.onFailure(new Exception(""));
 
-        verify(sshKeyService).getAllKeys(getAllKeysCallbackCaptor.capture());
-        AsyncRequestCallback<List<KeyItem>> getAllKeysCallback = getAllKeysCallbackCaptor.getValue();
-        GwtReflectionUtils.callOnSuccess(getAllKeysCallback, keys);
+        verify(sshPairDTOsPromise).then(operationSshPairDTOsCapture.capture());
+        operationSshPairDTOsCapture.getValue().apply(pairs);
 
         verify(view).isGenerateKeysSelected();
-        verify(sshKeyService, times(2)).getSshKeyProviders();
+        verify(registry).getUploader(eq(GITHUB_HOST));
         verify(appContext).getCurrentUser();
         verify(dialogFactory).createMessageDialog(anyString(), anyString(), Matchers.<ConfirmCallback>anyObject());
         verify(messageDialog).show();
-        verify(sshKeyService).getAllKeys(Matchers.<AsyncRequestCallback<List<KeyItem>>>anyObject());
-        verify(sshKeyService).deleteKey(Matchers.<KeyItem>anyObject(), Matchers.<AsyncRequestCallback<Void>>anyObject());
+        verify(sshServiceClient).getPairs(eq(SshKeyManagerPresenter.GIT_SSH_SERVICE));
+        verify(sshServiceClient).deletePair(eq(SshKeyManagerPresenter.GIT_SSH_SERVICE), eq(GITHUB_HOST));
     }
 
     private AsyncCallback<OAuthStatus> getCallBack() {

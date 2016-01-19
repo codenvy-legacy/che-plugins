@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,11 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.command;
 
+import org.eclipse.che.commons.annotation.Nullable;
+
 import javax.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -20,8 +24,9 @@ import java.util.Objects;
  */
 public abstract class CommandConfiguration {
 
-    private final CommandType type;
-    private       String      name;
+    private final CommandType         type;
+    private       String              name;
+    private       Map<String, String> attributes;
 
     /**
      * Creates new command configuration of the specified type with the given name.
@@ -31,9 +36,10 @@ public abstract class CommandConfiguration {
      * @param name
      *         command name
      */
-    protected CommandConfiguration(@NotNull CommandType type, @NotNull String name) {
+    protected CommandConfiguration(@NotNull CommandType type, @NotNull String name, @Nullable Map<String, String> attributes) {
         this.type = type;
         this.name = name;
+        this.attributes = attributes;
     }
 
     /** Returns command configuration name. */
@@ -51,6 +57,17 @@ public abstract class CommandConfiguration {
     @NotNull
     public CommandType getType() {
         return type;
+    }
+
+    public Map<String, String> getAttributes() {
+        if (attributes == null) {
+            attributes = new HashMap<>();
+        }
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
     }
 
     /** Returns command line to execute in machine. */
@@ -71,12 +88,13 @@ public abstract class CommandConfiguration {
 
         return Objects.equals(getName(), other.getName())
                && Objects.equals(getType().getId(), other.getType().getId())
-               && Objects.equals(toCommandLine(), other.toCommandLine());
+               && Objects.equals(toCommandLine(), other.toCommandLine())
+               && Objects.equals(getAttributes(), other.getAttributes());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getType().getId(), toCommandLine());
+        return Objects.hash(getName(), getType().getId(), toCommandLine(), getAttributes());
     }
 
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,12 +15,14 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
-import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.dto.DtoFactory;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsole;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.ui.dialogs.DialogFactory;
@@ -68,7 +70,11 @@ public abstract class BaseTest {
     @Mock
     protected GitLocalizationConstant  constant;
     @Mock
-    protected GitOutputPartPresenter   console;
+    protected GitOutputConsole         console;
+    @Mock
+    protected GitOutputConsoleFactory  gitOutputConsoleFactory;
+    @Mock
+    protected ConsolesPanelPresenter   consolesPanelPresenter;
     @Mock
     protected GitResources             resources;
     @Mock
@@ -101,5 +107,7 @@ public abstract class BaseTest {
 
         when(rootProjectConfig.getName()).thenReturn(PROJECT_NAME);
         when(rootProjectConfig.getPath()).thenReturn(PROJECT_PATH);
+
+        when(gitOutputConsoleFactory.create(anyString())).thenReturn(console);
     }
 }

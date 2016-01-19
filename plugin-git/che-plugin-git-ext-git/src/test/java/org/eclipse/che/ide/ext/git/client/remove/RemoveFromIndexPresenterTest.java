@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,6 +41,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.eclipse.che.ide.ext.git.client.remove.RemoveFromIndexPresenter.REMOVE_FROM_INDEX_COMMAND_NAME;
 
 /**
  * Testing {@link RemoveFromIndexPresenter} functionality.
@@ -72,13 +73,14 @@ public class RemoveFromIndexPresenterTest extends BaseTest {
         presenter = new RemoveFromIndexPresenter(view,
                                                  eventBus,
                                                  service,
-                                                 console,
                                                  constant,
                                                  appContext,
                                                  selectionAgent,
                                                  notificationManager,
                                                  editorAgent,
-                                                 projectExplorer);
+                                                 projectExplorer,
+                                                 gitOutputConsoleFactory,
+                                                 consolesPanelPresenter);
         NavigableMap<String, EditorPartPresenter> partPresenterMap = new TreeMap<>();
         partPresenterMap.put("partPresenter", partPresenter);
 
@@ -162,7 +164,9 @@ public class RemoveFromIndexPresenterTest extends BaseTest {
 
         verify(service).remove(anyString(), eq(rootProjectConfig), anyObject(), eq(REMOVED), anyObject());
         verify(notificationManager).notify(anyString(), rootProjectConfig);
+        verify(gitOutputConsoleFactory).create(REMOVE_FROM_INDEX_COMMAND_NAME);
         verify(console).printInfo(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(constant, times(2)).removeFilesSuccessfull();
         verify(view).close();
     }
@@ -187,7 +191,9 @@ public class RemoveFromIndexPresenterTest extends BaseTest {
 
         verify(service).remove(anyString(), eq(rootProjectConfig), anyObject(), eq(REMOVED), anyObject());
         verify(constant).removeFilesFailed();
+        verify(gitOutputConsoleFactory).create(REMOVE_FROM_INDEX_COMMAND_NAME);
         verify(console).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(view).close();
     }

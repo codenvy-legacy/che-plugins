@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -29,7 +29,7 @@ public class CustomPageViewImpl implements CustomPageView {
 
     private static final MavenPageViewImplUiBinder UI_BINDER = GWT.create(MavenPageViewImplUiBinder.class);
 
-    private final DockLayoutPanel rootElement;
+    private final FlowPanel rootElement;
 
     @UiField
     TextArea commandLine;
@@ -72,6 +72,6 @@ public class CustomPageViewImpl implements CustomPageView {
         }.schedule(0);
     }
 
-    interface MavenPageViewImplUiBinder extends UiBinder<DockLayoutPanel, CustomPageViewImpl> {
+    interface MavenPageViewImplUiBinder extends UiBinder<FlowPanel, CustomPageViewImpl> {
     }
 }

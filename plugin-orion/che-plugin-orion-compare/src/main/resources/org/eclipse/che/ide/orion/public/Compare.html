@@ -1,6 +1,6 @@
 <!--
 
-    Copyright (c) 2012-2015 Codenvy, S.A.
+    Copyright (c) 2012-2016 Codenvy, S.A.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -26,15 +26,15 @@
     </style>
     <script src="require.js"></script>
     <script>
-        var requirePromice = new Promise(function (resolve, reject) {
-            require(["./compare/built-compare-amd.min.js"], function (Compare) {
+        var requirePromise = new Promise(function (resolve, reject) {
+            require(["./built-compare-10.0/built-compare-amd.min.js"], function (Compare) {
                 resolve(Compare);
             });
         });
         window.addEventListener("message", function (e) {
             var compare, options;
 
-            requirePromice.then(function (Compare) {
+            requirePromise.then(function (Compare) {
 
                 var event = JSON.parse(e.data);
                 if (event.type == "config") {
@@ -64,9 +64,9 @@
                 if(event.type == "theme"){
                     var themeUrl;
                     if(event.message == "DarkTheme"){
-                        themeUrl = "./compare/built-compare-dark.css";
+                        themeUrl = "./built-compare-dark-codenvy.css";
                     } else {
-                        themeUrl = "./compare/built-compare.css";
+                        themeUrl = "./built-compare-codenvy.css";
                     }
 
                     var style = document.createElement("link");

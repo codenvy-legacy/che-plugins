@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@ package org.eclipse.che.ide.ext.java.client.refactoring.rename;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.ide.MimeType;
 import org.eclipse.che.ide.api.action.Action;
@@ -20,6 +21,8 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
+import org.eclipse.che.ide.api.event.ActivePartChangedEvent;
+import org.eclipse.che.ide.api.event.ActivePartChangedHandler;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.api.selection.Selection;
@@ -44,7 +47,7 @@ import static org.eclipse.che.ide.ext.java.client.refactoring.move.RefactoredIte
  * @author Valeriy Svydenko
  */
 @Singleton
-public class RenameRefactoringAction extends Action {
+public class RenameRefactoringAction extends Action implements ActivePartChangedHandler {
 
     private final EditorAgent           editorAgent;
     private final RenamePresenter       renamePresenter;
@@ -54,10 +57,12 @@ public class RenameRefactoringAction extends Action {
 
     private RefactoredItemType renamedItemType;
     private List<?>            selectedItems;
+    private boolean            isEditorPartActive;
 
     @Inject
     public RenameRefactoringAction(EditorAgent editorAgent,
                                    RenamePresenter renamePresenter,
+                                   EventBus eventBus,
                                    JavaLocalizationConstant locale,
                                    SelectionAgent selectionAgent,
                                    JavaRefactoringRename javaRefactoringRename,
@@ -68,6 +73,9 @@ public class RenameRefactoringAction extends Action {
         this.selectionAgent = selectionAgent;
         this.javaRefactoringRename = javaRefactoringRename;
         this.appContext = appContext;
+        this.isEditorPartActive = false;
+
+        eventBus.addHandler(ActivePartChangedEvent.TYPE, this);
     }
 
     @Override
@@ -92,7 +100,7 @@ public class RenameRefactoringAction extends Action {
     @Override
     public void update(ActionEvent event) {
         Selection<?> selections = selectionAgent.getSelection();
-        if (selections != null) {
+        if (selections != null & !isEditorPartActive) {
             List<?> selectedItems = selections.getAllElements();
             this.selectedItems = selectedItems;
 
@@ -147,8 +155,8 @@ public class RenameRefactoringAction extends Action {
             String mediaType = virtualFile.getMediaType();
 
             if (mediaType != null && ((mediaType.equals(MimeType.TEXT_X_JAVA) ||
-                    mediaType.equals(MimeType.TEXT_X_JAVA_SOURCE) ||
-                    mediaType.equals(MimeType.APPLICATION_JAVA_CLASS)))) {
+                                       mediaType.equals(MimeType.TEXT_X_JAVA_SOURCE) ||
+                                       mediaType.equals(MimeType.APPLICATION_JAVA_CLASS)))) {
                 event.getPresentation().setEnabled(true);
             } else {
                 event.getPresentation().setEnabled(false);
@@ -156,5 +164,10 @@ public class RenameRefactoringAction extends Action {
         } else {
             event.getPresentation().setEnabled(false);
         }
+    }
+
+    @Override
+    public void onActivePartChanged(ActivePartChangedEvent event) {
+        isEditorPartActive = event.getActivePart() instanceof EditorPartPresenter;
     }
 }

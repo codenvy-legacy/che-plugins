@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -73,7 +73,6 @@ public class RawOutputViewImpl extends BaseView<RawOutputView.ActionDelegate> im
         setToolbarHeight(22+18);
 
         f.getElement().getStyle().setProperty("borderTop", "#333 1px solid");
-        //org.eclipse.che.ide.api.theme.Style.getOutputFontColor();
         f.add(clearButton);
     }
 

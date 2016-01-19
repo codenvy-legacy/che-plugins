@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -100,7 +100,7 @@ public class DockerInstanceProvider implements InstanceProvider {
                                   @Named("machine.docker.machine_volumes") Set<String> allMachinesSystemVolumes,
                                   @Nullable @Named("machine.docker.machine_extra_hosts") String allMachinesExtraHosts,
                                   WorkspaceFolderPathProvider workspaceFolderPathProvider,
-                                  @Named("che.projects.root") String projectFolderPath,
+                                  @Named("che.machine.projects.internal.storage") String projectFolderPath,
                                   @Named("machine.docker.pull_image") boolean doForcePullOnBuild,
                                   @Named("machine.docker.dev_machine.machine_env") Set<String> devMachineEnvVariables,
                                   @Named("machine.docker.machine_env") Set<String> allMachinesEnvVariables)
@@ -426,6 +426,7 @@ public class DockerInstanceProvider implements InstanceProvider {
 
             return dockerMachineFactory.createInstance(machineState,
                                                        containerId,
+                                                       imageName,
                                                        node,
                                                        outputConsumer);
         } catch (IOException e) {

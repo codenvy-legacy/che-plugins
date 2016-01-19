@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,6 +29,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.eclipse.che.ide.ext.git.client.delete.DeleteRepositoryPresenter.DELETE_REPO_COMMAND_NAME;
 
 /**
  * Testing {@link DeleteRepositoryPresenter} functionality.
@@ -54,7 +55,8 @@ public class DeleteRepositoryPresenterTest extends BaseTest {
         when(css.animationDuration()).thenReturn(1);
         presenter = new DeleteRepositoryPresenter(service,
                                                   constant,
-                                                  console,
+                                                  gitOutputConsoleFactory,
+                                                  consolesPanelPresenter,
                                                   appContext,
                                                   notificationManager,
                                                   projectServiceClient,
@@ -79,7 +81,9 @@ public class DeleteRepositoryPresenterTest extends BaseTest {
 
         verify(appContext).getCurrentProject();
         verify(service).deleteRepository(anyString(), eq(rootProjectConfig), (AsyncRequestCallback<Void>)anyObject());
+        verify(gitOutputConsoleFactory).create(DELETE_REPO_COMMAND_NAME);
         verify(console).printInfo(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 
@@ -100,7 +104,9 @@ public class DeleteRepositoryPresenterTest extends BaseTest {
 
         verify(appContext).getCurrentProject();
         verify(service).deleteRepository(anyString(), eq(rootProjectConfig), (AsyncRequestCallback<Void>)anyObject());
+        verify(gitOutputConsoleFactory).create(DELETE_REPO_COMMAND_NAME);
         verify(console).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 }

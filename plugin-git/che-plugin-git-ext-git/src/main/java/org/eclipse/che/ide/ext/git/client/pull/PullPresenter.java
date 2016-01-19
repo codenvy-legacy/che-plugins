@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,8 +30,10 @@ import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.git.client.BranchSearcher;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsole;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
-import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
@@ -44,6 +46,8 @@ import static org.eclipse.che.api.git.shared.BranchListRequest.LIST_REMOTE;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.PROGRESS;
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.SUCCESS;
+import static org.eclipse.che.ide.ext.git.client.remote.RemotePresenter.REMOTE_REPO_COMMAND_NAME;
+import static org.eclipse.che.ide.ext.git.client.compare.branchList.BranchListPresenter.BRANCH_LIST_COMMAND_NAME;
 
 /**
  * Presenter pulling changes from remote repository.
@@ -52,6 +56,8 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.SUC
  */
 @Singleton
 public class PullPresenter implements PullView.ActionDelegate {
+    public static final String PULL_COMMAND_NAME = "Git pull";
+
     private final PullView                 view;
     private final GitServiceClient         gitServiceClient;
     private final EventBus                 eventBus;
@@ -63,8 +69,9 @@ public class PullPresenter implements PullView.ActionDelegate {
     private final DtoFactory               dtoFactory;
     private final BranchSearcher           branchSearcher;
     private final ProjectExplorerPresenter projectExplorer;
+    private final GitOutputConsoleFactory  gitOutputConsoleFactory;
+    private final ConsolesPanelPresenter   consolesPanelPresenter;
     private       CurrentProject           project;
-    private final GitOutputPartPresenter   console;
     private final String                   workspaceId;
 
 
@@ -72,7 +79,6 @@ public class PullPresenter implements PullView.ActionDelegate {
     public PullPresenter(PullView view,
                          EditorAgent editorAgent,
                          GitServiceClient gitServiceClient,
-                         GitOutputPartPresenter console,
                          EventBus eventBus,
                          AppContext appContext,
                          GitLocalizationConstant constant,
@@ -80,12 +86,15 @@ public class PullPresenter implements PullView.ActionDelegate {
                          DtoUnmarshallerFactory dtoUnmarshallerFactory,
                          DtoFactory dtoFactory,
                          BranchSearcher branchSearcher,
-                         ProjectExplorerPresenter projectExplorer) {
+                         ProjectExplorerPresenter projectExplorer,
+                         GitOutputConsoleFactory gitOutputConsoleFactory,
+                         ConsolesPanelPresenter consolesPanelPresenter) {
         this.view = view;
-        this.console = console;
         this.dtoFactory = dtoFactory;
         this.branchSearcher = branchSearcher;
         this.projectExplorer = projectExplorer;
+        this.gitOutputConsoleFactory = gitOutputConsoleFactory;
+        this.consolesPanelPresenter = consolesPanelPresenter;
         this.view.setDelegate(this);
         this.gitServiceClient = gitServiceClient;
         this.eventBus = eventBus;
@@ -125,7 +134,9 @@ public class PullPresenter implements PullView.ActionDelegate {
                                             String errorMessage =
                                                     exception.getMessage() != null ? exception.getMessage()
                                                                                    : constant.remoteListFailed();
+                                            GitOutputConsole console = gitOutputConsoleFactory.create(REMOTE_REPO_COMMAND_NAME);
                                             console.printError(errorMessage);
+                                            consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                                             notificationManager.notify(constant.remoteListFailed(), FAIL, true, project.getRootProject());
                                             view.setEnablePullButton(false);
                                         }
@@ -136,7 +147,8 @@ public class PullPresenter implements PullView.ActionDelegate {
     /**
      * Update the list of branches.
      *
-     * @param remoteMode is a remote mode
+     * @param remoteMode
+     *         is a remote mode
      */
     private void updateBranches(@NotNull final String remoteMode) {
         gitServiceClient.branchList(workspaceId, project.getRootProject(), remoteMode,
@@ -163,7 +175,9 @@ public class PullPresenter implements PullView.ActionDelegate {
                                             String errorMessage =
                                                     exception.getMessage() != null ? exception.getMessage()
                                                                                    : constant.branchesListFailed();
+                                            GitOutputConsole console = gitOutputConsoleFactory.create(BRANCH_LIST_COMMAND_NAME);
                                             console.printError(errorMessage);
+                                            consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                                             notificationManager.notify(constant.branchesListFailed(), FAIL, true, project.getRootProject());
                                             view.setEnablePullButton(false);
                                         }
@@ -185,11 +199,14 @@ public class PullPresenter implements PullView.ActionDelegate {
 
         final StatusNotification notification =
                 notificationManager.notify(constant.pullProcess(), PROGRESS, true, project.getRootProject());
+        final GitOutputConsole console = gitOutputConsoleFactory.create(PULL_COMMAND_NAME);
+
         gitServiceClient.pull(workspaceId, project.getRootProject(), getRefs(), remoteName,
                               new AsyncRequestCallback<PullResponse>(dtoUnmarshallerFactory.newUnmarshaller(PullResponse.class)) {
                                   @Override
                                   protected void onSuccess(PullResponse result) {
                                       console.printInfo(result.getCommandOutput());
+                                      consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                                       notification.setStatus(SUCCESS);
                                       if (result.getCommandOutput().contains("Already up-to-date")) {
                                           notification.setTitle(constant.pullUpToDate());
@@ -204,7 +221,8 @@ public class PullPresenter implements PullView.ActionDelegate {
                                       if (throwable.getMessage().contains("Merge conflict")) {
                                           refreshProject(openedEditors);
                                       }
-                                      handleError(throwable, remoteUrl, notification);
+                                      handleError(throwable, remoteUrl, notification, console);
+                                      consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                                   }
                               });
     }
@@ -240,7 +258,8 @@ public class PullPresenter implements PullView.ActionDelegate {
      * @param throwable
      *         exception what happened
      */
-    private void handleError(@NotNull Throwable throwable, @NotNull String remoteUrl, StatusNotification notification) {
+    private void handleError(@NotNull Throwable throwable, @NotNull String remoteUrl, StatusNotification notification,
+                             GitOutputConsole console) {
         String errorMessage = throwable.getMessage();
         notification.setStatus(FAIL);
         if (errorMessage == null) {

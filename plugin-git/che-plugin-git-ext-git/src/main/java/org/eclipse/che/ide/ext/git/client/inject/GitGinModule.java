@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,14 +11,14 @@
 package org.eclipse.che.ide.ext.git.client.inject;
 
 import com.google.gwt.inject.client.AbstractGinModule;
+import com.google.gwt.inject.client.assistedinject.GinFactoryModuleBuilder;
 import com.google.gwt.inject.client.multibindings.GinMultibinder;
 import com.google.inject.Singleton;
+import com.google.inject.name.Names;
 
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
 import org.eclipse.che.ide.api.preferences.PreferencePagePresenter;
 import org.eclipse.che.ide.api.project.wizard.ImportWizardRegistrar;
-import org.eclipse.che.ide.ext.git.client.GitOutputPartView;
-import org.eclipse.che.ide.ext.git.client.GitOutputPartViewImpl;
 import org.eclipse.che.ide.ext.git.client.add.AddToIndexView;
 import org.eclipse.che.ide.ext.git.client.add.AddToIndexViewImpl;
 import org.eclipse.che.ide.ext.git.client.branch.BranchView;
@@ -36,6 +36,11 @@ import org.eclipse.che.ide.ext.git.client.history.HistoryViewImpl;
 import org.eclipse.che.ide.ext.git.client.importer.GitImportWizardRegistrar;
 import org.eclipse.che.ide.ext.git.client.merge.MergeView;
 import org.eclipse.che.ide.ext.git.client.merge.MergeViewImpl;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsole;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsoleFactory;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsolePresenter;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputPartView;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputPartViewImpl;
 import org.eclipse.che.ide.ext.git.client.preference.CommitterPreferencePresenter;
 import org.eclipse.che.ide.ext.git.client.pull.PullView;
 import org.eclipse.che.ide.ext.git.client.pull.PullViewImpl;
@@ -54,7 +59,7 @@ import org.eclipse.che.ide.ext.git.client.reset.files.ResetFilesViewImpl;
 import org.eclipse.che.ide.ext.git.client.url.ShowProjectGitReadOnlyUrlView;
 import org.eclipse.che.ide.ext.git.client.url.ShowProjectGitReadOnlyUrlViewImpl;
 
-/** @author <a href="mailto:aplotnikov@codenvy.com">Andrey Plotnikov</a> */
+/** @author Andrey Plotnikov */
 @ExtensionGinModule
 public class GitGinModule extends AbstractGinModule {
     /** {@inheritDoc} */
@@ -81,6 +86,9 @@ public class GitGinModule extends AbstractGinModule {
         bind(FetchView.class).to(FetchViewImpl.class).in(Singleton.class);
         bind(PullView.class).to(PullViewImpl.class).in(Singleton.class);
         bind(HistoryView.class).to(HistoryViewImpl.class).in(Singleton.class);
-        bind(GitOutputPartView.class).to(GitOutputPartViewImpl.class).in(Singleton.class);
+        bind(GitOutputPartView.class).to(GitOutputPartViewImpl.class);
+
+        install(new GinFactoryModuleBuilder().implement(GitOutputConsole.class, GitOutputConsolePresenter.class)
+                                             .build(GitOutputConsoleFactory.class));
     }
 }

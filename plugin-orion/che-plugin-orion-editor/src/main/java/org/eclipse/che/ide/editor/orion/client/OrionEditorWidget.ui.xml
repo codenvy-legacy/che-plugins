@@ -17,8 +17,26 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
     <ui:style>
         .editor-container {
+            display: -webkit-flex; /* safari 8 */
+            display: flex;
+
+            -webkit-flex-flow: row; /* safari 8 */
+            flex-flow: row;
+
+            /* allow resize */
+            flex-grow: 1;
+            -wekbit-flex-grow: 1;
+            flex-shrink: 1;
+            -wekbit-flex-shrink: 1;
+
+            /* needed for safari - but can't replace -flex-grow/shrink as ie doesn't know fill-available */
+            min-width: -moz-fill-available;
+            min-width: -webkit-fill-available;
+        }
+
+        .editor {
             position: relative;
-            
+
             /* allow resize */
             flex-grow: 1;
             -wekbit-flex-grow: 1;
@@ -35,6 +53,7 @@
         }
     </ui:style>
 
-    <g:SimplePanel ui:field="panel" addStyleNames="{style.editor-container}" />
-
+    <g:SimplePanel addStyleNames="{style.editor-container}">
+        <g:SimplePanel ui:field="panel" addStyleNames="{style.editor}"/>
+    </g:SimplePanel>
 </ui:UiBinder>

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,13 +18,17 @@ import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
+import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
+import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.notification.StatusNotification.Status;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
+import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.client.navigation.service.JavaNavigationService;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaFileNode;
 import org.eclipse.che.ide.ext.java.client.project.node.PackageNode;
@@ -33,16 +37,18 @@ import org.eclipse.che.ide.ext.java.client.refactoring.RefactorInfo;
 import org.eclipse.che.ide.ext.java.client.refactoring.RefactoringUpdater;
 import org.eclipse.che.ide.ext.java.client.refactoring.preview.PreviewPresenter;
 import org.eclipse.che.ide.ext.java.client.refactoring.service.RefactoringServiceClient;
+import org.eclipse.che.ide.ext.java.shared.dto.model.JavaProject;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeCreationResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateMoveRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ElementToMove;
-import org.eclipse.che.ide.ext.java.shared.dto.model.JavaProject;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.MoveSettings;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ReorgDestination;
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
+import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
+import org.eclipse.che.ide.ui.loaders.request.MessageLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,6 +75,9 @@ public class MovePresenter implements MoveView.ActionDelegate {
     private final DtoFactory               dtoFactory;
     private final RefactoringServiceClient refactorService;
     private final JavaNavigationService    navigationService;
+    private final MessageLoader            loader;
+    private final JavaLocalizationConstant locale;
+    private final NotificationManager      notificationManager;
 
     private RefactorInfo refactorInfo;
     private String       refactoringSessionId;
@@ -81,7 +90,10 @@ public class MovePresenter implements MoveView.ActionDelegate {
                          PreviewPresenter previewPresenter,
                          RefactoringServiceClient refactorService,
                          JavaNavigationService navigationService,
-                         DtoFactory dtoFactory) {
+                         DtoFactory dtoFactory,
+                         LoaderFactory loaderFactory,
+                         JavaLocalizationConstant locale,
+                         NotificationManager notificationManager) {
         this.view = view;
         this.refactoringUpdater = refactoringUpdater;
         this.editorAgent = editorAgent;
@@ -92,6 +104,9 @@ public class MovePresenter implements MoveView.ActionDelegate {
         this.refactorService = refactorService;
         this.navigationService = navigationService;
         this.dtoFactory = dtoFactory;
+        this.locale = locale;
+        this.loader = loaderFactory.newLoader();
+        this.notificationManager = notificationManager;
     }
 
     /**
@@ -101,6 +116,8 @@ public class MovePresenter implements MoveView.ActionDelegate {
      *         information about the move operation
      */
     public void show(final RefactorInfo refactorInfo) {
+        loader.show();
+
         this.refactorInfo = refactorInfo;
         view.setEnablePreviewButton(false);
         view.setEnableAcceptButton(false);
@@ -116,6 +133,13 @@ public class MovePresenter implements MoveView.ActionDelegate {
                 MovePresenter.this.refactoringSessionId = sessionId;
 
                 showProjectsAndPackages();
+            }
+        }).catchError(new Operation<PromiseError>() {
+            @Override
+            public void apply(PromiseError error) throws OperationException {
+                loader.hide();
+
+                notificationManager.notify(error.getMessage(), Status.FAIL, true);
             }
         });
     }
@@ -175,9 +199,20 @@ public class MovePresenter implements MoveView.ActionDelegate {
                         view.setTreeOfDestinations(currentProject);
                         view.show(refactorInfo);
 
+                        loader.hide();
+
                         return;
                     }
                 }
+
+                loader.hide();
+            }
+        }).catchError(new Operation<PromiseError>() {
+            @Override
+            public void apply(PromiseError error) throws OperationException {
+                loader.hide();
+
+                notificationManager.notify(locale.showPackagesError(), error.getMessage(), Status.FAIL, true);
             }
         });
     }
@@ -185,11 +220,15 @@ public class MovePresenter implements MoveView.ActionDelegate {
     /** {@inheritDoc} */
     @Override
     public void onPreviewButtonClicked() {
+        loader.show();
+
         RefactoringSession session = dtoFactory.createDto(RefactoringSession.class);
         session.setSessionId(refactoringSessionId);
         prepareMovingChanges(session).then(new Operation<ChangeCreationResult>() {
             @Override
             public void apply(ChangeCreationResult arg) throws OperationException {
+                loader.hide();
+
                 if (arg.isCanShowPreviewPage()) {
                     previewPresenter.show(refactoringSessionId, refactorInfo);
 
@@ -198,12 +237,22 @@ public class MovePresenter implements MoveView.ActionDelegate {
                     view.showStatusMessage(arg.getStatus());
                 }
             }
+        }).catchError(new Operation<PromiseError>() {
+            @Override
+            public void apply(PromiseError error) throws OperationException {
+                loader.hide();
+
+                notificationManager.notify(locale.showPreviewError(), error.getMessage(), Status.FAIL, true);
+            }
+
         });
     }
 
     /** {@inheritDoc} */
     @Override
     public void onAcceptButtonClicked() {
+        loader.show();
+
         final RefactoringSession session = dtoFactory.createDto(RefactoringSession.class);
         session.setSessionId(refactoringSessionId);
         prepareMovingChanges(session).then(new Operation<ChangeCreationResult>() {
@@ -224,6 +273,15 @@ public class MovePresenter implements MoveView.ActionDelegate {
                 } else {
                     view.showErrorMessage(arg.getStatus());
                 }
+
+                loader.hide();
+            }
+        }).catchError(new Operation<PromiseError>() {
+            @Override
+            public void apply(PromiseError error) throws OperationException {
+                loader.hide();
+
+                notificationManager.notify(locale.applyMoveError(), error.getMessage(), Status.FAIL, true);
             }
         });
     }

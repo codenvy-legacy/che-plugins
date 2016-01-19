@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,6 +43,8 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSess
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameSettings;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ValidateNewName;
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
+import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
+import org.eclipse.che.ide.ui.loaders.request.MessageLoader;
 
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring.RenameType.COMPILATION_UNIT;
@@ -68,6 +70,7 @@ public class RenamePresenter implements ActionDelegate {
     private final PreviewPresenter                   previewPresenter;
     private final DtoFactory                         dtoFactory;
     private final RefactoringServiceClient           refactorService;
+    private final MessageLoader                      loader;
 
     private RenameRefactoringSession renameRefactoringSession;
     private RefactorInfo             refactorInfo;
@@ -82,7 +85,8 @@ public class RenamePresenter implements ActionDelegate {
                            NotificationManager notificationManager,
                            PreviewPresenter previewPresenter,
                            RefactoringServiceClient refactorService,
-                           DtoFactory dtoFactory) {
+                           DtoFactory dtoFactory,
+                           LoaderFactory loaderFactory) {
         this.view = view;
         this.similarNamesConfigurationPresenter = similarNamesConfigurationPresenter;
         this.locale = locale;
@@ -94,6 +98,7 @@ public class RenamePresenter implements ActionDelegate {
         this.previewPresenter = previewPresenter;
         this.refactorService = refactorService;
         this.dtoFactory = dtoFactory;
+        this.loader = loaderFactory.newLoader();
     }
 
     /**
@@ -243,6 +248,8 @@ public class RenamePresenter implements ActionDelegate {
     }
 
     private void showPreview() {
+        loader.show();
+
         RefactoringSession session = dtoFactory.createDto(RefactoringSession.class);
         session.setSessionId(renameRefactoringSession.getSessionId());
 
@@ -256,16 +263,22 @@ public class RenamePresenter implements ActionDelegate {
                 } else {
                     view.showErrorMessage(arg.getStatus());
                 }
+
+                loader.hide();
             }
         }).catchError(new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError arg) throws OperationException {
+                loader.hide();
+
                 notificationManager.notify(locale.failedToRename(), arg.getMessage(), FAIL, true);
             }
         });
     }
 
     private void applyChanges() {
+        loader.show();
+
         final RefactoringSession session = dtoFactory.createDto(RefactoringSession.class);
         session.setSessionId(renameRefactoringSession.getSessionId());
 
@@ -274,6 +287,8 @@ public class RenamePresenter implements ActionDelegate {
             public void apply(ChangeCreationResult arg) throws OperationException {
                 if (!arg.isCanShowPreviewPage()) {
                     view.showErrorMessage(arg.getStatus());
+
+                    loader.hide();
                     return;
                 }
 
@@ -286,12 +301,16 @@ public class RenamePresenter implements ActionDelegate {
                         } else {
                             view.showErrorMessage(arg);
                         }
+
+                        loader.hide();
                     }
                 });
             }
         }).catchError(new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError arg) throws OperationException {
+                loader.hide();
+
                 notificationManager.notify(locale.failedToRename(), arg.getMessage(), FAIL, true);
             }
         });

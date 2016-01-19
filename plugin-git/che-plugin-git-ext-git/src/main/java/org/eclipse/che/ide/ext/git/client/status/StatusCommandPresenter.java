@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,9 @@ import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.notification.NotificationManager;
-import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsole;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.StringUnmarshaller;
 
@@ -32,13 +34,14 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAI
  */
 @Singleton
 public class StatusCommandPresenter {
+    public static final String STATUS_COMMAND_NAME = "Git status";
 
-    private final GitOutputPartPresenter  console;
-
-    private GitServiceClient        service;
-    private AppContext              appContext;
-    private GitLocalizationConstant constant;
-    private NotificationManager     notificationManager;
+    private final GitServiceClient        service;
+    private final AppContext              appContext;
+    private final GitOutputConsoleFactory gitOutputConsoleFactory;
+    private final ConsolesPanelPresenter  consolesPanelPresenter;
+    private final GitLocalizationConstant constant;
+    private final NotificationManager     notificationManager;
 
     /**
      * Create presenter.
@@ -46,12 +49,14 @@ public class StatusCommandPresenter {
     @Inject
     public StatusCommandPresenter(GitServiceClient service,
                                   AppContext appContext,
-                                  GitOutputPartPresenter console,
+                                  GitOutputConsoleFactory gitOutputConsoleFactory,
+                                  ConsolesPanelPresenter consolesPanelPresenter,
                                   GitLocalizationConstant constant,
                                   NotificationManager notificationManager) {
         this.service = service;
         this.appContext = appContext;
-        this.console = console;
+        this.gitOutputConsoleFactory = gitOutputConsoleFactory;
+        this.consolesPanelPresenter = consolesPanelPresenter;
         this.constant = constant;
         this.notificationManager = notificationManager;
     }
@@ -63,11 +68,13 @@ public class StatusCommandPresenter {
             return;
         }
 
-        service.statusText(appContext. getWorkspaceId(), project.getRootProject(), LONG,
+        service.statusText(appContext.getWorkspaceId(), project.getRootProject(), LONG,
                            new AsyncRequestCallback<String>(new StringUnmarshaller()) {
                                @Override
                                protected void onSuccess(String result) {
-                                   printGitStatus(result);
+                                   final GitOutputConsole console = gitOutputConsoleFactory.create(STATUS_COMMAND_NAME);
+                                   printGitStatus(result, console);
+                                   consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                                }
 
                                @Override
@@ -80,9 +87,12 @@ public class StatusCommandPresenter {
     /**
      * Print colored Git status to Output
      *
-     * @param statusText text to be printed
+     * @param statusText
+     *         text to be printed
+     * @param console
+     *         console for displaying status
      */
-    private void printGitStatus(String statusText) {
+    private void printGitStatus(String statusText, GitOutputConsole console) {
 
         console.print("");
         String[] lines = statusText.split("\n");

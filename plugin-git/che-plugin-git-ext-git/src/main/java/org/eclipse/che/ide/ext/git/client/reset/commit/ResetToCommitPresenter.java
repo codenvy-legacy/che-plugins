@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,7 +25,9 @@ import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.event.project.OpenProjectEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
-import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsole;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
@@ -34,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+import static org.eclipse.che.ide.ext.git.client.history.HistoryPresenter.LOG_COMMAND_NAME;
 
 /**
  * Presenter for resetting head to commit.
@@ -42,17 +45,20 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAI
  */
 @Singleton
 public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate {
-    private final DtoUnmarshallerFactory    dtoUnmarshallerFactory;
-    private final GitOutputPartPresenter    console;
-    private final ResetToCommitView         view;
-    private final GitServiceClient          service;
-    private final AppContext                appContext;
-    private final GitLocalizationConstant   constant;
-    private final NotificationManager       notificationManager;
-    private final EditorAgent               editorAgent;
-    private final EventBus                  eventBus;
-    private final String                    workspaceId;
-    
+    public static final String RESET_COMMAND_NAME = "Git reset to commit";
+
+    private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
+    private final ResetToCommitView       view;
+    private final GitOutputConsoleFactory gitOutputConsoleFactory;
+    private final ConsolesPanelPresenter  consolesPanelPresenter;
+    private final GitServiceClient        service;
+    private final AppContext              appContext;
+    private final GitLocalizationConstant constant;
+    private final NotificationManager     notificationManager;
+    private final EditorAgent             editorAgent;
+    private final EventBus                eventBus;
+    private final String                  workspaceId;
+
     private List<EditorPartPresenter> openedEditors;
     private Revision                  selectedRevision;
 
@@ -61,13 +67,15 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
                                   GitServiceClient service,
                                   GitLocalizationConstant constant,
                                   EventBus eventBus,
-                                  GitOutputPartPresenter console,
                                   EditorAgent editorAgent,
                                   AppContext appContext,
                                   NotificationManager notificationManager,
-                                  DtoUnmarshallerFactory dtoUnmarshallerFactory) {
+                                  DtoUnmarshallerFactory dtoUnmarshallerFactory,
+                                  GitOutputConsoleFactory gitOutputConsoleFactory,
+                                  ConsolesPanelPresenter consolesPanelPresenter) {
         this.view = view;
-        this.console = console;
+        this.gitOutputConsoleFactory = gitOutputConsoleFactory;
+        this.consolesPanelPresenter = consolesPanelPresenter;
         this.view.setDelegate(this);
         this.service = service;
         this.constant = constant;
@@ -96,7 +104,9 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
                         @Override
                         protected void onFailure(Throwable exception) {
                             String errorMessage = (exception.getMessage() != null) ? exception.getMessage() : constant.logFailed();
+                            GitOutputConsole console = gitOutputConsoleFactory.create(LOG_COMMAND_NAME);
                             console.printError(errorMessage);
+                            consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                             notificationManager.notify(constant.logFailed(), FAIL, true, appContext.getCurrentProject().getRootProject());
                         }
                     }
@@ -144,6 +154,7 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
 
         final ResetRequest.ResetType finalType = type;
         final ProjectConfigDto project = appContext.getCurrentProject().getRootProject();
+        final GitOutputConsole console = gitOutputConsoleFactory.create(RESET_COMMAND_NAME);
         service.reset(workspaceId, project, selectedRevision.getId(), finalType, null,
                       new AsyncRequestCallback<Void>() {
                           @Override
@@ -157,6 +168,7 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
                                   eventBus.fireEvent(new OpenProjectEvent(project));
                               }
                               console.printInfo(constant.resetSuccessfully());
+                              consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                               notificationManager.notify(constant.resetSuccessfully(), project);
 
                           }
@@ -165,6 +177,7 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
                           protected void onFailure(Throwable exception) {
                               String errorMessage = (exception.getMessage() != null) ? exception.getMessage() : constant.resetFail();
                               console.printError(errorMessage);
+                              consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                               notificationManager.notify(constant.resetFail(), FAIL, true, project);
                           }
                       });

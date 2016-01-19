@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,8 @@ package org.eclipse.che.ide.ext.gwt.client.command;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.eclipse.che.ide.api.icon.Icon;
+import org.eclipse.che.ide.api.icon.IconRegistry;
 import org.eclipse.che.ide.ext.gwt.client.GwtResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
@@ -50,13 +52,16 @@ public class GwtCommandType implements CommandType {
     public GwtCommandType(GwtResources resources,
                           GwtCommandPagePresenter page,
                           CurrentProjectPathProvider currentProjectPathProvider,
-                          DevMachineHostNameProvider devMachineHostNameProvider) {
+                          DevMachineHostNameProvider devMachineHostNameProvider,
+                          IconRegistry iconRegistry) {
         this.resources = resources;
         this.currentProjectPathProvider = currentProjectPathProvider;
         this.devMachineHostNameProvider = devMachineHostNameProvider;
         configurationFactory = new GwtCommandConfigurationFactory(this);
         pages = new LinkedList<>();
         pages.add(page);
+
+        iconRegistry.registerIcon(new Icon(ID + ".commands.category.icon", resources.gwtCommandType()));
     }
 
     @NotNull
@@ -94,5 +99,10 @@ public class GwtCommandType implements CommandType {
     public String getCommandTemplate() {
         return COMMAND_TEMPLATE + " -f " + currentProjectPathProvider.getKey() + " -Dgwt.bindAddress=" +
                devMachineHostNameProvider.getKey();
+    }
+
+    @Override
+    public String getPreviewUrlTemplate() {
+        return "";
     }
 }

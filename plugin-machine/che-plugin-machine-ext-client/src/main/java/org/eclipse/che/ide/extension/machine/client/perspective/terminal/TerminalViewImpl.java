@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,30 +28,19 @@ import javax.validation.constraints.NotNull;
  * @author Dmitry Shnurenko
  */
 final class TerminalViewImpl extends Composite implements TerminalView, RequiresResize{
+
+    interface TerminalViewImplUiBinder extends UiBinder<Widget, TerminalViewImpl> {
+    }
+
     private final static TerminalViewImplUiBinder UI_BINDER = GWT.create(TerminalViewImplUiBinder.class);
+
     @UiField
     FlowPanel terminalPanel;
+
     @UiField
     Label     unavailableLabel;
+
     private ActionDelegate delegate;
-    private Timer resizeTimer = new Timer() {
-        @Override
-        public void run() {
-            resizeTerminal();
-        }
-    };
-
-    private void resizeTerminal() {
-        int offsetWidth = terminalPanel.getOffsetWidth();
-        int offsetHeight = terminalPanel.getOffsetHeight();
-        if (offsetWidth == 0 || offsetHeight == 0) {
-            return;
-        }
-
-        int x = (int)(Math.floor(offsetWidth / 6.6221374) - 1);
-        int y = (int)Math.floor(offsetHeight / 13);
-        delegate.setTerminalSize(x, y);
-    }
 
     public TerminalViewImpl() {
         initWidget(UI_BINDER.createAndBindUi(this));
@@ -68,9 +57,14 @@ final class TerminalViewImpl extends Composite implements TerminalView, Requires
         unavailableLabel.setVisible(false);
 
         terminalPanel.setVisible(true);
+        terminalPanel.getElement().getStyle().setProperty("opacity", "0");
 
         terminal.open(terminalPanel.getElement());
-        onResize();
+        resizeTerminal();
+
+        terminalPanel.getElement().getFirstChildElement().getStyle().clearProperty("backgroundColor");
+        terminalPanel.getElement().getFirstChildElement().getStyle().clearProperty("color");
+        terminalPanel.getElement().getStyle().clearProperty("opacity");
     }
 
     /** {@inheritDoc} */
@@ -88,7 +82,23 @@ final class TerminalViewImpl extends Composite implements TerminalView, Requires
         resizeTimer.schedule(200);
     }
 
+    private Timer resizeTimer = new Timer() {
+        @Override
+        public void run() {
+            resizeTerminal();
+        }
+    };
 
-    interface TerminalViewImplUiBinder extends UiBinder<Widget, TerminalViewImpl> {
+    private void resizeTerminal() {
+        int offsetWidth = terminalPanel.getOffsetWidth();
+        int offsetHeight = terminalPanel.getOffsetHeight();
+        if (offsetWidth <= 0 || offsetHeight <= 0) {
+            return;
+        }
+
+        int x = (int)(Math.floor(offsetWidth / 6.6221374));
+        int y = (int)Math.floor(offsetHeight / 13);
+        delegate.setTerminalSize(x, y);
     }
+
 }

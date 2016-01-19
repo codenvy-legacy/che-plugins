@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -59,6 +59,8 @@ import java.util.Set;
 @Singleton
 public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
 
+    public static final String PREVIEW_URL_ATTR = "previewUrl";
+
     private final EditCommandsView                               view;
     private final WorkspaceServiceClient                         workspaceServiceClient;
     private final CommandManager                                 commandManager;
@@ -77,6 +79,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
     private       CommandConfiguration                           editedCommand;
     /** Name of the edited command before editing. */
     private       String                                         editedCommandOriginName;
+    private       String                                         editedCommandOriginPreviewUrl;
 
     @Inject
     protected EditCommandsPresenter(EditCommandsView view,
@@ -141,7 +144,8 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         final CommandDto commandDto = dtoFactory.createDto(CommandDto.class)
                                                 .withName(selectedConfiguration.getName())
                                                 .withCommandLine(selectedConfiguration.toCommandLine())
-                                                .withType(selectedConfiguration.getType().getId());
+                                                .withType(selectedConfiguration.getType().getId())
+                                                .withAttributes(selectedConfiguration.getAttributes());
 
         if (editedCommandOriginName.trim().equals(selectedConfiguration.getName())) {
             return workspaceServiceClient.updateCommand(workspaceId, commandDto);
@@ -175,7 +179,8 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
     public void onDuplicateClicked() {
         final CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
         if (selectedConfiguration != null) {
-            createNewCommand(selectedConfiguration.getType(), selectedConfiguration.toCommandLine(), selectedConfiguration.getName());
+            createNewCommand(selectedConfiguration.getType(), selectedConfiguration.toCommandLine(), selectedConfiguration.getName(),
+                             selectedConfiguration.getAttributes());
         }
     }
 
@@ -183,14 +188,14 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
     public void onAddClicked() {
         final CommandType selectedType = view.getSelectedCommandType();
         if (selectedType != null) {
-            createNewCommand(selectedType, null, null);
+            createNewCommand(selectedType, null, null, null);
         }
     }
 
-    private void createNewCommand(final CommandType type, final String customCommand, final String customName) {
+    private void createNewCommand(final CommandType type, final String customCommand, final String customName, final Map<String, String> attributes) {
         if (!isViewModified()) {
             reset();
-            createCommand(type, customCommand, customName);
+            createCommand(type, customCommand, customName, attributes);
             return;
         }
 
@@ -201,7 +206,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
                     @Override
                     public void apply(UsersWorkspaceDto arg) throws OperationException {
                         reset();
-                        createCommand(type, customCommand, customName);
+                        createCommand(type, customCommand, customName, attributes);
                     }
                 });
             }
@@ -212,7 +217,7 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
             public void accepted() {
                 fetchCommands();
                 reset();
-                createCommand(type, customCommand, customName);
+                createCommand(type, customCommand, customName, attributes);
             }
         };
 
@@ -249,13 +254,18 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
     }
 
     private void createCommand(CommandType type) {
-        createCommand(type, null, null);
+        createCommand(type, null, null, null);
     }
 
-    private void createCommand(CommandType type, String customCommand, String customName) {
+    private void createCommand(CommandType type, String customCommand, String customName, Map<String, String> attributes) {
+        Map<String, String> attributesToUpdate = (attributes != null) ? attributes : new HashMap<String, String>();
+
+        attributesToUpdate.put(PREVIEW_URL_ATTR, type.getPreviewUrlTemplate());
+
         final CommandDto commandDto = dtoFactory.createDto(CommandDto.class)
                                                 .withName(getUniqueCommandName(type, customName))
                                                 .withCommandLine(customCommand != null ? customCommand : type.getCommandTemplate())
+                                                .withAttributes(attributesToUpdate)
                                                 .withType(type.getId());
         workspaceServiceClient.addCommand(workspaceId, commandDto).then(new Operation<UsersWorkspaceDto>() {
             @Override
@@ -317,9 +327,11 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
     private void reset() {
         editedCommand = null;
         editedCommandOriginName = null;
+        editedCommandOriginPreviewUrl = null;
         editedPage = null;
 
         view.setConfigurationName("");
+        view.setConfigurationPreviewUrl("");
         view.clearCommandConfigurationsContainer();
     }
 
@@ -363,11 +375,21 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         dialog.show();
     }
 
+    private String getPreviewUrlOrNull(CommandConfiguration configuration) {
+        if (configuration.getAttributes() != null) {
+            return configuration.getAttributes().get(PREVIEW_URL_ATTR);
+        }
+
+        return null;
+    }
+
     private void handleCommandSelection(CommandConfiguration configuration) {
         editedCommand = configuration;
         editedCommandOriginName = configuration.getName();
+        editedCommandOriginPreviewUrl = getPreviewUrlOrNull(configuration);
 
         view.setConfigurationName(configuration.getName());
+        view.setConfigurationPreviewUrl(getPreviewUrlOrNull(configuration));
 
         final Collection<CommandConfigurationPage<? extends CommandConfiguration>> pages = configuration.getType().getConfigurationPages();
         for (CommandConfigurationPage<? extends CommandConfiguration> page : pages) {
@@ -397,6 +419,17 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
             return;
         }
         selectedConfiguration.setName(view.getConfigurationName());
+        view.setCancelButtonState(isViewModified());
+        view.setSaveButtonState(isViewModified());
+    }
+
+    @Override
+    public void onPreviewUrlChanged() {
+        CommandConfiguration selectedConfiguration = view.getSelectedConfiguration();
+        if (selectedConfiguration == null || !selectedConfiguration.equals(editedCommand)) {
+            return;
+        }
+        selectedConfiguration.getAttributes().put(PREVIEW_URL_ATTR, view.getConfigurationPreviewUrl());
         view.setCancelButtonState(isViewModified());
         view.setSaveButtonState(isViewModified());
     }
@@ -477,7 +510,9 @@ public class EditCommandsPresenter implements EditCommandsView.ActionDelegate {
         if (editedCommand == null || editedPage == null) {
             return false;
         }
-        return editedPage.isDirty() || !editedCommandOriginName.equals(view.getConfigurationName());
+        return editedPage.isDirty()
+               || !editedCommandOriginName.equals(view.getConfigurationName())
+               || !editedCommandOriginPreviewUrl.equals(view.getConfigurationPreviewUrl());
     }
 
     private void fireConfigurationAdded(CommandConfiguration command) {

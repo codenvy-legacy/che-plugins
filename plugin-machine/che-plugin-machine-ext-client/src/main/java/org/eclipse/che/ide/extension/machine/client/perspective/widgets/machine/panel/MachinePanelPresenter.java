@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,8 @@ import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.api.event.ActivePartChangedEvent;
+import org.eclipse.che.ide.api.event.ActivePartChangedHandler;
 import org.eclipse.che.ide.api.parts.base.BasePresenter;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
@@ -60,7 +62,8 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
                                                                     MachineStateHandler,
                                                                     StartWorkspaceHandler,
                                                                     StopWorkspaceHandler,
-                                                                    MachineStartingHandler {
+                                                                    MachineStartingHandler,
+                                                                    ActivePartChangedHandler {
     private final MachinePanelView                      view;
     private final MachineServiceClient                  service;
     private final EntityFactory                         entityFactory;
@@ -104,6 +107,7 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
         eventBus.addHandler(StartWorkspaceEvent.TYPE, this);
         eventBus.addHandler(StopWorkspaceEvent.TYPE, this);
         eventBus.addHandler(MachineStartingEvent.TYPE, this);
+        eventBus.addHandler(ActivePartChangedEvent.TYPE, this);
     }
 
     /** Gets all machines and adds them to special place on view. */
@@ -298,5 +302,12 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
      */
     public boolean isMachineRunning() {
         return isMachineRunning;
+    }
+
+    @Override
+    public void onActivePartChanged(ActivePartChangedEvent event) {
+        if ((event.getActivePart() instanceof MachinePanelPresenter)) {
+            showMachines();
+        }
     }
 }

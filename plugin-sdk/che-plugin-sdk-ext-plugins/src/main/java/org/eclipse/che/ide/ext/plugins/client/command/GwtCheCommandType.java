@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,8 @@ package org.eclipse.che.ide.ext.plugins.client.command;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.eclipse.che.ide.api.icon.Icon;
+import org.eclipse.che.ide.api.icon.IconRegistry;
 import org.eclipse.che.ide.ext.plugins.client.PluginsResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
@@ -46,11 +48,13 @@ public class GwtCheCommandType implements CommandType {
     private final Collection<CommandConfigurationPage<? extends CommandConfiguration>> pages;
 
     @Inject
-    public GwtCheCommandType(PluginsResources resources, CommandPagePresenter page) {
+    public GwtCheCommandType(PluginsResources resources, CommandPagePresenter page, IconRegistry iconRegistry) {
         this.resources = resources;
         configurationFactory = new GwtCheCommandConfigurationFactory(this);
         pages = new LinkedList<>();
         pages.add(page);
+
+        iconRegistry.registerIcon(new Icon(ID + ".commands.category.icon", resources.gwtCheCommandType()));
     }
 
     @NotNull
@@ -88,5 +92,10 @@ public class GwtCheCommandType implements CommandType {
     public String getCommandTemplate() {
         return COMMAND_TEMPLATE.replace("$GWT_MODULE", IDE_GWT_MODULE)
                                .replace("$CHE_CLASSPATH", '"' + resources.cheClassPath().getText() + '"') + " -bindAddress 0.0.0.0";
+    }
+
+    @Override
+    public String getPreviewUrlTemplate() {
+        return "";
     }
 }

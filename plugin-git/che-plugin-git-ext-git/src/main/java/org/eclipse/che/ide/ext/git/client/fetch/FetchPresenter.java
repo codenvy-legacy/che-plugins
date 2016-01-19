@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,9 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.git.client.BranchSearcher;
-import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsole;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.websocket.WebSocketException;
@@ -48,34 +50,39 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.SUC
  */
 @Singleton
 public class FetchPresenter implements FetchView.ActionDelegate {
+    public static final String FETCH_COMMAND_NAME = "Git fetch";
+
     private final DtoFactory              dtoFactory;
-    private final GitOutputPartPresenter  console;
     private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
     private final NotificationManager     notificationManager;
     private final BranchSearcher          branchSearcher;
+    private final GitOutputConsoleFactory gitOutputConsoleFactory;
+    private final ConsolesPanelPresenter  consolesPanelPresenter;
     private final FetchView               view;
     private final GitServiceClient        service;
     private final AppContext              appContext;
     private final GitLocalizationConstant constant;
     private final String                  workspaceId;
-    
+
     private CurrentProject project;
 
     @Inject
     public FetchPresenter(DtoFactory dtoFactory,
                           FetchView view,
-                          GitOutputPartPresenter console,
                           GitServiceClient service,
                           AppContext appContext,
                           GitLocalizationConstant constant,
                           NotificationManager notificationManager,
                           DtoUnmarshallerFactory dtoUnmarshallerFactory,
-                          BranchSearcher branchSearcher) {
+                          BranchSearcher branchSearcher,
+                          GitOutputConsoleFactory gitOutputConsoleFactory,
+                          ConsolesPanelPresenter consolesPanelPresenter) {
         this.dtoFactory = dtoFactory;
         this.view = view;
-        this.console = console;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.branchSearcher = branchSearcher;
+        this.gitOutputConsoleFactory = gitOutputConsoleFactory;
+        this.consolesPanelPresenter = consolesPanelPresenter;
         this.view.setDelegate(this);
         this.service = service;
         this.appContext = appContext;
@@ -109,7 +116,9 @@ public class FetchPresenter implements FetchView.ActionDelegate {
 
                                @Override
                                protected void onFailure(Throwable exception) {
+                                   GitOutputConsole console = gitOutputConsoleFactory.create(FETCH_COMMAND_NAME);
                                    console.printError(constant.remoteListFailed());
+                                   consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                                    notificationManager.notify(constant.remoteListFailed(), FAIL, true, project.getRootProject());
                                    view.setEnableFetchButton(false);
                                }
@@ -119,7 +128,8 @@ public class FetchPresenter implements FetchView.ActionDelegate {
     /**
      * Update the list of branches.
      *
-     * @param remoteMode is a remote mode
+     * @param remoteMode
+     *         is a remote mode
      */
     private void updateBranches(@NotNull final String remoteMode) {
         service.branchList(workspaceId, project.getRootProject(), remoteMode,
@@ -144,7 +154,9 @@ public class FetchPresenter implements FetchView.ActionDelegate {
                                protected void onFailure(Throwable exception) {
                                    String errorMessage =
                                            exception.getMessage() != null ? exception.getMessage() : constant.branchesListFailed();
+                                   GitOutputConsole console = gitOutputConsoleFactory.create(FETCH_COMMAND_NAME);
                                    console.printError(errorMessage);
+                                   consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                                    notificationManager.notify(constant.branchesListFailed(), FAIL, true, project.getRootProject());
                                    view.setEnableFetchButton(false);
                                }
@@ -160,24 +172,28 @@ public class FetchPresenter implements FetchView.ActionDelegate {
 
         final StatusNotification notification =
                 notificationManager.notify(constant.fetchProcess(), PROGRESS, true, project.getRootProject());
+        final GitOutputConsole console = gitOutputConsoleFactory.create(FETCH_COMMAND_NAME);
         try {
             service.fetch(workspaceId, project.getRootProject(), remoteName, getRefs(), removeDeletedRefs,
                           new RequestCallback<String>() {
                               @Override
                               protected void onSuccess(String result) {
                                   console.printInfo(constant.fetchSuccess(remoteUrl));
+                                  consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                                   notification.setStatus(SUCCESS);
                                   notification.setTitle(constant.fetchSuccess(remoteUrl));
                               }
 
                               @Override
                               protected void onFailure(Throwable exception) {
-                                  handleError(exception, remoteUrl, notification);
+                                  handleError(exception, remoteUrl, notification, console);
+                                  consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                               }
                           }
                          );
         } catch (WebSocketException e) {
-            handleError(e, remoteUrl, notification);
+            handleError(e, remoteUrl, notification, console);
+            consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
         }
         view.close();
     }
@@ -203,7 +219,8 @@ public class FetchPresenter implements FetchView.ActionDelegate {
      * @param throwable
      *         exception what happened
      */
-    private void handleError(@NotNull Throwable throwable, @NotNull String remoteUrl, StatusNotification notification) {
+    private void handleError(@NotNull Throwable throwable, @NotNull String remoteUrl, StatusNotification notification,
+                             GitOutputConsole console) {
         String errorMessage = throwable.getMessage();
         notification.setStatus(FAIL);
         if (errorMessage == null) {

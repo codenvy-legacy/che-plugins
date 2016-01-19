@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,12 +12,12 @@ package org.eclipse.che.plugin.docker.machine;
 
 import com.google.inject.assistedinject.Assisted;
 
+import org.eclipse.che.api.core.model.machine.Command;
 import org.eclipse.che.api.core.model.machine.MachineState;
 import org.eclipse.che.api.core.util.LineConsumer;
 import org.eclipse.che.api.machine.server.exception.MachineException;
 import org.eclipse.che.api.machine.server.spi.Instance;
 import org.eclipse.che.api.machine.server.spi.InstanceProcess;
-import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.plugin.docker.client.json.ContainerInfo;
 import org.eclipse.che.plugin.docker.machine.node.DockerNode;
 
@@ -30,14 +30,22 @@ public interface DockerMachineFactory {
     /**
      * Creates docker implementation of {@link InstanceProcess} for process that is running or can be started in container
      *
-     * @param container container identifier
-     * @param commandLine command line of process
-     * @param pid id of the {@code InstanceProcess}. It's external PID that may differ from PID inside container
-     * @throws MachineException if error occurs on creation of {@code InstanceProcess}
+     * @param container
+     *         container identifier
+     * @param command
+     *         command that should be executed in the machine
+     * @param outputChannel
+     *         websocket chanel for execution logs
+     * @param pidFilePath
+     *         full path to pid file of the process
+     * @param pid
+     *         id of the {@code InstanceProcess}. It's external PID that may differ from PID inside container
+     * @throws MachineException
+     *         if error occurs on creation of {@code InstanceProcess}
      */
-    InstanceProcess createProcess(@Assisted("container") String container,
-                                  @Assisted("commandName") String commandName,
-                                  @Assisted("commandLine") String commandLine,
+    InstanceProcess createProcess(@Assisted Command command,
+                                  @Assisted("container") String container,
+                                  @Assisted("outputChannel") String outputChannel,
                                   @Assisted("pid_file_path") String pidFilePath,
                                   @Assisted int pid) throws MachineException;
 
@@ -46,12 +54,14 @@ public interface DockerMachineFactory {
      *
      * @param machineState description of machine
      * @param container container that represents {@code Instance}
+     * @param image image from what container was created
      * @param node description of server where container is running
      * @param outputConsumer consumer of output from container main process
      * @throws MachineException if error occurs on creation of {@code Instance}
      */
     Instance createInstance(@Assisted MachineState machineState,
                             @Assisted("container") String container,
+                            @Assisted("image") String image,
                             @Assisted DockerNode node,
                             @Assisted LineConsumer outputConsumer) throws MachineException;
 

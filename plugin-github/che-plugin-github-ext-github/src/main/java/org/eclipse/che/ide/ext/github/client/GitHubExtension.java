@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,8 @@
 package org.eclipse.che.ide.ext.github.client;
 
 import org.eclipse.che.ide.api.extension.Extension;
-import org.eclipse.che.ide.ext.ssh.client.SshKeyService;
+import org.eclipse.che.ide.ext.git.ssh.client.GitSshKeyUploaderRegistry;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -27,7 +28,7 @@ public class GitHubExtension {
     public static final String GITHUB_HOST = "github.com";
 
     @Inject
-    public GitHubExtension(SshKeyService sshKeyService, GitHubSshKeyProvider gitHubSshKeyProvider) {
-        sshKeyService.registerSshKeyProvider(GITHUB_HOST, gitHubSshKeyProvider);
+    public GitHubExtension(GitSshKeyUploaderRegistry registry, GitHubSshKeyUploader gitHubSshKeyProvider) {
+        registry.registerUploader(GITHUB_HOST, gitHubSshKeyProvider);
     }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,12 +13,10 @@ package org.eclipse.che.ide.ext.git.client;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
-import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
-import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.StringUnmarshaller;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.RequestCallback;
@@ -36,23 +34,17 @@ public class GitRepositoryInitializer {
     private final GitLocalizationConstant gitLocale;
     private final AppContext              appContext;
     private final NotificationManager     notificationManager;
-    private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
-    private final ProjectServiceClient    projectServiceClient;
     private final String                  workspaceId;
 
     @Inject
     public GitRepositoryInitializer(GitServiceClient gitService,
                                     GitLocalizationConstant gitLocale,
                                     AppContext appContext,
-                                    NotificationManager notificationManager,
-                                    DtoUnmarshallerFactory dtoUnmarshallerFactory,
-                                    ProjectServiceClient projectServiceClient) {
+                                    NotificationManager notificationManager) {
         this.gitService = gitService;
         this.gitLocale = gitLocale;
         this.appContext = appContext;
         this.notificationManager = notificationManager;
-        this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
-        this.projectServiceClient = projectServiceClient;
         this.workspaceId = appContext.getWorkspaceId();
     }
 
@@ -72,17 +64,7 @@ public class GitRepositoryInitializer {
             gitService.init(workspaceId, project, false, new RequestCallback<Void>() {
                                 @Override
                                 protected void onSuccess(Void result) {
-                                    updateGitProvider(project, new AsyncCallback<ProjectConfigDto>() {
-                                        @Override
-                                        public void onFailure(Throwable caught) {
-                                            callback.onFailure(caught);
-                                        }
-
-                                        @Override
-                                        public void onSuccess(ProjectConfigDto result) {
-                                            callback.onSuccess(null);
-                                        }
-                                    });
+                                    callback.onSuccess(null);
                                 }
 
                                 @Override
@@ -130,27 +112,5 @@ public class GitRepositoryInitializer {
                                              callback.onFailure(exception);
                                          }
                                      });
-    }
-
-    /**
-     * Update information about vcs provider name of current project in application context.
-     */
-    void updateGitProvider(final ProjectConfigDto project, final AsyncCallback<ProjectConfigDto> callback) {
-        // update 'vcs.provider.name' attribute value
-        projectServiceClient.getProject(appContext.getWorkspace().getId(),
-                                        project.getPath(),
-                                        new AsyncRequestCallback<ProjectConfigDto>(
-                                                dtoUnmarshallerFactory.newUnmarshaller(ProjectConfigDto.class)) {
-                                            @Override
-                                            protected void onSuccess(ProjectConfigDto projectConfig) {
-                                                appContext.getCurrentProject().setRootProject(projectConfig);
-                                                callback.onSuccess(projectConfig);
-                                            }
-
-                                            @Override
-                                            protected void onFailure(Throwable throwable) {
-                                                callback.onFailure(throwable);
-                                            }
-                                        });
     }
 }

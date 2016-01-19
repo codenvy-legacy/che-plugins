@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,16 +12,18 @@ package org.eclipse.che.ide.ext.git.client.branch;
 
 import org.eclipse.che.api.git.shared.Branch;
 import org.eclipse.che.api.git.shared.CheckoutRequest;
+import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
+import org.eclipse.che.ide.api.event.project.ProjectUpdatedEvent;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
-import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
@@ -55,6 +57,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.eclipse.che.ide.ext.git.client.branch.BranchPresenter.BRANCH_LIST_COMMAND_NAME;
+import static org.eclipse.che.ide.ext.git.client.branch.BranchPresenter.BRANCH_RENAME_COMMAND_NAME;
+import static org.eclipse.che.ide.ext.git.client.branch.BranchPresenter.BRANCH_DELETE_COMMAND_NAME;
+import static org.eclipse.che.ide.ext.git.client.branch.BranchPresenter.BRANCH_CREATE_COMMAND_NAME;
 
 /**
  * Testing {@link BranchPresenter} functionality.
@@ -64,15 +70,17 @@ import static org.mockito.Mockito.when;
 public class BranchPresenterTest extends BaseTest {
 
     @Captor
-    private ArgumentCaptor<InputCallback>                      inputCallbackCaptor;
+    private ArgumentCaptor<InputCallback>                          inputCallbackCaptor;
     @Captor
-    private ArgumentCaptor<ConfirmCallback>                    confirmCallbackCaptor;
+    private ArgumentCaptor<ConfirmCallback>                        confirmCallbackCaptor;
     @Captor
-    private ArgumentCaptor<AsyncRequestCallback<Branch>>       createBranchCallbackCaptor;
+    private ArgumentCaptor<AsyncRequestCallback<Branch>>           createBranchCallbackCaptor;
     @Captor
-    private ArgumentCaptor<AsyncRequestCallback<List<Branch>>> branchListCallbackCaptor;
+    private ArgumentCaptor<AsyncRequestCallback<List<Branch>>>     branchListCallbackCaptor;
     @Captor
-    private ArgumentCaptor<AsyncRequestCallback<String>>       asyncRequestCallbackCaptor;
+    private ArgumentCaptor<AsyncRequestCallback<String>>           asyncRequestCallbackCaptor;
+    @Captor
+    private ArgumentCaptor<AsyncRequestCallback<ProjectConfigDto>> getProjectCallbackCaptor;
 
     public static final String  BRANCH_NAME        = "branchName";
     public static final String  REMOTE_BRANCH_NAME = "origin/branchName";
@@ -80,27 +88,27 @@ public class BranchPresenterTest extends BaseTest {
     public static final boolean IS_REMOTE          = true;
     public static final boolean IS_ACTIVE          = true;
     @Mock
-    private BranchView               view;
+    private BranchView                view;
     @Mock
-    private EditorInput              editorInput;
+    private EditorInput               editorInput;
     @Mock
-    private EditorAgent              editorAgent;
+    private EditorAgent               editorAgent;
     @Mock
-    private Branch                   selectedBranch;
+    private Branch                    selectedBranch;
     @Mock
-    private EditorPartPresenter      partPresenter;
+    private EditorPartPresenter       partPresenter;
     @Mock
-    private GitOutputPartPresenter   gitConsole;
+    private WorkspaceAgent            workspaceAgent;
     @Mock
-    private WorkspaceAgent           workspaceAgent;
+    private DialogFactory             dialogFactory;
     @Mock
-    private DialogFactory            dialogFactory;
+    private DtoFactory                dtoFactory;
     @Mock
-    private DtoFactory               dtoFactory;
+    private ProjectExplorerPresenter  projectExplorer;
     @Mock
-    private ProjectExplorerPresenter projectExplorer;
+    private CheckoutRequest           checkoutRequest;
     @Mock
-    private CheckoutRequest          checkoutRequest;
+    private ProjectServiceClient      projectService;
 
     private BranchPresenter presenter;
 
@@ -113,12 +121,13 @@ public class BranchPresenterTest extends BaseTest {
                                         dtoFactory,
                                         editorAgent,
                                         service,
+                                        projectService,
                                         constant,
                                         appContext,
                                         notificationManager,
                                         dtoUnmarshallerFactory,
-                                        gitConsole,
-                                        workspaceAgent,
+                                        gitOutputConsoleFactory,
+                                        consolesPanelPresenter,
                                         dialogFactory,
                                         projectExplorer,
                                         eventBus);
@@ -147,7 +156,7 @@ public class BranchPresenterTest extends BaseTest {
         verify(appContext).getCurrentProject();
         verify(view).showDialogIfClosed();
         verify(view).setBranches(eq(branches));
-        verify(gitConsole, never()).printError(anyString());
+        verify(console, never()).printError(anyString());
         verify(notificationManager, never()).notify(anyString(), any(ProjectConfigDto.class));
         verify(constant, never()).branchesListFailed();
     }
@@ -162,9 +171,11 @@ public class BranchPresenterTest extends BaseTest {
 
         verify(appContext).getCurrentProject();
         verify(view, never()).showDialogIfClosed();
-        verify(gitConsole).printError(anyString());
-        verify(notificationManager).notify(anyString(), eq(rootProjectConfig));
-        verify(constant).branchesListFailed();
+        verify(gitOutputConsoleFactory).create(BRANCH_LIST_COMMAND_NAME);
+        verify(console).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
+        verify(notificationManager).notify(anyString(), anyObject(), eq(true), eq(rootProjectConfig));
+        verify(constant, times(2)).branchesListFailed();
     }
 
     @Test
@@ -200,7 +211,7 @@ public class BranchPresenterTest extends BaseTest {
         verify(selectedBranch, times(2)).getDisplayName();
         verify(service, times(2)).branchList(anyString(), eq(rootProjectConfig), eq(LIST_ALL), anyObject());
         verify(dialogFactory, never()).createConfirmDialog(anyString(), anyString(), anyObject(), anyObject());
-        verify(gitConsole, never()).printError(anyString());
+        verify(console, never()).printError(anyString());
         verify(notificationManager, never()).notify(anyString(), eq(rootProjectConfig));
         verify(constant, never()).branchRenameFailed();
     }
@@ -237,7 +248,7 @@ public class BranchPresenterTest extends BaseTest {
         verify(selectedBranch, times(2)).getDisplayName();
         verify(service, times(2))
                 .branchList(anyString(), eq(rootProjectConfig), eq(LIST_ALL), anyObject());
-        verify(gitConsole, never()).printError(anyString());
+        verify(console, never()).printError(anyString());
         verify(notificationManager, never()).notify(anyString(), eq(rootProjectConfig));
         verify(constant, never()).branchRenameFailed();
     }
@@ -270,9 +281,11 @@ public class BranchPresenterTest extends BaseTest {
         GwtReflectionUtils.callOnFailure(renameBranchCallback, mock(Throwable.class));
 
         verify(selectedBranch, times(2)).getDisplayName();
-        verify(gitConsole).printError(anyString());
-        verify(notificationManager).notify(anyString(), eq(rootProjectConfig));
-        verify(constant).branchRenameFailed();
+        verify(gitOutputConsoleFactory).create(BRANCH_RENAME_COMMAND_NAME);
+        verify(console).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
+        verify(notificationManager).notify(anyString(), anyObject(), eq(true), eq(rootProjectConfig));
+        verify(constant, times(2)).branchRenameFailed();
     }
 
     @Test
@@ -287,7 +300,7 @@ public class BranchPresenterTest extends BaseTest {
         verify(selectedBranch).getName();
         verify(service, times(2)).branchList(anyString(), eq(rootProjectConfig), eq(LIST_ALL), anyObject());
         verify(constant, never()).branchDeleteFailed();
-        verify(gitConsole, never()).printError(anyString());
+        verify(console, never()).printError(anyString());
         verify(notificationManager, never()).notify(anyString(), eq(rootProjectConfig));
     }
 
@@ -302,8 +315,10 @@ public class BranchPresenterTest extends BaseTest {
 
         verify(selectedBranch).getName();
         verify(constant, times(2)).branchDeleteFailed();
-        verify(gitConsole).printError(anyString());
-        verify(notificationManager).notify(anyString(), eq(rootProjectConfig));
+        verify(gitOutputConsoleFactory).create(BRANCH_DELETE_COMMAND_NAME);
+        verify(console).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
+        verify(notificationManager).notify(anyString(), anyObject(), eq(true), eq(rootProjectConfig));
     }
 
     @Test
@@ -356,6 +371,9 @@ public class BranchPresenterTest extends BaseTest {
         AsyncRequestCallback<String> checkoutBranchCallback = asyncRequestCallbackCaptor.getValue();
         GwtReflectionUtils.callOnSuccess(checkoutBranchCallback, PROJECT_PATH);
 
+        AsyncRequestCallback<ProjectConfigDto> getProjectCallback = getProjectCallbackCaptor.getValue();
+        GwtReflectionUtils.callOnSuccess(getProjectCallback, PROJECT_PATH);
+
         verify(editorAgent).getOpenedEditors();
         verify(selectedBranch, times(2)).getDisplayName();
         verify(selectedBranch).isRemote();
@@ -364,10 +382,12 @@ public class BranchPresenterTest extends BaseTest {
                                        anyObject());
         verify(service, times(2)).branchList(anyString(), eq(rootProjectConfig), eq(LIST_ALL), anyObject());
         verify(appContext).getCurrentProject();
-        verify(gitConsole, never()).printError(anyString());
+        verify(console, never()).printError(anyString());
         verify(notificationManager, never()).notify(anyString(), eq(rootProjectConfig));
         verify(eventBus).fireEvent(Matchers.<FileContentUpdateEvent>anyObject());
         verify(constant, never()).branchCheckoutFailed();
+        verify(projectService).getProject(anyString(), anyString(), anyObject());
+        verify(eventBus).fireEvent(Matchers.<ProjectUpdatedEvent>anyObject());
     }
 
     @Test
@@ -415,6 +435,7 @@ public class BranchPresenterTest extends BaseTest {
 
         verify(selectedBranch, times(2)).getDisplayName();
         verify(selectedBranch).isRemote();
+        verify(notificationManager).notify(anyString(), eq(StatusNotification.Status.FAIL), eq(true), eq(rootProjectConfig));
     }
 
     @Test
@@ -455,9 +476,11 @@ public class BranchPresenterTest extends BaseTest {
         AsyncRequestCallback<Branch> createBranchCallback = createBranchCallbackCaptor.getValue();
         GwtReflectionUtils.callOnFailure(createBranchCallback, exception);
 
-        verify(constant).branchCreateFailed();
-        verify(gitConsole).printError(anyString());
-        verify(notificationManager).notify(anyString(), eq(rootProjectConfig));
+        verify(constant, times(2)).branchCreateFailed();
+        verify(gitOutputConsoleFactory).create(BRANCH_CREATE_COMMAND_NAME);
+        verify(console).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
+        verify(notificationManager).notify(anyString(), anyObject(), eq(true), eq(rootProjectConfig));
     }
 
     @Test

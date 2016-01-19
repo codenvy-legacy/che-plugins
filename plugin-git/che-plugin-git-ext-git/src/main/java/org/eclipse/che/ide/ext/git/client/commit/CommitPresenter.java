@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,7 +23,9 @@ import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.ext.git.client.DateTimeFormatter;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
-import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsole;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
@@ -44,7 +46,8 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAI
  */
 @Singleton
 public class CommitPresenter implements CommitView.ActionDelegate {
-    private final GitOutputPartPresenter  console;
+    public static final String COMMIT_COMMAND_NAME = "Git commit";
+
     private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
     private final AppContext              appContext;
     private final CommitView              view;
@@ -52,6 +55,8 @@ public class CommitPresenter implements CommitView.ActionDelegate {
     private final GitLocalizationConstant constant;
     private final NotificationManager     notificationManager;
     private final DateTimeFormatter       dateTimeFormatter;
+    private final GitOutputConsoleFactory gitOutputConsoleFactory;
+    private final ConsolesPanelPresenter  consolesPanelPresenter;
     private final SelectionAgent          selectionAgent;
     private final String                  workspaceId;
 
@@ -59,17 +64,19 @@ public class CommitPresenter implements CommitView.ActionDelegate {
     public CommitPresenter(CommitView view,
                            GitServiceClient service,
                            GitLocalizationConstant constant,
-                           GitOutputPartPresenter console,
                            NotificationManager notificationManager,
                            DtoUnmarshallerFactory dtoUnmarshallerFactory,
                            AppContext appContext,
                            DateTimeFormatter dateTimeFormatter,
-                           final SelectionAgent selectionAgent) {
+                           final SelectionAgent selectionAgent,
+                           GitOutputConsoleFactory gitOutputConsoleFactory,
+                           ConsolesPanelPresenter consolesPanelPresenter) {
         this.view = view;
-        this.console = console;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.appContext = appContext;
         this.dateTimeFormatter = dateTimeFormatter;
+        this.gitOutputConsoleFactory = gitOutputConsoleFactory;
+        this.consolesPanelPresenter = consolesPanelPresenter;
         this.view.setDelegate(this);
         this.service = service;
         this.constant = constant;
@@ -159,7 +166,9 @@ public class CommitPresenter implements CommitView.ActionDelegate {
                                    if (!result.isFake()) {
                                        onCommitSuccess(result);
                                    } else {
+                                       GitOutputConsole console = gitOutputConsoleFactory.create(COMMIT_COMMAND_NAME);
                                        console.printError(result.getMessage());
+                                       consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                                        notificationManager.notify(constant.commited(), result.getMessage(),
                                                                   appContext.getCurrentProject().getRootProject());
                                    }
@@ -183,8 +192,10 @@ public class CommitPresenter implements CommitView.ActionDelegate {
                                if (!result.isFake()) {
                                    onCommitSuccess(result);
                                } else {
+                                   GitOutputConsole console = gitOutputConsoleFactory.create(COMMIT_COMMAND_NAME);
                                    console.printError(result.getMessage());
-                                   notificationManager.notify(constant.commitFailed(), FAIL, true,
+                                   consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
+                                   notificationManager.notify(constant.commitFailed(), result.getMessage(), FAIL, true,
                                                               appContext.getCurrentProject().getRootProject());
                                }
                            }
@@ -226,8 +237,9 @@ public class CommitPresenter implements CommitView.ActionDelegate {
              !revision.getCommitter().getName().isEmpty())) {
             message += " " + constant.commitUser(revision.getCommitter().getName());
         }
-
+        GitOutputConsole console = gitOutputConsoleFactory.create(COMMIT_COMMAND_NAME);
         console.printInfo(message);
+        consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
         notificationManager.notify(message, appContext.getCurrentProject().getRootProject());
         view.setMessage("");
     }
@@ -240,7 +252,9 @@ public class CommitPresenter implements CommitView.ActionDelegate {
      */
     private void handleError(@NotNull Throwable e) {
         String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.commitFailed();
+        GitOutputConsole console = gitOutputConsoleFactory.create(COMMIT_COMMAND_NAME);
         console.printError(errorMessage);
+        consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
         notificationManager.notify(constant.commitFailed(), FAIL, true, appContext.getCurrentProject().getRootProject());
     }
 
@@ -260,26 +274,27 @@ public class CommitPresenter implements CommitView.ActionDelegate {
     @Override
     public void setAmendCommitMessage() {
         final Unmarshallable<LogResponse> unmarshall = dtoUnmarshallerFactory.newUnmarshaller(LogResponse.class);
-        this.service.log(workspaceId, appContext.getCurrentProject().getRootProject(), false, new AsyncRequestCallback<LogResponse>(unmarshall) {
-            @Override
-            protected void onSuccess(final LogResponse result) {
-                final List<Revision> commits = result.getCommits();
-                String message = "";
-                if (commits != null && (!commits.isEmpty())) {
-                    final Revision tip = commits.get(0);
-                    if (tip != null) {
-                        message = tip.getMessage();
-                    }
-                }
-                CommitPresenter.this.view.setMessage(message);
-                CommitPresenter.this.view.setEnableCommitButton(!message.isEmpty());
-            }
+        this.service.log(workspaceId, appContext.getCurrentProject().getRootProject(), false,
+                         new AsyncRequestCallback<LogResponse>(unmarshall) {
+                             @Override
+                             protected void onSuccess(final LogResponse result) {
+                                 final List<Revision> commits = result.getCommits();
+                                 String message = "";
+                                 if (commits != null && (!commits.isEmpty())) {
+                                     final Revision tip = commits.get(0);
+                                     if (tip != null) {
+                                         message = tip.getMessage();
+                                     }
+                                 }
+                                 CommitPresenter.this.view.setMessage(message);
+                                 CommitPresenter.this.view.setEnableCommitButton(!message.isEmpty());
+                             }
 
-            @Override
-            protected void onFailure(final Throwable exception) {
-                Log.warn(CommitPresenter.class, "Git log failed", exception);
-                CommitPresenter.this.view.setMessage("");
-            }
-        });
+                             @Override
+                             protected void onFailure(final Throwable exception) {
+                                 Log.warn(CommitPresenter.class, "Git log failed", exception);
+                                 CommitPresenter.this.view.setMessage("");
+                             }
+                         });
     }
 }

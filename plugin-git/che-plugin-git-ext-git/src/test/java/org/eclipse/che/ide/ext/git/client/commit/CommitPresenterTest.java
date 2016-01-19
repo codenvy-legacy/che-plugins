@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.eclipse.che.ide.ext.git.client.commit.CommitPresenter.COMMIT_COMMAND_NAME;
 
 /**
  * Testing {@link CommitPresenter} functionality.
@@ -65,12 +66,13 @@ public class CommitPresenterTest extends BaseTest {
         presenter = new CommitPresenter(view,
                                         service,
                                         constant,
-                                        console,
                                         notificationManager,
                                         dtoUnmarshallerFactory,
                                         appContext,
                                         dateTimeFormatter,
-                                        selectionAgent);
+                                        selectionAgent,
+                                        gitOutputConsoleFactory,
+                                        consolesPanelPresenter);
 
         when(revision.isFake()).thenReturn(false);
     }
@@ -129,7 +131,9 @@ public class CommitPresenterTest extends BaseTest {
 
         verify(service).commit(anyString(), eq(rootProjectConfig), eq(COMMIT_TEXT), eq(ALL_FILE_INCLUDES), eq(IS_OVERWRITTEN),
                                (AsyncRequestCallback<Revision>)anyObject());
+        verify(gitOutputConsoleFactory).create(COMMIT_COMMAND_NAME);
         verify(console).printInfo(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 
@@ -162,7 +166,9 @@ public class CommitPresenterTest extends BaseTest {
         verify(service).commit(anyString(), eq(rootProjectConfig), eq(COMMIT_TEXT), eq(ALL_FILE_INCLUDES), eq(IS_OVERWRITTEN),
                                (AsyncRequestCallback<Revision>)anyObject());
         verify(constant).commitFailed();
+        verify(gitOutputConsoleFactory).create(COMMIT_COMMAND_NAME);
         verify(console).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 

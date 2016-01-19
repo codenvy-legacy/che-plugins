@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,9 @@ import org.eclipse.che.api.git.shared.Remote;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.notification.NotificationManager;
-import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsole;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.StringUnmarshaller;
@@ -27,6 +29,7 @@ import com.google.inject.Singleton;
 import java.util.List;
 
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
+import static org.eclipse.che.ide.ext.git.client.remote.RemotePresenter.REMOTE_REPO_COMMAND_NAME;
 
 /**
  * Presenter for showing git url.
@@ -36,9 +39,12 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAI
  */
 @Singleton
 public class ShowProjectGitReadOnlyUrlPresenter implements ShowProjectGitReadOnlyUrlView.ActionDelegate {
+    private static final String READ_ONLY_URL_COMMAND_NAME = "Git read only url";
+
     private final DtoUnmarshallerFactory        dtoUnmarshallerFactory;
-    private final GitOutputPartPresenter        console;
     private final ShowProjectGitReadOnlyUrlView view;
+    private final GitOutputConsoleFactory       gitOutputConsoleFactory;
+    private final ConsolesPanelPresenter        consolesPanelPresenter;
     private final GitServiceClient              service;
     private final AppContext                    appContext;
     private final GitLocalizationConstant       constant;
@@ -50,11 +56,13 @@ public class ShowProjectGitReadOnlyUrlPresenter implements ShowProjectGitReadOnl
                                               GitServiceClient service,
                                               AppContext appContext,
                                               GitLocalizationConstant constant,
-                                              GitOutputPartPresenter console,
                                               NotificationManager notificationManager,
-                                              DtoUnmarshallerFactory dtoUnmarshallerFactory) {
+                                              DtoUnmarshallerFactory dtoUnmarshallerFactory,
+                                              GitOutputConsoleFactory gitOutputConsoleFactory,
+                                              ConsolesPanelPresenter consolesPanelPresenter) {
         this.view = view;
-        this.console = console;
+        this.gitOutputConsoleFactory = gitOutputConsoleFactory;
+        this.consolesPanelPresenter = consolesPanelPresenter;
         this.view.setDelegate(this);
         this.service = service;
         this.appContext = appContext;
@@ -81,7 +89,9 @@ public class ShowProjectGitReadOnlyUrlPresenter implements ShowProjectGitReadOnl
                                    String errorMessage =
                                            exception.getMessage() != null ? exception.getMessage()
                                                                           : constant.remoteListFailed();
+                                   GitOutputConsole console = gitOutputConsoleFactory.create(REMOTE_REPO_COMMAND_NAME);
                                    console.printError(errorMessage);
+                                   consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                                    notificationManager.notify(constant.remoteListFailed(), FAIL, true, project.getRootProject());
                                }
                            }
@@ -97,7 +107,10 @@ public class ShowProjectGitReadOnlyUrlPresenter implements ShowProjectGitReadOnl
                                       protected void onFailure(Throwable exception) {
                                           String errorMessage = exception.getMessage() != null && !exception.getMessage().isEmpty()
                                                                 ? exception.getMessage() : constant.initFailed();
+                                          final GitOutputConsole console = gitOutputConsoleFactory.create(READ_ONLY_URL_COMMAND_NAME);
                                           console.printError(errorMessage);
+                                          consolesPanelPresenter
+                                                  .addCommandOutput(appContext.getDevMachineId(), console);
                                           notificationManager.notify(constant.initFailed(), FAIL, true, project.getRootProject());
                                       }
                                   });

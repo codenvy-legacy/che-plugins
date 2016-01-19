@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -71,6 +71,22 @@ public interface ConsolesPanelView extends View<ConsolesPanelView.ActionDelegate
     /** Returns node by given ID */
     ProcessTreeNode getNodeById(@NotNull String nodeId);
 
+    /**
+     * Sets visibility of 'Stop process' button depending on is process selected or not
+     *
+     * @param nodeId
+     *         id of selected node
+     */
+    void refreshStopProcessButtonState(String nodeId);
+
+    /**
+     * Hides stop button on process widget.
+     *
+     * @param nodeId
+     *        id of process widget
+     */
+    void hideStopButton(String nodeId);
+
     interface ActionDelegate extends BaseActionDelegate {
 
         /**
@@ -80,6 +96,14 @@ public interface ConsolesPanelView extends View<ConsolesPanelView.ActionDelegate
          *         id of machine in which the terminal will be added
          */
         void onAddTerminal(@NotNull String machineId);
+
+        /**
+         * Will be called when user clicks 'Preview Ssh' button
+         *
+         * @param machineId
+         *         id of machine in which ssh keys are located
+         */
+        void onPreviewSsh(@NotNull String machineId);
 
         /**
          * Will be called when user selects command node
@@ -99,12 +123,12 @@ public interface ConsolesPanelView extends View<ConsolesPanelView.ActionDelegate
 
 
         /**
-         * Will be called when user clicks 'Close' button
+         * Will be called when user clicks 'Stop' button
          *
          * @param node
-         *         command node to close
+         *         node of process to stop without closing output
          */
-        void onCloseCommandConsole(@NotNull ProcessTreeNode node);
+        void onStopCommandProcess(@NotNull ProcessTreeNode node);
 
         /**
          * Will be called when user clicks 'Close' button
@@ -113,6 +137,13 @@ public interface ConsolesPanelView extends View<ConsolesPanelView.ActionDelegate
          *         terminal node to close
          */
         void onCloseTerminal(@NotNull ProcessTreeNode node);
-    }
 
+        /**
+         * Will be called when user clicks 'Close' button
+         *
+         * @param node
+         *         node of process to stop with closing output
+         */
+        void onCloseCommandOutputClick(@NotNull ProcessTreeNode node);
+    }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,17 +10,18 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.outputspanel.console;
 
+import com.google.common.base.Strings;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.dom.client.Style;
-import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.safehtml.shared.SimpleHtmlSanitizer;
+import com.google.gwt.dom.client.Node;
+import com.google.gwt.dom.client.PreElement;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -33,23 +34,39 @@ import com.google.inject.Inject;
  */
 public class OutputConsoleViewImpl extends Composite implements OutputConsoleView {
 
-    private static final OutputConsoleViewUiBinder UI_BINDER = GWT.create(OutputConsoleViewUiBinder.class);
+    interface OutputConsoleViewUiBinder extends UiBinder<Widget, OutputConsoleViewImpl> {
+    }
 
-    private static final String PRE_STYLE = "style='margin:0px;'";
+    private static final OutputConsoleViewUiBinder UI_BINDER = GWT.create(OutputConsoleViewUiBinder.class);
 
     private ActionDelegate delegate;
 
-    /** scroll events to the bottom if view is visible */
-    private boolean scrollBottomRequired = false;
+    @UiField
+    DockLayoutPanel consolePanel;
+
+    @UiField
+    FlowPanel   commandPanel;
+
+    @UiField
+    FlowPanel   previewPanel;
+
+    @UiField
+    Label       commandTitle;
+
+    @UiField
+    Label       commandLabel;
 
     @UiField
     ScrollPanel scrollPanel;
+    
     @UiField
-    FlowPanel   consoleArea;
+    FlowPanel   consoleLines;
+
     @UiField
-    Label       commandLabel;
-    @UiField
-    Label       commandTitle;
+    Anchor      previewUrlLabel;
+    
+    /** scroll events to the bottom if view is visible */
+    private boolean scrollBottomRequired = false;
 
     /** If true - next printed line should replace the previous one. */
     private boolean carriageReturn;
@@ -65,38 +82,52 @@ public class OutputConsoleViewImpl extends Composite implements OutputConsoleVie
     }
 
     @Override
+    public void hideCommand() {
+        consolePanel.setWidgetHidden(commandPanel, true);
+    }
+
+    @Override
+    public void hidePreview() {
+        consolePanel.setWidgetHidden(previewPanel, true);
+    }
+
+    @Override
     public void printCommandLine(String commandLine) {
         commandLabel.setText(commandLine);
     }
 
     @Override
-    public void print(String message, boolean cr) {
-        final HTML html = new HTML(buildSafeHtmlMessage(message));
-        html.getElement().getStyle().setPaddingLeft(2, Style.Unit.PX);
+    public void printPreviewUrl(String previewUrl) {
+        if (!Strings.isNullOrEmpty(previewUrl)) {
+            previewUrlLabel.setText(previewUrl);
+            previewUrlLabel.setTitle(previewUrl);
+            previewUrlLabel.setHref(previewUrl);
+        } else {
+            hidePreview();
+        }
+    }
 
+    @Override
+    public void print(String message, boolean cr) {
         if (carriageReturn) {
-            consoleArea.remove(consoleArea.getWidgetCount() - 1);
-            carriageReturn = false;
+            Node lastChild = consoleLines.getElement().getLastChild();
+            if (lastChild != null) {
+                lastChild.removeFromParent();
+            }
         }
 
         carriageReturn = cr;
-        consoleArea.add(html);
-    }
 
-    /** Return sanitized message (with all restricted HTML-tags escaped) in {@link SafeHtml}. */
-    private SafeHtml buildSafeHtmlMessage(String message) {
-        return new SafeHtmlBuilder()
-                .appendHtmlConstant("<pre " + PRE_STYLE + ">")
-                .append(SimpleHtmlSanitizer.sanitizeHtml(message.isEmpty() ? " " : message))
-                .appendHtmlConstant("</pre>")
-                .toSafeHtml();
+        PreElement pre = DOM.createElement("pre").cast();
+        pre.setInnerText(message.isEmpty() ? " " : message);
+        consoleLines.getElement().appendChild(pre);
     }
 
     @Override
     public void scrollBottom() {
         /** scroll bottom immediately if view is visible */
         if (scrollPanel.getElement().getOffsetParent() != null) {
-            scrollPanel.getElement().setScrollTop(scrollPanel.getElement().getScrollHeight());
+            scrollPanel.scrollToBottom();
             return;
         }
 
@@ -108,22 +139,15 @@ public class OutputConsoleViewImpl extends Composite implements OutputConsoleVie
                 @Override
                 public boolean execute() {
                     if (scrollPanel.getElement().getOffsetParent() != null) {
-                        scrollPanel.getElement().setScrollTop(scrollPanel.getElement().getScrollHeight());
+                        scrollPanel.scrollToBottom();
                         scrollBottomRequired = false;
                         return false;
                     }
                     return true;
                 }
-            }, 500);
+            }, 1000);
         }
     }
 
-    @Override
-    public void hideCommand() {
-        commandTitle.setVisible(false);
-        commandLabel.setVisible(false);
-    }
 
-    interface OutputConsoleViewUiBinder extends UiBinder<Widget, OutputConsoleViewImpl> {
-    }
 }

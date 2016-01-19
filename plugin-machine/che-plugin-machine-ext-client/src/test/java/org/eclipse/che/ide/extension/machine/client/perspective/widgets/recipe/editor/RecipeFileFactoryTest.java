@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,6 @@ import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
-import org.eclipse.che.ide.api.project.tree.TreeStructure;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -73,8 +72,6 @@ public class RecipeFileFactoryTest {
     private CurrentProject currentProject;
     @Mock
     private ItemReference  itemReference;
-    @Mock
-    private TreeStructure  treeStructure;
 
     @InjectMocks
     private RecipeFileFactory factory;
@@ -89,17 +86,8 @@ public class RecipeFileFactoryTest {
         when(itemReference.withMediaType(TYPE)).thenReturn(itemReference);
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void illegalStateExceptionShouldBeThrownWhenCurrentProjectIsNull() throws Exception {
-        when(appContext.getCurrentProject()).thenReturn(null);
-
-        factory.newInstance(SOME_TEXT);
-    }
-
     @Test
     public void dockerFileShouldBeCreated() throws Exception {
-        when(currentProject.getCurrentTree()).thenReturn(treeStructure);
-
         VirtualFile fileNode = factory.newInstance(SOME_TEXT);
 
         verify(dtoFactory).createDto(ItemReference.class);

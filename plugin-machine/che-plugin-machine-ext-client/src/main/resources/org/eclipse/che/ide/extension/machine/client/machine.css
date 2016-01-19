@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,29 +9,70 @@
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
 @eval partBackground org.eclipse.che.ide.api.theme.Style.theme.partBackground();
-@eval outputFontColor org.eclipse.che.ide.api.theme.Style.getOutputFontColor();
+@eval outputFontColor org.eclipse.che.ide.api.theme.Style.theme.getOutputFontColor();
 @eval successColor org.eclipse.che.ide.api.theme.Style.getSuccessColor();
 @eval categoryHeaderButtonColor org.eclipse.che.ide.api.theme.Style.theme.categoryHeaderButtonColor();
 @eval categoryElementButtonHoverColor org.eclipse.che.ide.api.theme.Style.theme.categoryElementButtonHoverColor();
+@eval processTreeBackgroundColor org.eclipse.che.ide.api.theme.Style.theme.processTreeBackgroundColor();
+@eval outputBackgroundColor org.eclipse.che.ide.api.theme.Style.theme.outputBackgroundColor();
+@eval outputFontColor org.eclipse.che.ide.api.theme.Style.theme.getOutputFontColor();
+@eval editorTabIconColor org.eclipse.che.ide.api.theme.Style.getEditorTabIconColor();
+@eval outputBoxShadow org.eclipse.che.ide.api.theme.Style.theme.outputBoxShadow();
+@eval processTreeDevLabel org.eclipse.che.ide.api.theme.Style.theme.processTreeDevLabel();
+
+@external .terminal, .terminal-cursor;
+
+.terminal {
+    border-color: transparent;
+    background-color: outputBackgroundColor;
+    border-width: 0px;
+    margin-left: 0px;
+    margin-top: 0px;
+
+    color: outputFontColor;
+    line-height: 13px;
+}
+
+.terminal-cursor {
+    background: #4EABFF;
+}
 
 .fullSize {
     width: 100% !important;
     height: 100% !important;
 }
 
-.machineConsole, .commandConsole {
-    background-color: partBackground;
+.machineConsole,
+.commandConsole {
+    background-color: outputBackgroundColor;
     -moz-user-select: text;
     -webkit-user-select: text;
     user-select: text;
     color: outputFontColor;
-    margin-top: 4px;
     outline: none;
+    border-top: 1px solid separatorColor;
+    -webkit-box-shadow: outputBoxShadow;
+    -moz-box-shadow: outputBoxShadow;
+    box-shadow: outputBoxShadow;
+    padding: 3px;
+    margin-bottom: 3px;
 }
 
-.machineConsole pre, .commandConsole pre {
+.machineConsole pre,
+.commandConsole pre {
     font-family: outputFontFamily;
     font-size: fontSize;
+}
+
+.commandConsoleLines {
+    width: 100%;
+}
+
+.commandConsoleLines > pre {
+    width: 100%;
+    word-wrap: break-word;
+    padding: 0;
+    margin: 0;
 }
 
 .consoleToolbar {
@@ -55,7 +96,6 @@
 }
 
 .outputsContainerConsoleTabSelected {
-    color: #ffffff;
 }
 
 .outputsContainerConsoleTabSelected:before {
@@ -81,6 +121,7 @@
 .outputsContainerConsoleTabLabel {
     position: relative;
     top: 2px;
+    color: outputFontColor;
 }
 
 .outputsContainerConsoleTabCloseButton {
@@ -182,6 +223,9 @@
     font-size: fontSize;
     color: mainFontColor;
     text-shadow: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
 }
 
 .processTree .devMachineLabel {
@@ -199,27 +243,42 @@
     line-height: 18px;
 }
 
+.processTree .machineLabel {
+    font-weight: bold;
+}
+
 .processTree .machineStatus {
     float: right;
-    background-color: successColor;
     width: 10px;
     height: 10px;
     border-radius: 5px;
     margin: 4px 5px;
+
+    background-color: #46AF00;
+    border: 1px solid #7ED321;
+    box-sizing: border-box;
+}
+
+.sshButton {
+    font-size: 10px;
+    float: right;
+    margin-right: 2px;
+    color: categoryHeaderButtonColor;
+    cursor: pointer;
 }
 
 .processTree .processButton {
     float: right;
     color: categoryHeaderButtonColor;
     border: 1px solid categoryHeaderButtonColor;
-    margin: 4px 6px 0 5px;
-    width: 11px;
-    height: 11px;
+    margin: 3px 6px 0 5px;
+    width: 14px;
+    height: 13px;
     opacity: 0.5;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: bold;
     border-radius: 2px;
-    line-height: 9px;
+    line-height: 10px;
     box-sizing: border-box;
     text-align: center;
     cursor: pointer;
@@ -230,7 +289,8 @@
     stroke: categoryHeaderButtonHoverColor;
 }
 
-.processButton:hover {
+.processButton:hover,
+.sshButton:hover {
     filter: brightness(120%);
     -webkit-filter: brightness(120%);
 }
@@ -248,15 +308,23 @@
     padding: 0 1px 2px 0;
 }
 
+.processIcon svg path {
+    fill: iconColor;
+}
+
+.processTree div[selected="true"] .processIcon svg path {
+    fill: activeIconColor;
+}
+
 .processNavigation {
-    border-right: 1px solid separatorColor;
-    margin-right: 8px;
+    outline: none;
 }
 
 .processOutputPanel {
     -moz-user-select: text;
     -webkit-user-select: auto;
     user-select: text;
+    background-color: outputBackgroundColor;
 }
 
 div.processHeaderTitle {
@@ -269,9 +337,47 @@ div.processHeaderTitle {
     color: successColor !important;
 }
 
+.processesPanelStopButtonForProcess {
+    float: right;
+    background-color: editorTabIconColor;
+    opacity: 0.3;
+    margin: 4px 5px 0 5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.processesPanelStopButtonForProcess:hover {
+    opacity: 0.5;
+}
+
 .processesPanelCloseButtonForProcess {
+    float: right;
+}
+
+.processesPanelCloseButtonForProcess svg {
     cursor: pointer;
     opacity: 0.5;
-    padding: 6px 7px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 8px;
+    padding-right: 9px;
     float: right;
+    fill: editorTabIconColor;
+}
+
+.processesPanelCloseButtonForProcess svg g,
+.processesPanelCloseButtonForProcess svg path {
+    fill: editorTabIconColor;
+}
+
+.processTree div[selected="true"] .processesPanelCloseButtonForProcess svg,
+.processesPanelCloseButtonForProcess:HOVER svg {
+    opacity: 1;
+}
+
+.hideStopButton .processesPanelStopButtonForProcess {
+    display: none;
 }

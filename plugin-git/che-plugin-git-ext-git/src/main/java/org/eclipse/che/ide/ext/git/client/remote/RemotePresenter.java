@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,15 +13,20 @@ package org.eclipse.che.ide.ext.git.client.remote;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.git.shared.Remote;
+import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.api.event.project.ProjectUpdatedEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
-import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsole;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsoleFactory;
 import org.eclipse.che.ide.ext.git.client.remote.add.AddRemoteRepositoryPresenter;
+import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
@@ -37,31 +42,43 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAI
  */
 @Singleton
 public class RemotePresenter implements RemoteView.ActionDelegate {
-    private final DtoUnmarshallerFactory dtoUnmarshallerFactory;
-    private final GitOutputPartPresenter console;
+    public static final String REMOTE_REPO_COMMAND_NAME = "Git list of remotes";
 
-    private RemoteView                   view;
-    private GitServiceClient             service;
-    private AppContext                   appContext;
-    private GitLocalizationConstant      constant;
-    private AddRemoteRepositoryPresenter addRemoteRepositoryPresenter;
-    private NotificationManager          notificationManager;
-    private Remote                       selectedRemote;
-    private ProjectConfigDto             project;
-    private String                       workspaceId;
+    private final EventBus                eventBus;
+    private final ProjectServiceClient    projectService;
+    private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
+    private final GitOutputConsoleFactory gitOutputConsoleFactory;
+    private final ConsolesPanelPresenter  consolesPanelPresenter;
+
+    private final RemoteView                   view;
+    private final GitServiceClient             service;
+    private final AppContext                   appContext;
+    private final GitLocalizationConstant      constant;
+    private final AddRemoteRepositoryPresenter addRemoteRepositoryPresenter;
+    private final NotificationManager          notificationManager;
+
+    private Remote           selectedRemote;
+    private ProjectConfigDto project;
+    private String           workspaceId;
 
     @Inject
     public RemotePresenter(RemoteView view,
                            GitServiceClient service,
                            AppContext appContext,
+                           EventBus eventBus,
                            GitLocalizationConstant constant,
+                           ProjectServiceClient projectService,
                            AddRemoteRepositoryPresenter addRemoteRepositoryPresenter,
                            NotificationManager notificationManager,
                            DtoUnmarshallerFactory dtoUnmarshallerFactory,
-                           GitOutputPartPresenter console) {
+                           GitOutputConsoleFactory gitOutputConsoleFactory,
+                           ConsolesPanelPresenter consolesPanelPresenter) {
         this.view = view;
+        this.eventBus = eventBus;
+        this.projectService = projectService;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
-        this.console = console;
+        this.gitOutputConsoleFactory = gitOutputConsoleFactory;
+        this.consolesPanelPresenter = consolesPanelPresenter;
         this.view.setDelegate(this);
         this.service = service;
         this.appContext = appContext;
@@ -121,12 +138,15 @@ public class RemotePresenter implements RemoteView.ActionDelegate {
             @Override
             public void onSuccess(Void result) {
                 getRemotes();
+                refreshProject();
             }
 
             @Override
             public void onFailure(Throwable caught) {
                 String errorMessage = caught.getMessage() != null ? caught.getMessage() : constant.remoteAddFailed();
+                GitOutputConsole console = gitOutputConsoleFactory.create(REMOTE_REPO_COMMAND_NAME);
                 console.printError(errorMessage);
+                consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                 notificationManager.notify(constant.remoteAddFailed(), FAIL, true, project);
             }
         });
@@ -147,12 +167,15 @@ public class RemotePresenter implements RemoteView.ActionDelegate {
             @Override
             protected void onSuccess(String result) {
                 getRemotes();
+                refreshProject();
             }
 
             @Override
             protected void onFailure(Throwable exception) {
                 String errorMessage = exception.getMessage() != null ? exception.getMessage() : constant.remoteDeleteFailed();
+                GitOutputConsole console = gitOutputConsoleFactory.create(REMOTE_REPO_COMMAND_NAME);
                 console.printError(errorMessage);
+                consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                 notificationManager.notify(constant.remoteDeleteFailed(), FAIL, true, project);
             }
         });
@@ -168,7 +191,24 @@ public class RemotePresenter implements RemoteView.ActionDelegate {
     }
 
     private void handleError(@NotNull String errorMessage) {
+        GitOutputConsole console = gitOutputConsoleFactory.create(REMOTE_REPO_COMMAND_NAME);
         console.printError(errorMessage);
+        consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
         notificationManager.notify(errorMessage, project);
+    }
+
+    private void refreshProject() {
+        projectService.getProject(workspaceId, project.getName(), new AsyncRequestCallback<ProjectConfigDto>(
+                dtoUnmarshallerFactory.newUnmarshaller(ProjectConfigDto.class)) {
+            @Override
+            protected void onSuccess(ProjectConfigDto result) {
+                eventBus.fireEvent(new ProjectUpdatedEvent(project.getPath(), result));
+            }
+
+            @Override
+            protected void onFailure(Throwable exception) {
+                notificationManager.notify(exception.getLocalizedMessage(), FAIL, true, project);
+            }
+        });
     }
 }

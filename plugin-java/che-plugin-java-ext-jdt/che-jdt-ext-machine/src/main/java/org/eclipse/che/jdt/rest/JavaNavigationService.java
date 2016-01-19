@@ -13,9 +13,11 @@ package org.eclipse.che.jdt.rest;
 import org.eclipse.che.ide.ext.java.shared.Jar;
 import org.eclipse.che.ide.ext.java.shared.JarEntry;
 import org.eclipse.che.ide.ext.java.shared.OpenDeclarationDescriptor;
+import org.eclipse.che.ide.ext.java.shared.dto.ImplementationsDescriptorDTO;
 import org.eclipse.che.ide.ext.java.shared.dto.model.CompilationUnit;
 import org.eclipse.che.ide.ext.java.shared.dto.model.JavaProject;
 import org.eclipse.che.jdt.JavaNavigation;
+import org.eclipse.che.jdt.JavaTypeHierarchy;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
@@ -38,7 +40,9 @@ public class JavaNavigationService {
     JavaModel MODEL = JavaModelManager.getJavaModelManager().getJavaModel();
 
     @Inject
-    private JavaNavigation navigation;
+    private JavaNavigation    navigation;
+    @Inject
+    private JavaTypeHierarchy javaTypeHierarchy;
 
     @GET
     @Path("contentbyfqn")
@@ -64,6 +68,29 @@ public class JavaNavigationService {
     public List<Jar> getExternalLibraries(@QueryParam("projectpath") String projectPath) throws JavaModelException {
         IJavaProject project = MODEL.getJavaProject(projectPath);
         return navigation.getProjectDependecyJars(project);
+    }
+
+    /**
+     * Get all implementations of selected Java Element.
+     *
+     * @param projectPath
+     *         path to the opened project
+     * @param fqn
+     *         fully qualified name of the class file
+     * @param offset
+     *         cursor position
+     * @return descriptor of the implementations
+     * @throws JavaModelException
+     *         when JavaModel has a failure
+     */
+    @GET
+    @Path("implementations")
+    @Produces("application/json")
+    public ImplementationsDescriptorDTO getImplementations(@QueryParam("projectpath") String projectPath,
+                                                           @QueryParam("fqn") String fqn,
+                                                           @QueryParam("offset") int offset) throws JavaModelException {
+        IJavaProject project = MODEL.getJavaProject(projectPath);
+        return javaTypeHierarchy.getImplementations(project, fqn, offset);
     }
 
     @GET

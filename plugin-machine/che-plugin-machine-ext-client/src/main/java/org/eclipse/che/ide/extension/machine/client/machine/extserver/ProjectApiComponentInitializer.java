@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,11 +12,13 @@ package org.eclipse.che.ide.extension.machine.client.machine.extserver;
 
 import com.google.gwt.core.client.Callback;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.ide.bootstrap.ProjectTemplatesComponent;
 import org.eclipse.che.ide.bootstrap.ProjectTypeComponent;
+import org.eclipse.che.ide.bootstrap.StartUpActionsProcessor;
 import org.eclipse.che.ide.core.Component;
 import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateEvent;
 import org.eclipse.che.api.machine.gwt.client.events.ExtServerStateHandler;
@@ -30,13 +32,16 @@ public class ProjectApiComponentInitializer {
 
     private ProjectTypeComponent      projectTypeComponent;
     private ProjectTemplatesComponent projectTemplatesComponent;
+    private final Provider<StartUpActionsProcessor> startUpActionsProcessorProvider;
 
     @Inject
     public ProjectApiComponentInitializer(EventBus eventBus,
                                           ProjectTypeComponent projectTypeComponent,
-                                          ProjectTemplatesComponent projectTemplatesComponent) {
+                                          ProjectTemplatesComponent projectTemplatesComponent,
+                                          Provider<StartUpActionsProcessor> startUpActionsProcessorProvider) {
         this.projectTypeComponent = projectTypeComponent;
         this.projectTemplatesComponent = projectTemplatesComponent;
+        this.startUpActionsProcessorProvider = startUpActionsProcessorProvider;
 
         eventBus.addHandler(ExtServerStateEvent.TYPE, new ExtServerStateHandler() {
             @Override
@@ -53,7 +58,6 @@ public class ProjectApiComponentInitializer {
 
     public void initialize() {
         startProjectTypeComponent();
-        startProjectTemplatesComponent();
     }
 
     private void startProjectTypeComponent() {
@@ -65,6 +69,7 @@ public class ProjectApiComponentInitializer {
 
             @Override
             public void onSuccess(Component result) {
+                startProjectTemplatesComponent();
             }
         });
     }
@@ -78,6 +83,8 @@ public class ProjectApiComponentInitializer {
 
             @Override
             public void onSuccess(Component result) {
+                final StartUpActionsProcessor startUpActionsProcessor = startUpActionsProcessorProvider.get();
+                startUpActionsProcessor.performStartUpActions();
             }
         });
     }

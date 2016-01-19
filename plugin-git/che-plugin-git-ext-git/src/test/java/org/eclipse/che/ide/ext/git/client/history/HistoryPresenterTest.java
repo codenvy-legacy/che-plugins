@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.eclipse.che.api.git.shared.DiffRequest.DiffType.RAW;
+import static org.eclipse.che.ide.ext.git.client.history.HistoryPresenter.LOG_COMMAND_NAME;
+import static org.eclipse.che.ide.ext.git.client.history.HistoryPresenter.DIFF_COMMAND_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
@@ -94,12 +96,13 @@ public class HistoryPresenterTest extends BaseTest {
                                          service,
                                          workspaceAgent,
                                          constant,
-                                         console,
                                          appContext,
                                          notificationManager,
                                          dtoUnmarshallerFactory,
                                          dateTimeFormatter,
-                                         selectionAgent);
+                                         selectionAgent,
+                                         gitOutputConsoleFactory,
+                                         consolesPanelPresenter);
         presenter.setPartStack(partStack);
 
         when(partStack.getActivePart()).thenReturn(activePart);
@@ -167,7 +170,9 @@ public class HistoryPresenterTest extends BaseTest {
         verify(partStack).setActivePart(eq(presenter));
         verify(constant, times(2)).historyNothingToDisplay();
         verify(constant).logFailed();
+        verify(gitOutputConsoleFactory).create(LOG_COMMAND_NAME);
         verify(console).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 
@@ -236,7 +241,9 @@ public class HistoryPresenterTest extends BaseTest {
                 .diff(anyObject(), eq(rootProjectConfig), (List<String>)anyObject(), eq(RAW), eq(NO_RENAMES), eq(RENAME_LIMIT),
                       eq(REVISION_ID), anyBoolean(), (AsyncRequestCallback<String>)anyObject());
         verify(constant, times(2)).diffFailed();
+        verify(gitOutputConsoleFactory).create(DIFF_COMMAND_NAME);
         verify(console, times(2)).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), rootProjectConfig);
         verify(view).setCommitADate(anyString());
         verify(view).setCommitARevision(anyString());

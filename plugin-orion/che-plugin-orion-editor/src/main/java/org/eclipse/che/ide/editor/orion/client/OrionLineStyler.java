@@ -13,6 +13,7 @@ package org.eclipse.che.ide.editor.orion.client;
 
 import org.eclipse.che.ide.editor.orion.client.jso.OrionAnnotationIteratorOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionAnnotationOverlay;
+import org.eclipse.che.ide.editor.orion.client.jso.OrionAttributesOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionEditorOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionStyleOverlay;
 import org.eclipse.che.ide.jseditor.client.texteditor.LineStyler;
@@ -37,8 +38,12 @@ public class OrionLineStyler implements LineStyler {
     @Override
     public void addLineStyles(final int lineNumber, final String... styles) {
         for (final String classname : styles) {
+            OrionAttributesOverlay attributesOverlay = OrionAttributesOverlay.create();
+            attributesOverlay.setAttribute("debugId", "debug-line");
+
             OrionStyleOverlay style = OrionStyleOverlay.create();
             style.setStyleClass(classname);
+            style.setAttributes(attributesOverlay);
 
             int lineStart = editorOverlay.getModel().getLineStart(lineNumber);
             int lineEnd = editorOverlay.getModel().getLineEnd(lineNumber);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,9 @@ import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
-import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsole;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.project.node.FolderReferenceNode;
 import org.eclipse.che.ide.project.node.ResourceBasedNode;
@@ -47,20 +49,21 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAI
  */
 @Singleton
 public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
+    public static final  String ADD_TO_INDEX_COMMAND_NAME = "Git add to index";
+    private static final String ROOT_FOLDER               = ".";
 
-    private static final String ROOT_FOLDER = ".";
-    private final GitOutputPartPresenter console;
+    private final AddToIndexView           view;
+    private final GitServiceClient         service;
+    private final GitLocalizationConstant  constant;
+    private final AppContext               appContext;
+    private final ProjectExplorerPresenter projectExplorer;
+    private final NotificationManager      notificationManager;
+    private final DtoUnmarshallerFactory   dtoUnmarshallerFactory;
+    private final GitOutputConsoleFactory  gitOutputConsoleFactory;
+    private final ConsolesPanelPresenter   consolesPanelPresenter;
+    private final String                   workspaceId;
 
-    private AddToIndexView           view;
-    private GitServiceClient         service;
-    private GitLocalizationConstant  constant;
-    private AppContext               appContext;
-    private CurrentProject           project;
-    private ProjectExplorerPresenter projectExplorer;
-    private NotificationManager      notificationManager;
-
-    private final DtoUnmarshallerFactory dtoUnmarshallerFactory;
-    private final String                 workspaceId;
+    private CurrentProject project;
 
     /**
      * Create presenter
@@ -76,12 +79,12 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
                                AppContext appContext,
                                DtoUnmarshallerFactory dtoUnmarshallerFactory,
                                GitLocalizationConstant constant,
-                               GitOutputPartPresenter console,
+                               GitOutputConsoleFactory gitOutputConsoleFactory,
+                               ConsolesPanelPresenter consolesPanelPresenter,
                                GitServiceClient service,
                                NotificationManager notificationManager,
                                ProjectExplorerPresenter projectExplorer) {
         this.view = view;
-        this.console = console;
         this.view.setDelegate(this);
         this.service = service;
         this.constant = constant;
@@ -89,7 +92,9 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
         this.projectExplorer = projectExplorer;
         this.notificationManager = notificationManager;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
+        this.gitOutputConsoleFactory = gitOutputConsoleFactory;
         this.workspaceId = appContext.getWorkspaceId();
+        this.consolesPanelPresenter = consolesPanelPresenter;
     }
 
     /**
@@ -100,6 +105,8 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
         if (project == null) {
             return;
         }
+
+        final GitOutputConsole console = gitOutputConsoleFactory.create(ADD_TO_INDEX_COMMAND_NAME);
         final Unmarshallable<Status> unmarshall = this.dtoUnmarshallerFactory.newUnmarshaller(Status.class);
         service.status(workspaceId, project.getRootProject(),
                        new AsyncRequestCallback<Status>(unmarshall) {
@@ -109,6 +116,7 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
                                    addSelection();
                                } else {
                                    console.printInfo(constant.nothingAddToIndex());
+                                   consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                                    notificationManager.notify(constant.nothingAddToIndex(), project.getRootProject());
                                }
                            }
@@ -116,6 +124,7 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
                            @Override
                            protected void onFailure(Throwable exception) {
                                console.printError(exception.getMessage() != null ? exception.getMessage() : constant.statusFailed());
+                               consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                                notificationManager.notify(constant.statusFailed(), FAIL, true, project.getRootProject());
                            }
                        });
@@ -165,22 +174,25 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
     @Override
     public void onAddClicked() {
         boolean update = view.isUpdated();
+        final GitOutputConsole console = gitOutputConsoleFactory.create(ADD_TO_INDEX_COMMAND_NAME);
 
         try {
             service.add(workspaceId, project.getRootProject(), update, getMultipleFilePatterns(), new RequestCallback<Void>() {
                 @Override
                 protected void onSuccess(final Void result) {
+
                     console.printInfo(constant.addSuccess());
+                    consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                     notificationManager.notify(constant.addSuccess(), project.getRootProject());
                 }
 
                 @Override
                 protected void onFailure(final Throwable exception) {
-                    handleError(exception);
+                    handleError(exception, console);
                 }
             });
         } catch (final WebSocketException e) {
-            handleError(e);
+            handleError(e, console);
         }
         view.close();
     }
@@ -286,10 +298,13 @@ public class AddToIndexPresenter implements AddToIndexView.ActionDelegate {
      *
      * @param e
      *         exception that happened
+     * @param console
+     *         console for displaying error
      */
-    private void handleError(@NotNull final Throwable e) {
+    private void handleError(@NotNull final Throwable e, GitOutputConsole console) {
         String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.addFailed();
         console.printError(errorMessage);
+        consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
         notificationManager.notify(constant.addFailed(), FAIL, true, project.getRootProject());
     }
 

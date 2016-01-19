@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,10 +14,17 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 
 import org.eclipse.che.api.git.shared.Remote;
+import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
+import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
+import org.eclipse.che.ide.api.event.project.ProjectUpdatedEvent;
+import org.eclipse.che.ide.api.notification.StatusNotification;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.ext.git.client.remote.add.AddRemoteRepositoryPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -36,6 +43,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.eclipse.che.ide.ext.git.client.remote.RemotePresenter.REMOTE_REPO_COMMAND_NAME;
 
 /**
  * Testing {@link RemotePresenter} functionality.
@@ -51,7 +59,13 @@ public class RemotePresenterTest extends BaseTest {
     private Remote                       selectedRemote;
     @Mock
     private AddRemoteRepositoryPresenter addRemoteRepositoryPresenter;
-    private RemotePresenter              presenter;
+    @Mock
+    private ProjectServiceClient         projectService;
+
+    @Captor
+    private ArgumentCaptor<AsyncRequestCallback<ProjectConfigDto>> getProjectCallbackCaptor;
+
+    private RemotePresenter presenter;
 
     @Override
     public void disarm() {
@@ -60,11 +74,14 @@ public class RemotePresenterTest extends BaseTest {
         presenter = new RemotePresenter(view,
                                         service,
                                         appContext,
+                                        eventBus,
                                         constant,
+                                        projectService,
                                         addRemoteRepositoryPresenter,
                                         notificationManager,
                                         dtoUnmarshallerFactory,
-                                        console);
+                                        gitOutputConsoleFactory,
+                                        consolesPanelPresenter);
 
         when(selectedRemote.getName()).thenReturn(REPOSITORY_NAME);
     }
@@ -139,10 +156,15 @@ public class RemotePresenterTest extends BaseTest {
 
         presenter.onAddClicked();
 
+        AsyncRequestCallback<ProjectConfigDto> getProjectCallback = getProjectCallbackCaptor.getValue();
+        org.eclipse.che.test.GwtReflectionUtils.callOnSuccess(getProjectCallback, PROJECT_PATH);
+
         verify(service).remoteList(anyString(), anyObject(), anyString(), eq(SHOW_ALL_INFORMATION),
                                    (AsyncRequestCallback<List<Remote>>)anyObject());
         verify(console, never()).printError(anyString());
         verify(notificationManager, never()).notify(anyString(), eq(rootProjectConfig));
+        verify(projectService).getProject(anyString(), anyString(), anyObject());
+        verify(eventBus).fireEvent(Matchers.<ProjectUpdatedEvent>anyObject());
     }
 
     @Test
@@ -159,10 +181,16 @@ public class RemotePresenterTest extends BaseTest {
 
         presenter.onAddClicked();
 
+        AsyncRequestCallback<ProjectConfigDto> getProjectCallback = getProjectCallbackCaptor.getValue();
+        org.eclipse.che.test.GwtReflectionUtils.callOnFailure(getProjectCallback, mock(Throwable.class));
+
         verify(service, never()).remoteList(anyString(), anyObject(), anyString(), eq(SHOW_ALL_INFORMATION),
                                             (AsyncRequestCallback<List<Remote>>)anyObject());
+        verify(gitOutputConsoleFactory).create(REMOTE_REPO_COMMAND_NAME);
         verify(console).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager, never()).notify(anyString(), eq(rootProjectConfig));
+        verify(notificationManager).notify(anyString(), eq(StatusNotification.Status.FAIL), eq(true), eq(rootProjectConfig));
         verify(constant).remoteAddFailed();
     }
 
@@ -183,9 +211,14 @@ public class RemotePresenterTest extends BaseTest {
         presenter.onRemoteSelected(selectedRemote);
         presenter.onDeleteClicked();
 
+        AsyncRequestCallback<ProjectConfigDto> getProjectCallback = getProjectCallbackCaptor.getValue();
+        org.eclipse.che.test.GwtReflectionUtils.callOnSuccess(getProjectCallback, PROJECT_PATH);
+
         verify(service).remoteDelete(anyString(), eq(rootProjectConfig), eq(REPOSITORY_NAME), (AsyncRequestCallback<String>)anyObject());
         verify(service, times(2)).remoteList(anyString(), anyObject(), anyString(), eq(SHOW_ALL_INFORMATION),
                                              (AsyncRequestCallback<List<Remote>>)anyObject());
+        verify(projectService).getProject(anyString(), anyString(), anyObject());
+        verify(eventBus).fireEvent(Matchers.<ProjectUpdatedEvent>anyObject());
     }
 
     @Test
@@ -205,10 +238,16 @@ public class RemotePresenterTest extends BaseTest {
         presenter.onRemoteSelected(selectedRemote);
         presenter.onDeleteClicked();
 
+        AsyncRequestCallback<ProjectConfigDto> getProjectCallback = getProjectCallbackCaptor.getValue();
+        org.eclipse.che.test.GwtReflectionUtils.callOnFailure(getProjectCallback, mock(Throwable.class));
+
         verify(service).remoteDelete(anyString(), eq(rootProjectConfig), eq(REPOSITORY_NAME), (AsyncRequestCallback<String>)anyObject());
         verify(constant).remoteDeleteFailed();
+        verify(gitOutputConsoleFactory).create(REMOTE_REPO_COMMAND_NAME);
         verify(console).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager, never()).notify(anyString(), eq(rootProjectConfig));
+        verify(notificationManager).notify(anyString(), eq(StatusNotification.Status.FAIL), eq(true), eq(rootProjectConfig));
     }
 
     @Test

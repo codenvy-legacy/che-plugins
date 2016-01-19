@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,6 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.che.ide.orion.compare;
 
 import elemental.html.Window;
@@ -39,7 +38,7 @@ public class CompareWidget extends Composite {
 
     private Frame frame;
 
-    private Promise<Window> framePromice;
+    private Promise<Window> framePromise;
     private CompareConfig   compareConfig;
 
     public CompareWidget(final CompareConfig compareConfig, final String themeId) {
@@ -61,21 +60,19 @@ public class CompareWidget extends Composite {
                 });
             }
         };
-        framePromice = PromiseHelper.newPromise(call);
-        framePromice.then(new Operation<Window>() {
+        framePromise = PromiseHelper.newPromise(call);
+        framePromise.then(new Operation<Window>() {
             @Override
             public void apply(Window arg) throws OperationException {
                 sendThemeId(arg, themeId);
             }
         });
-        framePromice.then(new Operation<Window>() {
+        framePromise.then(new Operation<Window>() {
             @Override
             public void apply(Window arg) throws OperationException {
                 sendConfig(arg, compareConfig);
             }
         });
-
-
     }
 
     private void sendThemeId(Window arg, String themeId) {
@@ -94,7 +91,7 @@ public class CompareWidget extends Composite {
      * Refresh compare according to configuration
      */
     public void refresh() {
-        framePromice.then(new Operation<Window>() {
+        framePromise.then(new Operation<Window>() {
             @Override
             public void apply(Window arg) throws OperationException {
                 sendConfig(arg, compareConfig);

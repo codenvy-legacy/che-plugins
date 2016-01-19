@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -84,11 +84,6 @@ public abstract class AbstractJavaContentRootInterceptor implements NodeIntercep
             return ContentRoot.TEST_SOURCE;
         }
 
-        String resourceFolder = _getSourceFolder(projectConfig, getResourceFolderAttribute());
-        if (folderNode.getStorablePath().equals(resourceFolder)) {
-            return ContentRoot.RESOURCE;
-        }
-
         return null;
     }
 
@@ -124,8 +119,6 @@ public abstract class AbstractJavaContentRootInterceptor implements NodeIntercep
     public abstract String getSrcFolderAttribute();
 
     public abstract String getTestSrcFolderAttribute();
-
-    public abstract String getResourceFolderAttribute();
 
     @Override
     public int getPriority() {

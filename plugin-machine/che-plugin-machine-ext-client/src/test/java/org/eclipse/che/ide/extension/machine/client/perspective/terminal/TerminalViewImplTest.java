@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,18 +36,6 @@ public class TerminalViewImplTest {
 
     @InjectMocks
     private TerminalViewImpl view;
-
-    @Test
-    public void terminalShouldBeOpened() {
-        when(view.terminalPanel.getElement()).thenReturn(element);
-
-        view.openTerminal(terminalJso);
-
-        verify(view.unavailableLabel).setVisible(false);
-        verify(view.terminalPanel).setVisible(true);
-        verify(view.terminalPanel).getElement();
-        verify(terminalJso).open(element);
-    }
 
     @Test
     public void errorMessageShouldBeShown() {

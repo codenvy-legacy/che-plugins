@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,6 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.che.ide.ext.git.client.merge;
 
 import com.googlecode.gwt.test.utils.GwtReflectionUtils;
@@ -42,6 +41,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.eclipse.che.ide.ext.git.client.merge.MergePresenter.MERGE_COMMAND_NAME;
 
 /**
  * Testing {@link MergePresenter} functionality.
@@ -76,12 +76,13 @@ public class MergePresenterTest extends BaseTest {
                                        eventBus,
                                        editorAgent,
                                        service,
-                                       console,
                                        constant,
                                        appContext,
                                        notificationManager,
                                        dtoUnmarshallerFactory,
-                                       projectExplorer);
+                                       projectExplorer,
+                                       gitOutputConsoleFactory,
+                                       consolesPanelPresenter);
         NavigableMap<String, EditorPartPresenter> partPresenterMap = new TreeMap<>();
         partPresenterMap.put("partPresenter", partPresenter);
 
@@ -149,7 +150,9 @@ public class MergePresenterTest extends BaseTest {
 
         verify(service).branchList(anyString(), eq(rootProjectConfig), eq(LIST_LOCAL), (AsyncRequestCallback<List<Branch>>)anyObject());
         verify(service).branchList(anyString(), eq(rootProjectConfig), eq(LIST_REMOTE), (AsyncRequestCallback<List<Branch>>)anyObject());
+        verify(gitOutputConsoleFactory).create(MERGE_COMMAND_NAME);
         verify(console, times(2)).printError(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager, times(2)).notify(anyString(), rootProjectConfig);
     }
 
@@ -179,7 +182,9 @@ public class MergePresenterTest extends BaseTest {
         verify(appContext).getCurrentProject();
         verify(partPresenter).getEditorInput();
         verify(file).getPath();
+        verify(gitOutputConsoleFactory).create(MERGE_COMMAND_NAME);
         verify(console).printInfo(anyString());
+        verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));
         verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
 

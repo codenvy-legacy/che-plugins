@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2015 Codenvy, S.A.
+ * Copyright (c) 2012-2016 Codenvy, S.A.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,11 +26,13 @@ import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsole;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.project.node.FileReferenceNode;
 import org.eclipse.che.ide.project.node.FolderReferenceNode;
 import org.eclipse.che.ide.project.node.ResourceBasedNode;
-import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 
 import javax.validation.constraints.NotNull;
@@ -49,18 +51,22 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAI
  * @author Ann Zhuleva
  */
 public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDelegate {
-    private       RemoveFromIndexView       view;
-    private       EventBus                  eventBus;
-    private final ProjectExplorerPresenter  projectExplorer;
-    private       GitServiceClient          service;
-    private       GitLocalizationConstant   constant;
-    private       AppContext                appContext;
-    private       CurrentProject            project;
-    private       SelectionAgent            selectionAgent;
-    private       NotificationManager       notificationManager;
-    private       List<EditorPartPresenter> openedEditors;
-    private       EditorAgent               editorAgent;
-    private final GitOutputPartPresenter    console;
+    public static final String REMOVE_FROM_INDEX_COMMAND_NAME = "Git remove from index";
+
+    private final RemoveFromIndexView      view;
+    private final EventBus                 eventBus;
+    private final ProjectExplorerPresenter projectExplorer;
+    private final GitServiceClient         service;
+    private final GitLocalizationConstant  constant;
+    private final AppContext               appContext;
+    private final SelectionAgent           selectionAgent;
+    private final NotificationManager      notificationManager;
+    private final EditorAgent              editorAgent;
+    private final GitOutputConsoleFactory  gitOutputConsoleFactory;
+    private final ConsolesPanelPresenter   consolesPanelPresenter;
+
+    private CurrentProject            project;
+    private List<EditorPartPresenter> openedEditors;
 
     /**
      * Create presenter
@@ -75,17 +81,19 @@ public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDeleg
     public RemoveFromIndexPresenter(RemoveFromIndexView view,
                                     EventBus eventBus,
                                     GitServiceClient service,
-                                    GitOutputPartPresenter console,
                                     GitLocalizationConstant constant,
                                     AppContext appContext,
                                     SelectionAgent selectionAgent,
                                     NotificationManager notificationManager,
                                     EditorAgent editorAgent,
-                                    ProjectExplorerPresenter projectExplorer) {
+                                    ProjectExplorerPresenter projectExplorer,
+                                    GitOutputConsoleFactory gitOutputConsoleFactory,
+                                    ConsolesPanelPresenter consolesPanelPresenter) {
         this.view = view;
         this.eventBus = eventBus;
         this.projectExplorer = projectExplorer;
-        this.console = console;
+        this.gitOutputConsoleFactory = gitOutputConsoleFactory;
+        this.consolesPanelPresenter = consolesPanelPresenter;
         this.view.setDelegate(this);
         this.service = service;
         this.constant = constant;
@@ -147,12 +155,13 @@ public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDeleg
         for (EditorPartPresenter partPresenter : editorAgent.getOpenedEditors().values()) {
             openedEditors.add(partPresenter);
         }
-
+        final GitOutputConsole console = gitOutputConsoleFactory.create(REMOVE_FROM_INDEX_COMMAND_NAME);
         service.remove(appContext.getWorkspaceId(), project.getRootProject(), getFilePatterns(), view.isRemoved(),
                        new AsyncRequestCallback<String>() {
                            @Override
                            protected void onSuccess(String result) {
                                console.printInfo(constant.removeFilesSuccessfull());
+                               consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                                notificationManager.notify(constant.removeFilesSuccessfull(), project.getRootProject());
 
                                if (!view.isRemoved()) {
@@ -173,7 +182,8 @@ public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDeleg
 
                            @Override
                            protected void onFailure(Throwable exception) {
-                               handleError(exception);
+                               handleError(exception, console);
+                               consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                            }
                        }
                       );
@@ -233,9 +243,10 @@ public class RemoveFromIndexPresenter implements RemoveFromIndexView.ActionDeleg
      * @param e
      *         exception what happened
      */
-    private void handleError(@NotNull Throwable e) {
+    private void handleError(@NotNull Throwable e, GitOutputConsole console) {
         String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.removeFilesFailed();
         console.printError(errorMessage);
+        consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
         notificationManager.notify(constant.removeFilesFailed(), FAIL, true, project.getRootProject());
     }
 

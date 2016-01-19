@@ -254,8 +254,6 @@ public class ContentAssistWidget implements EventListener {
                     docPopup.getElement().getStyle().setTop(popupElement.getOffsetTop(), Style.Unit.PX);
                     RootPanel.get().add(docPopup);
                     docPopup.getElement().getStyle().setOpacity(1);
-                } else {
-
                 }
             }
         }, false);
