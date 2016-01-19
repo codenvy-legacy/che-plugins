@@ -285,7 +285,10 @@ public class RenamePresenter implements ActionDelegate {
         prepareRenameChanges(session).then(new Operation<ChangeCreationResult>() {
             @Override
             public void apply(ChangeCreationResult arg) throws OperationException {
-                if (!arg.isCanShowPreviewPage()) {
+                //TODO make quick fix here
+                // if we have warning in ChangeCreationResult (severity==2) we allow make
+                // refactoring need to improve it after 4.0-beta ship in JIRA issue https://jira.codenvycorp.com/browse/IDEX-4131
+                if (!arg.isCanShowPreviewPage() && arg.getStatus().getSeverity() > 2) {
                     view.showErrorMessage(arg.getStatus());
 
                     loader.hide();
