@@ -52,8 +52,10 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Evgen Vidolob
@@ -442,19 +444,25 @@ public abstract class Resource implements IResource, IPathRequestor, ICoreConsta
         if (this instanceof IProject) {
             return (IProject)this;
         }
-        IProject project = null;
-        IResource parent = getParent();
-        while (true) {
-            if (parent instanceof IProject) {
-                project = ((IProject)parent);
-                break;
-            }
-            if (parent == null) {
-                break;
-            }
-            parent = parent.getParent();
+        final IProject[] projects = workspace.getRoot().getProjects();
+        //here we try to found project by path of resources. We will get all projects and select longest path of project that
+        //start with path of resource.
+        final Optional<IProject> max = Arrays.stream(projects)
+                                             .filter(iProject -> path.toOSString().startsWith(iProject.getFullPath().toOSString()))
+                                             .max((o1, o2) -> {
+                                                 if (o1.getFullPath().toOSString().length() > o2.getFullPath().toOSString().length()) {
+                                                     return 1;
+                                                 }
+                                                 if (o2.getFullPath().toOSString().length() > o1.getFullPath().toOSString().length()) {
+                                                     return -1;
+                                                 }
+                                                 return 0;
+                                             });
+        if(max.isPresent()){
+            return max.get();
+        } else {
+            return null;
         }
-        return project;//workspace.getRoot().getProject(path.segment(0));
     }
 
     @Override

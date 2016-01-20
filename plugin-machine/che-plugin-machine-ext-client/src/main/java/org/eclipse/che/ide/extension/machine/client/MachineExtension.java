@@ -41,7 +41,7 @@ import org.eclipse.che.ide.extension.machine.client.actions.RunCommandAction;
 import org.eclipse.che.ide.extension.machine.client.actions.SelectCommandComboBoxReady;
 import org.eclipse.che.ide.extension.machine.client.actions.SwitchPerspectiveAction;
 import org.eclipse.che.ide.extension.machine.client.command.custom.CustomCommandType;
-import org.eclipse.che.ide.extension.machine.client.command.valueproviders.MachinePortProvider;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.ServerPortProvider;
 import org.eclipse.che.ide.extension.machine.client.machine.console.ClearConsoleAction;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsoleToolbar;
 import org.eclipse.che.ide.extension.machine.client.machine.extserver.ProjectApiComponentInitializer;
@@ -80,7 +80,7 @@ public class MachineExtension {
                             final ConsolesPanelPresenter consolesPanelPresenter,
                             //projectApiComponentInitializer has handler which will work at the right time
                             final ProjectApiComponentInitializer projectApiComponentInitializer,
-                            final MachinePortProvider machinePortProvider,
+                            final ServerPortProvider machinePortProvider,
                             final OutputsContainerPresenter outputsContainerPresenter,
                             final PerspectiveManager perspectiveManager,
                             IconRegistry iconRegistry,

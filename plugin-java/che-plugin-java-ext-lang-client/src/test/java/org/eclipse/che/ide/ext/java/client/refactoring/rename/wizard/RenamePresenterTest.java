@@ -43,6 +43,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeInfo;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameSettings;
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
@@ -462,8 +463,10 @@ public class RenamePresenterTest {
 
     @Test
     public void changesShouldNotBeAppliedAndShowErrorMessage() throws Exception {
+        RefactoringStatus refactoringStatus = mock(RefactoringStatus.class);
+        when(refactoringStatus.getSeverity()).thenReturn(3);
         when(changeCreationResult.isCanShowPreviewPage()).thenReturn(false);
-        when(changeCreationResult.getStatus()).thenReturn(any());
+        when(changeCreationResult.getStatus()).thenReturn(refactoringStatus);
 
         renamePresenter.show(refactorInfo);
 
