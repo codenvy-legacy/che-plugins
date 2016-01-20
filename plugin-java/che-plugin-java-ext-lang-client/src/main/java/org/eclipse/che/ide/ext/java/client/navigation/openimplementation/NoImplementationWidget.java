@@ -51,6 +51,8 @@ public class NoImplementationWidget extends PopupWidget<Type> {
         this.javaResources = javaResources;
         this.locale = locale;
         this.openImplementationPresenter = openImplementationPresenter;
+
+        this.asElement().setId("implementationsId");
     }
 
     @Override

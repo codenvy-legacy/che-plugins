@@ -138,4 +138,8 @@ public interface JavaRuntimeLocalizationConstant extends com.google.gwt.i18n.cli
 
     @Key("server.log.tab.title")
     String serverLogTabTitle();
+
+    @Key("view.remoteDebug.description")
+    String remoteDebugViewDescription();
+
 }

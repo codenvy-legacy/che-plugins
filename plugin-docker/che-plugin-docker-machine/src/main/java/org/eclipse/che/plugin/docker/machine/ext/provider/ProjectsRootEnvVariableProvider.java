@@ -25,7 +25,7 @@ import javax.inject.Singleton;
 @Singleton
 public class ProjectsRootEnvVariableProvider implements Provider<String> {
     @Inject
-    @Named("che.projects.root")
+    @Named("che.machine.projects.internal.storage")
     private String projectFolderPath;
 
     @Override

@@ -100,7 +100,7 @@ public class DockerInstanceProvider implements InstanceProvider {
                                   @Named("machine.docker.machine_volumes") Set<String> allMachinesSystemVolumes,
                                   @Nullable @Named("machine.docker.machine_extra_hosts") String allMachinesExtraHosts,
                                   WorkspaceFolderPathProvider workspaceFolderPathProvider,
-                                  @Named("che.projects.root") String projectFolderPath,
+                                  @Named("che.machine.projects.internal.storage") String projectFolderPath,
                                   @Named("machine.docker.pull_image") boolean doForcePullOnBuild,
                                   @Named("machine.docker.dev_machine.machine_env") Set<String> devMachineEnvVariables,
                                   @Named("machine.docker.machine_env") Set<String> allMachinesEnvVariables)

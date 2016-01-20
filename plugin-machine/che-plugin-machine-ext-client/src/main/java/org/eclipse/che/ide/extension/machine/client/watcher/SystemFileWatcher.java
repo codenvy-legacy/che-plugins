@@ -58,14 +58,14 @@ public class SystemFileWatcher implements ExtServerStateHandler {
         this.appContext = appContext;
         this.projectExplorer = projectExplorer;
 
-        eventBus.addHandler(ExtServerStateEvent.TYPE, this);
+//        eventBus.addHandler(ExtServerStateEvent.TYPE, this);
     }
 
     @Override
     public void onExtServerStarted(ExtServerStateEvent event) {
-        messageBus = messageBusProvider.getMessageBus();
-
-        registerWatcher(appContext.getWorkspace().getId());
+//        messageBus = messageBusProvider.getMessageBus();
+//
+//        registerWatcher(appContext.getWorkspace().getId());
     }
 
     @Override

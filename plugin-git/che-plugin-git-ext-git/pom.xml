@@ -16,7 +16,7 @@
     <parent>
         <artifactId>che-plugin-git-parent</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
-        <version>4.0.0-beta-9-SNAPSHOT</version>
+        <version>4.0.0-beta-13-SNAPSHOT</version>
     </parent>
     <artifactId>che-plugin-git-ext-git</artifactId>
     <packaging>jar</packaging>
@@ -32,6 +32,10 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.inject.extensions</groupId>
+            <artifactId>guice-assistedinject</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.inject</groupId>
@@ -88,6 +92,10 @@
         <dependency>
             <groupId>org.eclipse.che.core</groupId>
             <artifactId>che-core-ide-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.che.plugin</groupId>
+            <artifactId>che-plugin-machine-ext-client</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.che.plugin</groupId>

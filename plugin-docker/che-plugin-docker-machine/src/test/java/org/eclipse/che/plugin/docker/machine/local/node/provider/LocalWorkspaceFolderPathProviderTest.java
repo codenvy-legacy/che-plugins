@@ -11,13 +11,25 @@
 package org.eclipse.che.plugin.docker.machine.local.node.provider;
 
 
+import com.google.inject.Provider;
+
+import org.eclipse.che.api.core.BadRequestException;
+import org.eclipse.che.api.core.NotFoundException;
+import org.eclipse.che.api.core.ServerException;
+import org.eclipse.che.api.workspace.server.WorkspaceManager;
+import org.eclipse.che.api.workspace.server.model.impl.UsersWorkspaceImpl;
+import org.mockito.Mock;
 import org.mockito.testng.MockitoTestNGListener;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.UUID;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
 
@@ -25,30 +37,36 @@ import static org.testng.Assert.assertNotEquals;
 @Listeners(value = {MockitoTestNGListener.class})
 public class LocalWorkspaceFolderPathProviderTest  {
 
+    @Mock
+    Provider<WorkspaceManager> workspaceManagerProvider;
 
-    @Test(expectedExceptions=IOException.class)
+    @Mock
+    WorkspaceManager            workspaceManager;
+
+    @Test(expectedExceptions = IOException.class)
     public void shouldFailWithBothNullPrams() throws IOException {
-        new  LocalWorkspaceFolderPathProvider(null, null);
+        new LocalWorkspaceFolderPathProvider(null, null, workspaceManagerProvider);
     }
 
 
-    @Test(expectedExceptions=IOException.class)
+    @Test(expectedExceptions = IOException.class)
     public void shouldFailWithParamsToWorkspacesFolderLocationAsFile() throws IOException {
-        final String tempFile = Files.createTempFile(null,null).toString();
-        new  LocalWorkspaceFolderPathProvider(tempFile, null);
+        final String tempFile = Files.createTempFile(null, null).toString();
+        new LocalWorkspaceFolderPathProvider(tempFile, null, workspaceManagerProvider);
     }
 
-    @Test(expectedExceptions=IOException.class)
+    @Test(expectedExceptions = IOException.class)
     public void shouldFailWithParamsToProjectLocationAsFile() throws IOException {
         final String tempFile = Files.createTempFile(null, null).toString();
-        new  LocalWorkspaceFolderPathProvider(null, tempFile);
+        new LocalWorkspaceFolderPathProvider(null, tempFile, workspaceManagerProvider);
     }
 
 
     @Test
     public void shouldReturnSameLocationWithUsedHostedProjectParams() throws IOException {
         final String hostProjectsFile = Files.createTempDirectory("my-projects").toString();
-        final LocalWorkspaceFolderPathProvider provider = new LocalWorkspaceFolderPathProvider(null, hostProjectsFile);
+        final LocalWorkspaceFolderPathProvider provider =
+                new LocalWorkspaceFolderPathProvider(null, hostProjectsFile, workspaceManagerProvider);
         final String pathToWs = provider.getPath(UUID.randomUUID().toString());
         final String pathToWs2 = provider.getPath(UUID.randomUUID().toString());
         assertEquals(pathToWs, pathToWs2);
@@ -56,27 +74,45 @@ public class LocalWorkspaceFolderPathProviderTest  {
     }
 
     @Test
-    public void shouldReturnLocationDependOnWorkspaceId() throws IOException {
-        final String workspacesPath = Files.createTempDirectory("my-workspaces").toString();
-        final LocalWorkspaceFolderPathProvider provider = new LocalWorkspaceFolderPathProvider(workspacesPath, null);
+    public void shouldReturnLocationDependOnWorkspaceId() throws IOException, ServerException, BadRequestException, NotFoundException {
         final String workspaceId = UUID.randomUUID().toString();
         final String workspaceId2 = UUID.randomUUID().toString();
+        final String workspaceName = UUID.randomUUID().toString();
+        final String workspaceName2 = UUID.randomUUID().toString();
+        UsersWorkspaceImpl workspace = mock(UsersWorkspaceImpl.class);
+        when(workspace.getName()).thenReturn(workspaceName);
+        UsersWorkspaceImpl workspace2 = mock(UsersWorkspaceImpl.class);
+        when(workspace2.getName()).thenReturn(workspaceName2);
+        when(workspaceManagerProvider.get()).thenReturn(workspaceManager);
+        when(workspaceManager.getWorkspace(workspaceId)).thenReturn(workspace);
+        when(workspaceManager.getWorkspace(workspaceId2)).thenReturn(workspace2);
+        final String workspacesPath = Files.createTempDirectory("my-workspaces").toString();
+        final LocalWorkspaceFolderPathProvider provider = new LocalWorkspaceFolderPathProvider(workspacesPath, null,
+                                                                                               workspaceManagerProvider);
         final String pathToWs = provider.getPath(workspaceId);
         final String pathToWs2 = provider.getPath(workspaceId2);
         assertNotEquals(pathToWs, pathToWs2);
-        assertEquals(pathToWs, workspacesPath + "/" + workspaceId);
-        assertEquals(pathToWs2, workspacesPath + "/" + workspaceId2);
+        assertEquals(pathToWs, Paths.get(workspacesPath).resolve(workspaceName).toString());
+        assertEquals(pathToWs2, Paths.get(workspacesPath).resolve(workspaceName2).toString());
     }
 
     @Test
     public void shouldReturnLocationToHostProjectPathAlwaysIfItConfigure() throws IOException {
         final String workspacesPath = Files.createTempDirectory("my-workspaces").toString();
         final String hostProjectsPath = Files.createTempDirectory("my-projects").toString();
-        final LocalWorkspaceFolderPathProvider provider = new LocalWorkspaceFolderPathProvider(workspacesPath, hostProjectsPath);
+        final LocalWorkspaceFolderPathProvider provider = new LocalWorkspaceFolderPathProvider(workspacesPath,
+                                                                                               hostProjectsPath,
+                                                                                               workspaceManagerProvider);
         final String workspaceId = UUID.randomUUID().toString();
         final String workspaceId2 = UUID.randomUUID().toString();
         final String pathToWs = provider.getPath(workspaceId);
         final String pathToWs2 = provider.getPath(workspaceId2);
         assertEquals(pathToWs, pathToWs2);
+    }
+
+
+    @Test
+    public void test() {
+        System.out.println(System.getProperty("user.home"));
     }
 }

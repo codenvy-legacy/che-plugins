@@ -82,11 +82,12 @@ public class ResetToCommitPresenterTest extends BaseTest {
                                                service,
                                                constant,
                                                eventBus,
-                                               console,
                                                editorAgent,
                                                appContext,
                                                notificationManager,
-                                               dtoUnmarshallerFactory);
+                                               dtoUnmarshallerFactory,
+                                               gitOutputConsoleFactory,
+                                               consolesPanelPresenter);
 
         NavigableMap<String, EditorPartPresenter> partPresenterMap = new TreeMap<>();
         partPresenterMap.put("partPresenter", partPresenter);

@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.che.security.oauth;
 
+import com.google.api.client.util.store.MemoryDataStoreFactory;
+
 import org.eclipse.che.api.auth.shared.dto.OAuthToken;
+import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.commons.json.JsonHelper;
 import org.eclipse.che.commons.json.JsonParseException;
 import org.eclipse.che.security.oauth.shared.User;
-
-import com.google.api.client.util.store.MemoryDataStoreFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -28,18 +29,25 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-/** OAuth authentication  for github account. */
+import static com.google.api.client.repackaged.com.google.common.base.Strings.isNullOrEmpty;
+
+/** OAuth authentication for github account. */
 @Singleton
 public class GitHubOAuthAuthenticator extends OAuthAuthenticator {
-
-
     @Inject
-    public GitHubOAuthAuthenticator(@Named("oauth.github.clientid") String clientId,
-                                    @Named("oauth.github.clientsecret") String clientSecret,
-                                    @Named("oauth.github.redirecturis") String[] redirectUris,
-                                    @Named("oauth.github.authuri") String authUri,
-                                    @Named("oauth.github.tokenuri") String tokenUri) throws IOException {
-        super(clientId, clientSecret, redirectUris, authUri, tokenUri, new MemoryDataStoreFactory());
+    public GitHubOAuthAuthenticator(@Nullable @Named("oauth.github.clientid") String clientId,
+                                    @Nullable @Named("oauth.github.clientsecret") String clientSecret,
+                                    @Nullable @Named("oauth.github.redirecturis") String[] redirectUris,
+                                    @Nullable @Named("oauth.github.authuri") String authUri,
+                                    @Nullable @Named("oauth.github.tokenuri") String tokenUri) throws IOException {
+        if (!isNullOrEmpty(clientId)
+            && !isNullOrEmpty(clientSecret)
+            && !isNullOrEmpty(authUri)
+            && !isNullOrEmpty(tokenUri)
+            && redirectUris != null && redirectUris.length != 0) {
+
+            configure(clientId, clientSecret, redirectUris, authUri, tokenUri, new MemoryDataStoreFactory());
+        }
     }
 
     @Override
@@ -82,9 +90,7 @@ public class GitHubOAuthAuthenticator extends OAuthAuthenticator {
             urlConnection.setRequestProperty("Accept", "application/vnd.github.v3.html+json");
             urlInputStream = urlConnection.getInputStream();
             return JsonHelper.fromJson(urlInputStream, userClass, type);
-        } catch (JsonParseException e) {
-            throw new OAuthAuthenticationException(e.getMessage(), e);
-        } catch (IOException e) {
+        } catch (JsonParseException | IOException e) {
             throw new OAuthAuthenticationException(e.getMessage(), e);
         } finally {
             if (urlInputStream != null) {

@@ -34,9 +34,9 @@ import org.eclipse.che.ide.ext.java.jdi.server.expression.Evaluator;
 import org.eclipse.che.ide.ext.java.jdi.server.expression.ExpressionParser;
 import org.eclipse.che.ide.ext.java.jdi.shared.BreakPoint;
 import org.eclipse.che.ide.ext.java.jdi.shared.BreakPointEvent;
+import org.eclipse.che.ide.ext.java.jdi.shared.BreakpointActivatedEvent;
 import org.eclipse.che.ide.ext.java.jdi.shared.DebuggerEvent;
 import org.eclipse.che.ide.ext.java.jdi.shared.DebuggerEventList;
-import org.eclipse.che.ide.ext.java.jdi.shared.BreakpointActivatedEvent;
 import org.eclipse.che.ide.ext.java.jdi.shared.Field;
 import org.eclipse.che.ide.ext.java.jdi.shared.Location;
 import org.eclipse.che.ide.ext.java.jdi.shared.StackFrameDump;
@@ -599,7 +599,6 @@ public class Debugger implements EventsHandler {
                 } else if (event instanceof com.sun.jdi.event.StepEvent) {
                     resume = processStepEvent((com.sun.jdi.event.StepEvent)event);
                 } else if (event instanceof com.sun.jdi.event.VMDisconnectEvent) {
-                    disconnect();
                     resume = processDisconnectEvent((com.sun.jdi.event.VMDisconnectEvent)event);
                 } else if (event instanceof com.sun.jdi.event.ClassPrepareEvent) {
                     resume = processClassPrepareEvent((com.sun.jdi.event.ClassPrepareEvent)event);
@@ -678,9 +677,9 @@ public class Debugger implements EventsHandler {
     }
 
     private boolean processDisconnectEvent(com.sun.jdi.event.VMDisconnectEvent event) {
+        publishWebSocketMessage(null, DISCONNECTED_CHANNEL + id);
         eventsCollector.stop();
         instances.remove(id);
-        publishWebSocketMessage(null, DISCONNECTED_CHANNEL + id);
         return true;
     }
 

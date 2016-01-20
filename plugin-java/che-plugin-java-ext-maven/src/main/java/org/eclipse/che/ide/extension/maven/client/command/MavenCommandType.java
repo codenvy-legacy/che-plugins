@@ -14,14 +14,15 @@ import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.eclipse.che.ide.api.icon.Icon;
+import org.eclipse.che.ide.api.icon.IconRegistry;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationFactory;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfigurationPage;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CurrentProjectPathProvider;
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CurrentProjectRelativePathProvider;
-import org.eclipse.che.ide.extension.machine.client.command.valueproviders.MachinePortProvider;
-import org.eclipse.che.ide.extension.machine.client.command.valueproviders.MachineHostNameProvider;
+import org.eclipse.che.ide.extension.machine.client.command.valueproviders.ServerPortProvider;
 import org.eclipse.che.ide.extension.maven.client.MavenResources;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
@@ -52,13 +53,16 @@ public class MavenCommandType implements CommandType {
     public MavenCommandType(MavenResources resources,
                             MavenCommandPagePresenter page,
                             CurrentProjectPathProvider currentProjectPathProvider,
-                            CurrentProjectRelativePathProvider currentProjectRelativePathProvider) {
+                            CurrentProjectRelativePathProvider currentProjectRelativePathProvider,
+                            IconRegistry iconRegistry) {
         this.resources = resources;
         this.currentProjectPathProvider = currentProjectPathProvider;
         this.currentProjectRelativePathProvider = currentProjectRelativePathProvider;
         configurationFactory = new MavenCommandConfigurationFactory(this);
         pages = new LinkedList<>();
         pages.add(page);
+
+        iconRegistry.registerIcon(new Icon(ID + ".commands.category.icon", resources.maven()));
     }
 
     @NotNull
@@ -99,7 +103,7 @@ public class MavenCommandType implements CommandType {
 
     @Override
     public String getPreviewUrlTemplate() {
-        return Window.Location.getProtocol() + "//" + MachineHostNameProvider.KEY + ":" +
-               MachinePortProvider.KEY_TEMPLATE.replace("%", DEF_PORT) + "/" + currentProjectRelativePathProvider.getKey();
+        return Window.Location.getProtocol() + "//" + ServerPortProvider.KEY_TEMPLATE.replace("%", DEF_PORT) + "/" +
+               currentProjectRelativePathProvider.getKey();
     }
 }

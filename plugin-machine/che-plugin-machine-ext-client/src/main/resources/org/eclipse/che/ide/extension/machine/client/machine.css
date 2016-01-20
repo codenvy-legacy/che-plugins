@@ -18,16 +18,19 @@
 @eval outputFontColor org.eclipse.che.ide.api.theme.Style.theme.getOutputFontColor();
 @eval editorTabIconColor org.eclipse.che.ide.api.theme.Style.getEditorTabIconColor();
 @eval outputBoxShadow org.eclipse.che.ide.api.theme.Style.theme.outputBoxShadow();
+@eval processTreeDevLabel org.eclipse.che.ide.api.theme.Style.theme.processTreeDevLabel();
 
 @external .terminal, .terminal-cursor;
 
 .terminal {
-    border-color: outputBackgroundColor;
+    border-color: transparent;
     background-color: outputBackgroundColor;
     border-width: 0px;
-    margin-left: 1px;
-    margin-top: 4px;
+    margin-left: 0px;
+    margin-top: 0px;
+
     color: outputFontColor;
+    line-height: 13px;
 }
 
 .terminal-cursor {
@@ -227,6 +230,7 @@
 
 .processTree .devMachineLabel {
     background-color: primaryHighlightColor;
+    color: processTreeDevLabel;
     text-transform: uppercase;
     line-height: smallFontSize;
     font-size: 9px;
@@ -238,6 +242,10 @@
 
 .processTree span {
     line-height: 18px;
+}
+
+.processTree .machineLabel {
+    font-weight: bold;
 }
 
 .processTree .machineStatus {
@@ -252,12 +260,20 @@
     box-sizing: border-box;
 }
 
+.sshButton {
+    font-size: 10px;
+    float: right;
+    margin-right: 2px;
+    color: categoryHeaderButtonColor;
+    cursor: pointer;
+}
+
 .processTree .processButton {
     float: right;
     color: categoryHeaderButtonColor;
     border: 1px solid categoryHeaderButtonColor;
     margin: 3px 6px 0 5px;
-    width: 13px;
+    width: 14px;
     height: 13px;
     opacity: 0.5;
     font-size: 13px;
@@ -274,7 +290,8 @@
     stroke: categoryHeaderButtonHoverColor;
 }
 
-.processButton:hover {
+.processButton:hover,
+.sshButton:hover {
     filter: brightness(120%);
     -webkit-filter: brightness(120%);
 }
@@ -294,6 +311,10 @@
 
 .processIcon svg path {
     fill: iconColor;
+}
+
+.processTree div[selected="true"] .processIcon svg path {
+    fill: activeIconColor;
 }
 
 .processNavigation {
@@ -317,23 +338,10 @@ div.processHeaderTitle {
     color: successColor !important;
 }
 
-.processesPanelCloseButtonForProcess {
-    cursor: pointer;
-    opacity: 0.5;
-    padding: 6px 7px;
-    float: right;
-    fill: editorTabIconColor;
-}
-
-.processesPanelCloseButtonForProcess g,
-.processesPanelCloseButtonForProcess path {
-    fill: editorTabIconColor;
-}
-
 .processesPanelStopButtonForProcess {
-    display: none;
     float: right;
-    background-color: primaryHighlightColor;
+    background-color: editorTabIconColor;
+    opacity: 0.3;
     margin: 4px 5px 0 5px;
     width: 10px;
     height: 10px;
@@ -343,10 +351,34 @@ div.processHeaderTitle {
 }
 
 .processesPanelStopButtonForProcess:hover {
-    background-color: categoryElementButtonHoverColor;
+    opacity: 0.5;
 }
 
-.selectedProcess img.processesPanelCloseButtonForProcess,
-.selectedProcess span.processesPanelStopButtonForProcess {
-    display: block;
+.processesPanelCloseButtonForProcess {
+    float: right;
+}
+
+.processesPanelCloseButtonForProcess svg {
+    cursor: pointer;
+    opacity: 0.5;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 8px;
+    padding-right: 9px;
+    float: right;
+    fill: editorTabIconColor;
+}
+
+.processesPanelCloseButtonForProcess svg g,
+.processesPanelCloseButtonForProcess svg path {
+    fill: editorTabIconColor;
+}
+
+.processTree div[selected="true"] .processesPanelCloseButtonForProcess svg,
+.processesPanelCloseButtonForProcess:HOVER svg {
+    opacity: 1;
+}
+
+.hideStopButton .processesPanelStopButtonForProcess {
+    display: none;
 }

@@ -16,7 +16,7 @@
     <parent>
         <artifactId>che-plugin-orion-parent</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
-        <version>4.0.0-beta-9-SNAPSHOT</version>
+        <version>4.0.0-beta-13-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>che-plugin-orion-editor</artifactId>
@@ -115,7 +115,8 @@
                             <patchDirectory>${patches.location}</patchDirectory>
                             <patches>
                                 <patch>built-codeEdit-amd.js.diff</patch>
-                                <patch>javascriptPlugin.js.diff</patch>
+                                <patch>Bug482536.diff</patch>
+                                <patch>embeddedToolingPlugin.js.diff</patch>
                             </patches>
                             <optimizations>false</optimizations>
                             <strictPatching>true</strictPatching>
@@ -134,7 +135,8 @@
                         <exclude>**/org/eclipse/che/ide/editor/orion/public/orion/**</exclude>
                         <exclude>**/org/eclipse/che/ide/editor/orion/public/built-codeEdit-10.0/**</exclude>
                         <exclude>**/patches/built-codeEdit-amd.js.diff</exclude>
-                        <exclude>**/patches/javascriptPlugin.js.diff</exclude>
+                        <exclude>**/patches/Bug482536.diff</exclude>
+                        <exclude>**/patches/embeddedToolingPlugin.js.diff</exclude>
                     </excludes>
                 </configuration>
             </plugin>

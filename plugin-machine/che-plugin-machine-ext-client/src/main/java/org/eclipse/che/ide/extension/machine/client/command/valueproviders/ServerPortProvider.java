@@ -33,15 +33,14 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Maps.transformEntries;
 
 /**
- * Provide mapping internal port, e.g. 8080 to external port.
- * Intermediate solution.
+ * Provide mapping internal port, i.e. ${server.port.8080} to 127.0.0.1:21212.
  *
  * @author Vlad Zhukovskiy
  */
 @Singleton
-public class MachinePortProvider implements MachineStateHandler {
+public class ServerPortProvider implements MachineStateHandler {
 
-    public static final String KEY_TEMPLATE = "${machine.port.%}";
+    public static final String KEY_TEMPLATE = "${server.port.%}";
 
     private final MachineServiceClient                 machineServiceClient;
     private final CommandPropertyValueProviderRegistry commandPropertyRegistry;
@@ -57,10 +56,10 @@ public class MachinePortProvider implements MachineStateHandler {
     };
 
     @Inject
-    public MachinePortProvider(EventBus eventBus,
-                               MachineServiceClient machineServiceClient,
-                               CommandPropertyValueProviderRegistry commandPropertyRegistry,
-                               AppContext appContext) {
+    public ServerPortProvider(EventBus eventBus,
+                              MachineServiceClient machineServiceClient,
+                              CommandPropertyValueProviderRegistry commandPropertyRegistry,
+                              AppContext appContext) {
         this.machineServiceClient = machineServiceClient;
         this.commandPropertyRegistry = commandPropertyRegistry;
 
@@ -83,12 +82,7 @@ public class MachinePortProvider implements MachineStateHandler {
                 new EntryTransformer<String, ServerDto, CommandPropertyValueProvider>() {
                     @Override
                     public CommandPropertyValueProvider transformEntry(String internalPort, ServerDto serverConfiguration) {
-                        String[] hostPort = serverConfiguration.getAddress().split(":");
-                        if (hostPort.length != 2) {
-                            return null;
-                        }
-
-                        return new PortProvider(internalPort, hostPort[1]);
+                        return new AddressProvider(internalPort, serverConfiguration.getAddress());
                     }
                 };
 
@@ -105,24 +99,24 @@ public class MachinePortProvider implements MachineStateHandler {
         }
     }
 
-    private class PortProvider implements CommandPropertyValueProvider {
+    private class AddressProvider implements CommandPropertyValueProvider {
 
-        String internalPort;
-        String externalPort;
+        String variable;
+        String address;
 
-        PortProvider(String internalPort, String externalPort) {
-            this.internalPort = internalPort;
-            this.externalPort = externalPort;
+        AddressProvider(String internalPort, String address) {
+            this.variable = KEY_TEMPLATE.replaceAll("%", internalPort);
+            this.address = address;
         }
 
         @Override
         public String getKey() {
-            return KEY_TEMPLATE.replace("%", internalPort);
+            return variable;
         }
 
         @Override
         public String getValue() {
-            return externalPort;
+            return address;
         }
     }
 }

@@ -44,22 +44,27 @@
         .marginBottom {
             margin-bottom: 7px !important;
         }
+
+        .warning {
+            color: orange;
+        }
     </ui:style>
 
     <g:FlowPanel debugId="gwtChePageView-mainPanel" addStyleNames="{style.mainPanel}">
-        <g:FlowPanel height="60px">
+        <g:Label text="{locale.gwtCommandPageViewWarning}" addStyleNames="{style.warning}"/>
+        <g:FlowPanel height="50px">
             <g:Label text="{locale.gwtCheCommandPageViewGwtModuleText}"
                      addStyleNames="{style.label} {style.floatLeft}"/>
             <g:TextBox width="100%" ui:field="gwtModule" debugId="gwtChePageView-gwtModule"
                        addStyleNames="{style.inputField} {style.floatRight} {style.marginBottom}"/>
         </g:FlowPanel>
-        <g:FlowPanel height="60px">
+        <g:FlowPanel height="50px">
             <g:Label text="{locale.gwtCommandPageViewCodeServerAddressText}"
                      addStyleNames="{style.label} {style.floatLeft}"/>
             <g:TextBox width="100%" ui:field="codeServerAddress" debugId="gwtChePageView-codeServerAddress"
                        addStyleNames="{style.inputField} {style.floatRight}"/>
         </g:FlowPanel>
-        <g:FlowPanel height="115px">
+        <g:FlowPanel height="105px">
             <g:Label text="{locale.gwtCommandPageViewClassPathText}"
                      addStyleNames="{style.label} {style.floatLeft}"/>
             <g:TextArea width="100%" ui:field="classPath" debugId="gwtChePageView-classPath"

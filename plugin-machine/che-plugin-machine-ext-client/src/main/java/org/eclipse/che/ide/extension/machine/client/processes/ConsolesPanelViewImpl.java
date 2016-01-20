@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.processes;
 
+import elemental.events.KeyboardEvent;
+import elemental.events.MouseEvent;
+
 import com.google.gwt.dom.client.DivElement;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
@@ -17,12 +20,14 @@ import com.google.gwt.dom.client.Node;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.DeckLayoutPanel;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.RequiresResize;
+import com.google.gwt.user.client.ui.SplitLayoutPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
-import elemental.events.KeyboardEvent;
-import elemental.events.MouseEvent;
 
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.parts.PartStackUIResources;
@@ -35,7 +40,6 @@ import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 import org.eclipse.che.ide.util.input.SignalEvent;
 
 import javax.validation.constraints.NotNull;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,19 +55,19 @@ import java.util.Map;
 public class ConsolesPanelViewImpl extends BaseView<ConsolesPanelView.ActionDelegate> implements ConsolesPanelView, RequiresResize {
 
     @UiField(provided = true)
-    MachineResources      machineResources;
+    MachineResources machineResources;
 
     @UiField(provided = true)
     Tree<ProcessTreeNode> processTree;
 
     @UiField(provided = true)
-    SplitLayoutPanel      splitLayoutPanel;
+    SplitLayoutPanel splitLayoutPanel;
 
     @UiField
-    DeckLayoutPanel       outputPanel;
+    DeckLayoutPanel outputPanel;
 
     @UiField
-    FlowPanel             navigationPanel;
+    FlowPanel navigationPanel;
 
     private Map<String, IsWidget> processWidgets;
     private List<ProcessTreeNode> processNodes;
@@ -87,6 +91,13 @@ public class ConsolesPanelViewImpl extends BaseView<ConsolesPanelView.ActionDele
             @Override
             public void onAddTerminalClick(@NotNull String machineId) {
                 delegate.onAddTerminal(machineId);
+            }
+        });
+
+        renderer.setPreviewSshClickHandler(new PreviewSshClickHandler() {
+            @Override
+            public void onPreviewSshClick(@NotNull String machineId) {
+                delegate.onPreviewSsh(machineId);
             }
         });
 
@@ -184,7 +195,6 @@ public class ConsolesPanelViewImpl extends BaseView<ConsolesPanelView.ActionDele
      */
     private void tuneSplitter() {
         NodeList<Node> nodes = splitLayoutPanel.getElement().getChildNodes();
-        boolean found = false;
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.getItem(i);
             if (node.hasChildNodes()) {
@@ -326,9 +336,18 @@ public class ConsolesPanelViewImpl extends BaseView<ConsolesPanelView.ActionDele
     public void refreshStopProcessButtonState(String nodeId) {
         for (ProcessTreeNode node : processNodes) {
             if (nodeId.equals(node.getId())) {
-                node.getTreeNodeElement().getClassList().add(machineResources.getCss().selectedProcess());
+                node.getTreeNodeElement().getClassList().remove(machineResources.getCss().hideStopButton());
             } else {
-                node.getTreeNodeElement().getClassList().remove(machineResources.getCss().selectedProcess());
+                node.getTreeNodeElement().getClassList().add(machineResources.getCss().hideStopButton());
+            }
+        }
+    }
+
+    @Override
+    public void hideStopButton(String nodeId) {
+        for (ProcessTreeNode node : processNodes) {
+            if (nodeId.equals(node.getId())) {
+                node.getTreeNodeElement().getClassList().add(machineResources.getCss().hideStopButton());
             }
         }
     }

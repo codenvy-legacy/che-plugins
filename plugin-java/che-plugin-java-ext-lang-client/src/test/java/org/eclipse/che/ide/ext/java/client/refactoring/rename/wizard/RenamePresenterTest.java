@@ -43,16 +43,18 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ChangeInfo;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameSettings;
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
+import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
+import org.eclipse.che.ide.ui.loaders.request.MessageLoader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 
@@ -68,7 +70,6 @@ import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRe
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -105,6 +106,10 @@ public class RenamePresenterTest {
     private DtoFactory                         dtoFactory;
     @Mock
     private RefactoringServiceClient           refactorService;
+    @Mock
+    private LoaderFactory                      loaderFactory;
+    @Mock
+    private MessageLoader                      loader;
 
     @Mock
     private JavaFileNode             javaFileNode;
@@ -151,7 +156,6 @@ public class RenamePresenterTest {
     @Captor
     private ArgumentCaptor<Operation<RefactoringResult>>                  refactoringStatusCaptor;
 
-    @InjectMocks
     private RenamePresenter renamePresenter;
 
     private RefactorInfo refactorInfo;
@@ -159,6 +163,7 @@ public class RenamePresenterTest {
 
     @Before
     public void setUp() throws Exception {
+        when(loaderFactory.newLoader()).thenReturn(loader);
         when(editorAgent.getActiveEditor()).thenReturn(activeEditor);
         when(dtoFactory.createDto(CreateRenameRefactoring.class)).thenReturn(createRenameRefactoringDto);
         when(dtoFactory.createDto(RefactoringSession.class)).thenReturn(refactoringSession);
@@ -187,7 +192,20 @@ public class RenamePresenterTest {
                 .thenReturn(changeCreationResultPromise);
         when(refactorService.createChange(refactoringSession)).thenReturn(changeCreationResultPromise);
         when(changeCreationResultPromise.then(Matchers.<Operation<ChangeCreationResult>>any())).thenReturn(changeCreationResultPromise);
+        when(changeCreationResultPromise.catchError(Matchers.<Operation<PromiseError>>anyObject())).thenReturn(changeCreationResultPromise);
         when(refactorService.applyRefactoring(refactoringSession)).thenReturn(refactoringStatusPromise);
+
+        renamePresenter = new RenamePresenter(view,
+                                              similarNamesConfigurationPresenter,
+                                              locale,
+                                              editorAgent,
+                                              refactoringUpdater,
+                                              appContext,
+                                              notificationManager,
+                                              previewPresenter,
+                                              refactorService,
+                                              dtoFactory,
+                                              loaderFactory);
     }
 
     @Test
@@ -445,8 +463,10 @@ public class RenamePresenterTest {
 
     @Test
     public void changesShouldNotBeAppliedAndShowErrorMessage() throws Exception {
+        RefactoringStatus refactoringStatus = mock(RefactoringStatus.class);
+        when(refactoringStatus.getSeverity()).thenReturn(3);
         when(changeCreationResult.isCanShowPreviewPage()).thenReturn(false);
-        when(changeCreationResult.getStatus()).thenReturn(any());
+        when(changeCreationResult.getStatus()).thenReturn(refactoringStatus);
 
         renamePresenter.show(refactorInfo);
 

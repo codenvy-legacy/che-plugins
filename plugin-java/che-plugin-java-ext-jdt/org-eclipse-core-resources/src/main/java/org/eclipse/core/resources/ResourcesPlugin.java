@@ -195,7 +195,7 @@ public class ResourcesPlugin {
     private static String pluginId;
 
     @Inject
-    public ResourcesPlugin(@Named("che.jdt.workspace.index.dir") String indexPath, @Named("vfs.local.fs_root_dir") String workspacePath,
+    public ResourcesPlugin(@Named("che.jdt.workspace.index.dir") String indexPath, @Named("che.user.workspaces.storage") String workspacePath,
                            ProjectManager projectManager) {
         ResourcesPlugin.indexPath = indexPath;
         ResourcesPlugin.workspacePath = workspacePath;

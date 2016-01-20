@@ -16,7 +16,8 @@ import org.eclipse.che.api.git.shared.StatusFormat;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
-import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -47,7 +48,10 @@ public class StatusCommandPresenterTest extends BaseTest {
     private WorkspaceAgent workspaceAgent;
 
     @Mock
-    private GitOutputPartPresenter gitOutput;
+    private GitOutputConsoleFactory gitOutputConsoleFactory;
+
+    @Mock
+    private ConsolesPanelPresenter consolesPanelPresenter;
 
     @Override
     public void disarm() {
@@ -55,7 +59,8 @@ public class StatusCommandPresenterTest extends BaseTest {
 
         presenter = new StatusCommandPresenter(service,
                                                appContext,
-                                               gitOutput,
+                                               gitOutputConsoleFactory,
+                                               consolesPanelPresenter,
                                                constant,
                                                notificationManager);
     }

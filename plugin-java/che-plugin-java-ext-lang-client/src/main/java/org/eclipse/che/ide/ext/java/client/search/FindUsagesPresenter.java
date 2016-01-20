@@ -91,7 +91,7 @@ public class FindUsagesPresenter extends BasePresenter implements FindUsagesView
 
     @Override
     public String getTitleToolTip() {
-        return localizationConstant.findUsagesPartTitle();
+        return localizationConstant.findUsagesPartTitleTooltip();
     }
 
     @Override

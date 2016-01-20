@@ -11,7 +11,6 @@
 package org.eclipse.che.ide.extension.machine.client.machine;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 
@@ -21,6 +20,7 @@ import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.gwt.client.OutputMessageUnmarshaller;
 import org.eclipse.che.api.machine.gwt.client.events.DevMachineStateEvent;
 import org.eclipse.che.api.machine.gwt.client.events.DevMachineStateHandler;
+import org.eclipse.che.api.machine.gwt.client.events.MachineStartingEvent;
 import org.eclipse.che.api.machine.shared.dto.ChannelsDto;
 import org.eclipse.che.api.machine.shared.dto.LimitsDto;
 import org.eclipse.che.api.machine.shared.dto.MachineConfigDto;
@@ -32,6 +32,8 @@ import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.workspace.gwt.client.WorkspaceServiceClient;
+import org.eclipse.che.api.workspace.gwt.client.event.StartWorkspaceEvent;
+import org.eclipse.che.api.workspace.gwt.client.event.StartWorkspaceHandler;
 import org.eclipse.che.api.workspace.shared.dto.UsersWorkspaceDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.parts.PerspectiveManager;
@@ -39,7 +41,6 @@ import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.machine.MachineStatusNotifier.RunningListener;
 import org.eclipse.che.ide.extension.machine.client.machine.console.MachineConsolePresenter;
-import org.eclipse.che.api.machine.gwt.client.events.MachineStartingEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateHandler;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
@@ -50,17 +51,15 @@ import org.eclipse.che.ide.websocket.MessageBusProvider;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.SubscriptionHandler;
 import org.eclipse.che.ide.websocket.rest.Unmarshallable;
-import org.eclipse.che.api.workspace.gwt.client.event.StartWorkspaceEvent;
-import org.eclipse.che.api.workspace.gwt.client.event.StartWorkspaceHandler;
 
-import static org.eclipse.che.api.machine.gwt.client.MachineManager.MachineOperationType.START;
-import static org.eclipse.che.api.machine.gwt.client.MachineManager.MachineOperationType.RESTART;
 import static org.eclipse.che.api.machine.gwt.client.MachineManager.MachineOperationType.DESTROY;
+import static org.eclipse.che.api.machine.gwt.client.MachineManager.MachineOperationType.RESTART;
+import static org.eclipse.che.api.machine.gwt.client.MachineManager.MachineOperationType.START;
+import static org.eclipse.che.ide.extension.machine.client.perspective.MachinePerspective.MACHINE_PERSPECTIVE_ID;
 import static org.eclipse.che.ide.ui.loaders.initialization.InitialLoadingInfo.Operations.MACHINE_BOOTING;
 import static org.eclipse.che.ide.ui.loaders.initialization.OperationInfo.Status.ERROR;
 import static org.eclipse.che.ide.ui.loaders.initialization.OperationInfo.Status.IN_PROGRESS;
 import static org.eclipse.che.ide.ui.loaders.initialization.OperationInfo.Status.SUCCESS;
-import static org.eclipse.che.ide.extension.machine.client.perspective.MachinePerspective.MACHINE_PERSPECTIVE_ID;
 
 /**
  * Manager for machine operations.
@@ -99,7 +98,7 @@ public class MachineManagerImpl implements MachineManager {
                               final PerspectiveManager perspectiveManager,
                               EntityFactory entityFactory,
                               EventBus eventBus,
-                              AppContext appContext,
+                              final AppContext appContext,
                               DtoFactory dtoFactory) {
         this.extServerStateController = extServerStateController;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
@@ -141,7 +140,6 @@ public class MachineManagerImpl implements MachineManager {
         eventBus.addHandler(MachineStateEvent.TYPE, new MachineStateHandler() {
             @Override
             public void onMachineRunning(MachineStateEvent event) {
-
             }
 
             @Override
@@ -306,7 +304,6 @@ public class MachineManagerImpl implements MachineManager {
         }
     }
 
-
     @Override
     public void onDevMachineCreating(MachineStateDto machineState) {
         perspectiveManager.setPerspectiveId(MACHINE_PERSPECTIVE_ID);
@@ -315,5 +312,7 @@ public class MachineManagerImpl implements MachineManager {
         ChannelsDto channels = machineState.getChannels();
         subscribeToOutput(channels.getOutput());
         subscribeToMachineStatus(channels.getStatus());
+        //ws agent logs
+        subscribeToOutput("workspace:" + appContext.getWorkspaceId() + ":ext-server:output");
     }
 }

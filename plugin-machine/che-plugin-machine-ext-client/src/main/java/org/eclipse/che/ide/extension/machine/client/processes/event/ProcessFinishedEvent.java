@@ -8,30 +8,23 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.extension.machine.client.command.valueproviders;
+package org.eclipse.che.ide.extension.machine.client.processes.event;
 
-import com.google.gwt.user.client.Window;
-import com.google.inject.Singleton;
+import com.google.gwt.event.shared.GwtEvent;
 
 /**
- * Provide current window host name.
- *
- * Need for IDEX-3924 as intermediate solution.
- *
- * @author Vlad Zhukovskiy
+ * @author Dmitry Shnurenko
  */
-@Singleton
-public class MachineHostNameProvider implements CommandPropertyValueProvider {
-
-    public static final String KEY = "${machine.hostname}";
+public class ProcessFinishedEvent extends GwtEvent<ProcessFinishedHandler> {
+    public static final Type<ProcessFinishedHandler> TYPE = new Type<>();
 
     @Override
-    public String getKey() {
-        return KEY;
+    public Type<ProcessFinishedHandler> getAssociatedType() {
+        return TYPE;
     }
 
     @Override
-    public String getValue() {
-        return Window.Location.getHostName();
+    protected void dispatch(ProcessFinishedHandler handler) {
+        handler.onProcessFinished();
     }
 }

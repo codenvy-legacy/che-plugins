@@ -22,7 +22,9 @@ import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.event.project.ProjectUpdatedEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
-import org.eclipse.che.ide.ext.git.client.GitOutputPartPresenter;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsole;
+import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsoleFactory;
+import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 
@@ -35,14 +37,17 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAI
  */
 @Singleton
 public class DeleteRepositoryPresenter {
-    private       GitServiceClient        service;
-    private       GitLocalizationConstant constant;
-    private       AppContext              appContext;
-    private       NotificationManager     notificationManager;
+    public static final String DELETE_REPO_COMMAND_NAME = "Git delete repository";
+
+    private final GitServiceClient        service;
+    private final GitLocalizationConstant constant;
+    private final ConsolesPanelPresenter  consolesPanelPresenter;
+    private final AppContext              appContext;
+    private final NotificationManager     notificationManager;
     private final ProjectServiceClient    projectService;
     private final DtoUnmarshallerFactory  dtoUnmarshaller;
+    private final GitOutputConsoleFactory gitOutputConsoleFactory;
     private final EventBus                eventBus;
-    private final GitOutputPartPresenter  console;
     private final String                  workspaceId;
 
     /**
@@ -56,7 +61,8 @@ public class DeleteRepositoryPresenter {
     @Inject
     public DeleteRepositoryPresenter(GitServiceClient service,
                                      GitLocalizationConstant constant,
-                                     GitOutputPartPresenter console,
+                                     GitOutputConsoleFactory gitOutputConsoleFactory,
+                                     ConsolesPanelPresenter consolesPanelPresenter,
                                      AppContext appContext,
                                      NotificationManager notificationManager,
                                      ProjectServiceClient projectServiceClient,
@@ -64,23 +70,26 @@ public class DeleteRepositoryPresenter {
                                      EventBus eventBus) {
         this.service = service;
         this.constant = constant;
-        this.console = console;
+        this.gitOutputConsoleFactory = gitOutputConsoleFactory;
+        this.consolesPanelPresenter = consolesPanelPresenter;
         this.appContext = appContext;
         this.notificationManager = notificationManager;
         this.projectService = projectServiceClient;
         this.dtoUnmarshaller = dtoUnmarshaller;
         this.eventBus = eventBus;
-        
+
         this.workspaceId = appContext.getWorkspaceId();
     }
 
     /** Delete Git repository. */
     public void deleteRepository() {
         final CurrentProject project = appContext.getCurrentProject();
+        final GitOutputConsole console = gitOutputConsoleFactory.create(DELETE_REPO_COMMAND_NAME);
         service.deleteRepository(workspaceId, project.getRootProject(), new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {
                 console.printInfo(constant.deleteGitRepositorySuccess());
+                consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                 notificationManager.notify(constant.deleteGitRepositorySuccess(), project.getRootProject());
                 getRootProject(project.getRootProject());
             }
@@ -88,6 +97,7 @@ public class DeleteRepositoryPresenter {
             @Override
             protected void onFailure(Throwable exception) {
                 console.printError(exception.getMessage());
+                consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                 notificationManager.notify(constant.failedToDeleteRepository(), FAIL, true, project.getRootProject());
             }
         });

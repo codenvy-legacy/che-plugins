@@ -20,6 +20,7 @@ import com.google.inject.name.Names;
 import org.eclipse.che.api.machine.gwt.client.MachineManager;
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
 import org.eclipse.che.ide.api.parts.Perspective;
+import org.eclipse.che.ide.api.outputconsole.OutputConsole;
 import org.eclipse.che.ide.core.Component;
 import org.eclipse.che.ide.extension.machine.client.MachineComponent;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
@@ -32,7 +33,6 @@ import org.eclipse.che.ide.extension.machine.client.command.valueproviders.Comma
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CurrentProjectPathProvider;
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.CurrentProjectRelativePathProvider;
 import org.eclipse.che.ide.extension.machine.client.command.valueproviders.DevMachineHostNameProvider;
-import org.eclipse.che.ide.extension.machine.client.command.valueproviders.MachineHostNameProvider;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.TerminalFactory;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.WidgetsFactory;
@@ -46,9 +46,9 @@ import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContaine
 import org.eclipse.che.ide.extension.machine.client.outputspanel.OutputsContainerViewImpl;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandConsoleFactory;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandOutputConsole;
+import org.eclipse.che.ide.extension.machine.client.outputspanel.console.CommandOutputConsolePresenter;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsoleViewImpl;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.DefaultOutputConsole;
-import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsole;
 import org.eclipse.che.ide.extension.machine.client.outputspanel.console.OutputConsoleView;
 import org.eclipse.che.ide.extension.machine.client.perspective.MachinePerspective;
 import org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.editor.button.EditorButtonWidget;
@@ -60,6 +60,7 @@ import org.eclipse.che.ide.extension.machine.client.perspective.widgets.tab.head
 import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelView;
 import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelViewImpl;
 import org.eclipse.che.ide.ui.toolbar.ToolbarPresenter;
+
 
 import static org.eclipse.che.ide.extension.machine.client.perspective.MachinePerspective.MACHINE_PERSPECTIVE_ID;
 
@@ -87,7 +88,7 @@ public class MachineGinModule extends AbstractGinModule {
 
         bind(CreateMachineView.class).to(CreateMachineViewImpl.class);
         bind(OutputConsoleView.class).to(OutputConsoleViewImpl.class);
-        install(new GinFactoryModuleBuilder().implement(OutputConsole.class, Names.named("command"), CommandOutputConsole.class)
+        install(new GinFactoryModuleBuilder().implement(CommandOutputConsole.class, Names.named("command"), CommandOutputConsolePresenter.class)
                                              .implement(OutputConsole.class, Names.named("default"), DefaultOutputConsole.class)
                                              .build(CommandConsoleFactory.class));
 
@@ -104,7 +105,6 @@ public class MachineGinModule extends AbstractGinModule {
         valueProviderBinder.addBinding().to(DevMachineHostNameProvider.class);
         valueProviderBinder.addBinding().to(CurrentProjectPathProvider.class);
         valueProviderBinder.addBinding().to(CurrentProjectRelativePathProvider.class);
-        valueProviderBinder.addBinding().to(MachineHostNameProvider.class);
 
         install(new GinFactoryModuleBuilder().implement(TabHeader.class, TabHeaderImpl.class)
                                              .implement(EditorButtonWidget.class, EditorButtonWidgetImpl.class)

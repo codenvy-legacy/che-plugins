@@ -137,9 +137,13 @@ public interface MachineResources extends ClientBundle {
 
         String machineStatus();
 
+        String machineLabel();
+
         String processIcon();
 
         String processButton();
+
+        String sshButton();
 
         String processNavigation();
 
@@ -155,7 +159,6 @@ public interface MachineResources extends ClientBundle {
         /** Returns the CSS class name for stop button of process in 'Consoles' panel. */
         String processesPanelStopButtonForProcess();
 
-        /** Returns the CSS class name for selected process in 'Consoles' panel. */
-        String selectedProcess();
+        String hideStopButton();
     }
 }
