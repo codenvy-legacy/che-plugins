@@ -27,7 +27,7 @@ import javax.validation.constraints.NotNull;
 @Singleton
 public class RecipeFileFactory {
 
-    public static final String NAME = "Machine Recipe";
+    public static final String NAME = "Dockerfile";
     public static final String PATH = "machine_recipe";
     public static final String TYPE = "text/x-dockerfile";
 
