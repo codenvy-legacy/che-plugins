@@ -145,6 +145,7 @@ public class JavaNavigationServiceImpl implements JavaNavigationService {
 
                 requestFactory.createGetRequest(url)
                               .header(ACCEPT, APPLICATION_JSON)
+                              .loader(loaderFactory.newLoader())
                               .send(newCallback(callback, unmarshallerFactory.newListUnmarshaller(JavaProject.class)));
             }
         });

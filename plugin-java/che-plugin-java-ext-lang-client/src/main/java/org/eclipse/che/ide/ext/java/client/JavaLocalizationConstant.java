@@ -314,4 +314,10 @@ public interface JavaLocalizationConstant extends Messages {
 
     @Key("apply.move.error")
     String applyMoveError();
+
+    @Key("warning.operation.title")
+    String warningOperationTitle();
+
+    @Key("warning.operation.content")
+    String warningOperationContent();
 }
