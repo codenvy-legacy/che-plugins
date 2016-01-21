@@ -116,7 +116,10 @@ public class RefactoringUpdater {
         switch (changeInfo.getName()) {
             case MOVE:
             case RENAME_COMPILATION_UNIT:
-                removeNodeFor(changeInfo, refactorInfo.getSelectedItems());
+                if (refactorInfo != null) {
+                    removeNodeFor(changeInfo, refactorInfo.getSelectedItems());
+                }
+
                 derivedPromise = promise.thenPromise(proceedRefactoringMove(changeInfo));
                 break;
             case RENAME_PACKAGE:
