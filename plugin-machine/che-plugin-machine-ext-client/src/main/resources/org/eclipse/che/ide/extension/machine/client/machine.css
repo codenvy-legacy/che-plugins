@@ -230,6 +230,7 @@
 
 .processTree .devMachineLabel {
     background-color: primaryHighlightColor;
+    color: processTreeDevLabel;
     text-transform: uppercase;
     line-height: smallFontSize;
     font-size: 9px;

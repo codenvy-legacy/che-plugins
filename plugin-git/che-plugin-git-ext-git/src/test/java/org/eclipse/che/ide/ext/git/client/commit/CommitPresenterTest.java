@@ -15,6 +15,7 @@ import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 import org.eclipse.che.api.git.shared.Revision;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.ext.git.client.DateTimeFormatter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -49,11 +50,13 @@ public class CommitPresenterTest extends BaseTest {
     public static final boolean IS_OVERWRITTEN    = true;
     public static final String  COMMIT_TEXT       = "commit text";
     @Mock
-    private CommitView        view;
+    private CommitView               view;
     @Mock
-    private Revision          revision;
+    private Revision                 revision;
     @Mock
-    private DateTimeFormatter dateTimeFormatter;
+    private DateTimeFormatter        dateTimeFormatter;
+    @Mock
+    private ProjectExplorerPresenter projectExplorer;
 
     private CommitPresenter presenter;
 
@@ -70,7 +73,7 @@ public class CommitPresenterTest extends BaseTest {
                                         dtoUnmarshallerFactory,
                                         appContext,
                                         dateTimeFormatter,
-                                        selectionAgent,
+                                        projectExplorer,
                                         gitOutputConsoleFactory,
                                         consolesPanelPresenter);
 

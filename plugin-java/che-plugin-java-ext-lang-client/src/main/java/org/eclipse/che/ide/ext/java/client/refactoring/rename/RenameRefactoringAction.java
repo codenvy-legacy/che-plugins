@@ -34,6 +34,7 @@ import org.eclipse.che.ide.ext.java.client.refactoring.RefactorInfo;
 import org.eclipse.che.ide.ext.java.client.refactoring.move.RefactoredItemType;
 import org.eclipse.che.ide.ext.java.client.refactoring.rename.wizard.RenamePresenter;
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
+import org.eclipse.che.ide.util.loging.Log;
 
 import java.util.List;
 
@@ -150,7 +151,7 @@ public class RenameRefactoringAction extends Action implements ActivePartChanged
         }
 
         EditorPartPresenter editorPart = editorAgent.getActiveEditor();
-        if (editorPart != null && editorPart instanceof TextEditor && ((TextEditor)editorPart).isFocused()) {
+        if (editorPart != null && editorPart instanceof TextEditor) {
             VirtualFile virtualFile = editorPart.getEditorInput().getFile();
             String mediaType = virtualFile.getMediaType();
 

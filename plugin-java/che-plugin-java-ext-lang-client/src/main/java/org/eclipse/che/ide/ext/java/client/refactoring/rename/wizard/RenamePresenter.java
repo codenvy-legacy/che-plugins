@@ -39,12 +39,16 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactori
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatusEntry;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameSettings;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ValidateNewName;
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
-import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
-import org.eclipse.che.ide.ui.loaders.request.MessageLoader;
+import org.eclipse.che.ide.ui.dialogs.CancelCallback;
+import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
+import org.eclipse.che.ide.ui.dialogs.DialogFactory;
+
+import java.util.List;
 
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactoring.RenameType.COMPILATION_UNIT;
@@ -70,7 +74,7 @@ public class RenamePresenter implements ActionDelegate {
     private final PreviewPresenter                   previewPresenter;
     private final DtoFactory                         dtoFactory;
     private final RefactoringServiceClient           refactorService;
-    private final MessageLoader                      loader;
+    private final DialogFactory                      dialogFactory;
 
     private RenameRefactoringSession renameRefactoringSession;
     private RefactorInfo             refactorInfo;
@@ -86,7 +90,7 @@ public class RenamePresenter implements ActionDelegate {
                            PreviewPresenter previewPresenter,
                            RefactoringServiceClient refactorService,
                            DtoFactory dtoFactory,
-                           LoaderFactory loaderFactory) {
+                           DialogFactory dialogFactory) {
         this.view = view;
         this.similarNamesConfigurationPresenter = similarNamesConfigurationPresenter;
         this.locale = locale;
@@ -98,7 +102,7 @@ public class RenamePresenter implements ActionDelegate {
         this.previewPresenter = previewPresenter;
         this.refactorService = refactorService;
         this.dtoFactory = dtoFactory;
-        this.loader = loaderFactory.newLoader();
+        this.dialogFactory = dialogFactory;
     }
 
     /**
@@ -248,8 +252,6 @@ public class RenamePresenter implements ActionDelegate {
     }
 
     private void showPreview() {
-        loader.show();
-
         RefactoringSession session = dtoFactory.createDto(RefactoringSession.class);
         session.setSessionId(renameRefactoringSession.getSessionId());
 
@@ -263,55 +265,72 @@ public class RenamePresenter implements ActionDelegate {
                 } else {
                     view.showErrorMessage(arg.getStatus());
                 }
-
-                loader.hide();
             }
         }).catchError(new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError arg) throws OperationException {
-                loader.hide();
-
                 notificationManager.notify(locale.failedToRename(), arg.getMessage(), FAIL, true);
             }
         });
     }
 
     private void applyChanges() {
-        loader.show();
-
         final RefactoringSession session = dtoFactory.createDto(RefactoringSession.class);
         session.setSessionId(renameRefactoringSession.getSessionId());
 
         prepareRenameChanges(session).then(new Operation<ChangeCreationResult>() {
             @Override
             public void apply(ChangeCreationResult arg) throws OperationException {
-                if (!arg.isCanShowPreviewPage()) {
-                    view.showErrorMessage(arg.getStatus());
+                int severityCode = arg.getStatus().getSeverity();
 
-                    loader.hide();
+                if (severityCode == 2) {
+                    showWarningDialog(session, arg);
                     return;
                 }
 
-                refactorService.applyRefactoring(session).then(new Operation<RefactoringResult>() {
-                    @Override
-                    public void apply(RefactoringResult arg) throws OperationException {
-                        if (arg.getSeverity() == OK) {
-                            view.hide();
-                            refactoringUpdater.updateAfterRefactoring(refactorInfo, arg.getChanges());
-                        } else {
-                            view.showErrorMessage(arg);
-                        }
+                if (!arg.isCanShowPreviewPage() && severityCode > 2) {
+                    view.showErrorMessage(arg.getStatus());
+                    return;
+                }
 
-                        loader.hide();
-                    }
-                });
+                applyRefactoring(session);
             }
         }).catchError(new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError arg) throws OperationException {
-                loader.hide();
-
                 notificationManager.notify(locale.failedToRename(), arg.getMessage(), FAIL, true);
+            }
+        });
+    }
+
+    private void showWarningDialog(final RefactoringSession session, ChangeCreationResult changeCreationResult) {
+        List<RefactoringStatusEntry> entries = changeCreationResult.getStatus().getEntries();
+
+        dialogFactory.createConfirmDialog(locale.warningOperationTitle(),
+                                          entries.isEmpty() ? locale.warningOperationContent() : entries.get(0).getMessage(),
+                                          new ConfirmCallback() {
+                                              @Override
+                                              public void accepted() {
+                                                  applyRefactoring(session);
+                                              }
+                                          },
+                                          new CancelCallback() {
+                                              @Override
+                                              public void cancelled() {
+                                              }
+                                          }).show();
+    }
+
+    private void applyRefactoring(RefactoringSession session) {
+        refactorService.applyRefactoring(session).then(new Operation<RefactoringResult>() {
+            @Override
+            public void apply(RefactoringResult arg) throws OperationException {
+                if (arg.getSeverity() == OK) {
+                    view.hide();
+                    refactoringUpdater.updateAfterRefactoring(refactorInfo, arg.getChanges());
+                } else {
+                    view.showErrorMessage(arg);
+                }
             }
         });
     }
