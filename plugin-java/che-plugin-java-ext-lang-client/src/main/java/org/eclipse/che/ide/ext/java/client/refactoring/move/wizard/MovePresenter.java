@@ -47,8 +47,6 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ReorgDestination;
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
-import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
-import org.eclipse.che.ide.ui.loaders.request.MessageLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +73,6 @@ public class MovePresenter implements MoveView.ActionDelegate {
     private final DtoFactory               dtoFactory;
     private final RefactoringServiceClient refactorService;
     private final JavaNavigationService    navigationService;
-    private final MessageLoader            loader;
     private final JavaLocalizationConstant locale;
     private final NotificationManager      notificationManager;
 
@@ -91,7 +88,6 @@ public class MovePresenter implements MoveView.ActionDelegate {
                          RefactoringServiceClient refactorService,
                          JavaNavigationService navigationService,
                          DtoFactory dtoFactory,
-                         LoaderFactory loaderFactory,
                          JavaLocalizationConstant locale,
                          NotificationManager notificationManager) {
         this.view = view;
@@ -105,7 +101,6 @@ public class MovePresenter implements MoveView.ActionDelegate {
         this.navigationService = navigationService;
         this.dtoFactory = dtoFactory;
         this.locale = locale;
-        this.loader = loaderFactory.newLoader();
         this.notificationManager = notificationManager;
     }
 
@@ -116,8 +111,6 @@ public class MovePresenter implements MoveView.ActionDelegate {
      *         information about the move operation
      */
     public void show(final RefactorInfo refactorInfo) {
-        loader.show();
-
         this.refactorInfo = refactorInfo;
         view.setEnablePreviewButton(false);
         view.setEnableAcceptButton(false);
@@ -137,8 +130,6 @@ public class MovePresenter implements MoveView.ActionDelegate {
         }).catchError(new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError error) throws OperationException {
-                loader.hide();
-
                 notificationManager.notify(error.getMessage(), Status.FAIL, true);
             }
         });
@@ -199,19 +190,13 @@ public class MovePresenter implements MoveView.ActionDelegate {
                         view.setTreeOfDestinations(currentProject);
                         view.show(refactorInfo);
 
-                        loader.hide();
-
                         return;
                     }
                 }
-
-                loader.hide();
             }
         }).catchError(new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError error) throws OperationException {
-                loader.hide();
-
                 notificationManager.notify(locale.showPackagesError(), error.getMessage(), Status.FAIL, true);
             }
         });
@@ -220,15 +205,11 @@ public class MovePresenter implements MoveView.ActionDelegate {
     /** {@inheritDoc} */
     @Override
     public void onPreviewButtonClicked() {
-        loader.show();
-
         RefactoringSession session = dtoFactory.createDto(RefactoringSession.class);
         session.setSessionId(refactoringSessionId);
         prepareMovingChanges(session).then(new Operation<ChangeCreationResult>() {
             @Override
             public void apply(ChangeCreationResult arg) throws OperationException {
-                loader.hide();
-
                 if (arg.isCanShowPreviewPage()) {
                     previewPresenter.show(refactoringSessionId, refactorInfo);
 
@@ -240,19 +221,14 @@ public class MovePresenter implements MoveView.ActionDelegate {
         }).catchError(new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError error) throws OperationException {
-                loader.hide();
-
                 notificationManager.notify(locale.showPreviewError(), error.getMessage(), Status.FAIL, true);
             }
-
         });
     }
 
     /** {@inheritDoc} */
     @Override
     public void onAcceptButtonClicked() {
-        loader.show();
-
         final RefactoringSession session = dtoFactory.createDto(RefactoringSession.class);
         session.setSessionId(refactoringSessionId);
         prepareMovingChanges(session).then(new Operation<ChangeCreationResult>() {
@@ -273,14 +249,10 @@ public class MovePresenter implements MoveView.ActionDelegate {
                 } else {
                     view.showErrorMessage(arg.getStatus());
                 }
-
-                loader.hide();
             }
         }).catchError(new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError error) throws OperationException {
-                loader.hide();
-
                 notificationManager.notify(locale.applyMoveError(), error.getMessage(), Status.FAIL, true);
             }
         });

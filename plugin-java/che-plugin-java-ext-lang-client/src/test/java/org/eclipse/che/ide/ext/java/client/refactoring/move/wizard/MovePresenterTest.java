@@ -42,8 +42,6 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.ReorgDestination;
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
-import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
-import org.eclipse.che.ide.ui.loaders.request.MessageLoader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -99,8 +97,6 @@ public class MovePresenterTest {
     @Mock
     private DtoFactory               dtoFactory;
     @Mock
-    private LoaderFactory            loaderFactory;
-    @Mock
     private JavaLocalizationConstant locale;
     @Mock
     private NotificationManager      notificationManager;
@@ -147,8 +143,6 @@ public class MovePresenterTest {
     @Mock
     private Promise<RefactoringResult>    refactoringResultPromise;
     @Mock
-    private MessageLoader                 loader;
-    @Mock
     private PromiseError                  promiseError;
 
     @Captor
@@ -192,7 +186,6 @@ public class MovePresenterTest {
         when(dtoFactory.createDto(MoveSettings.class)).thenReturn(moveSettings);
         when(dtoFactory.createDto(RefactoringSession.class)).thenReturn(session);
         when(changeCreationResult.getStatus()).thenReturn(refactoringStatus);
-        when(loaderFactory.newLoader()).thenReturn(loader);
 
         when(refactorService.setMoveSettings(moveSettings)).thenReturn(moveSettingsPromise);
         when(moveSettingsPromise.thenPromise(Matchers.<Function<Void, Promise<ChangeCreationResult>>>anyObject()))
@@ -208,7 +201,6 @@ public class MovePresenterTest {
                                       refactorService,
                                       navigationService,
                                       dtoFactory,
-                                      loaderFactory,
                                       locale,
                                       notificationManager);
     }
@@ -254,7 +246,6 @@ public class MovePresenterTest {
 
         presenter.onPreviewButtonClicked();
 
-        verify(loader).show();
         verify(moveSettings).setSessionId(anyString());
         verify(moveSettings).setUpdateReferences(anyBoolean());
         verify(moveSettings).setUpdateQualifiedNames(anyBoolean());
@@ -269,18 +260,15 @@ public class MovePresenterTest {
         changeResultOperation.getValue().apply(changeCreationResult);
         verify(previewPresenter).show(anyString(), any());
         verify(moveView).hide();
-        verify(loader).hide();
     }
 
     @Test
     public void errorMessageShouldBeShownDuringShowingPreviewDialog() throws OperationException {
         presenter.onPreviewButtonClicked();
 
-        verify(loader).show();
         verify(changeCreationResultPromise).catchError(promiseErrorCaptor.capture());
         promiseErrorCaptor.getValue().apply(promiseError);
 
-        verify(loader).hide();
         verify(locale).showPreviewError();
         verify(promiseError).getMessage();
         verify(notificationManager).notify(anyString(), anyString(), eq(FAIL), eq(true));
@@ -318,7 +306,6 @@ public class MovePresenterTest {
 
         presenter.onAcceptButtonClicked();
 
-        verify(loader).show();
         verify(moveSettings).setSessionId(anyString());
         verify(moveSettings).setUpdateReferences(anyBoolean());
         verify(moveSettings).setUpdateQualifiedNames(anyBoolean());
@@ -332,18 +319,15 @@ public class MovePresenterTest {
         verify(changeCreationResultPromise).then(changeResultOperation.capture());
         changeResultOperation.getValue().apply(changeCreationResult);
         verify(moveView).showErrorMessage(refactoringStatus);
-        verify(loader).hide();
     }
 
     @Test
     public void notificationShouldBeShownWhenSomeErrorOccursDuringAcceptMoving() throws OperationException {
         presenter.onAcceptButtonClicked();
 
-        loader.show();
         verify(changeCreationResultPromise).catchError(promiseErrorCaptor.capture());
         promiseErrorCaptor.getValue().apply(promiseError);
 
-        verify(loader).hide();
         verify(locale).applyMoveError();
         verify(promiseError).getMessage();
         verify(notificationManager).notify(anyString(), anyString(), eq(FAIL), eq(true));

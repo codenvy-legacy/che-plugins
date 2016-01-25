@@ -16,6 +16,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.eclipse.che.api.promises.client.Function;
 import org.eclipse.che.api.promises.client.FunctionException;
 import org.eclipse.che.api.promises.client.Operation;
+import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.PromiseError;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
@@ -44,12 +45,16 @@ import org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRefactori
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringResult;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatus;
+import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RefactoringStatusEntry;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameRefactoringSession;
 import org.eclipse.che.ide.ext.java.shared.dto.refactoring.RenameSettings;
 import org.eclipse.che.ide.jseditor.client.texteditor.TextEditor;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
+import org.eclipse.che.ide.ui.dialogs.CancelCallback;
+import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
+import org.eclipse.che.ide.ui.dialogs.DialogFactory;
+import org.eclipse.che.ide.ui.dialogs.confirm.ConfirmDialog;
 import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
-import org.eclipse.che.ide.ui.loaders.request.MessageLoader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,6 +64,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.NavigableMap;
@@ -108,8 +114,6 @@ public class RenamePresenterTest {
     private RefactoringServiceClient           refactorService;
     @Mock
     private LoaderFactory                      loaderFactory;
-    @Mock
-    private MessageLoader                      loader;
 
     @Mock
     private JavaFileNode             javaFileNode;
@@ -135,6 +139,8 @@ public class RenamePresenterTest {
     private ChangeCreationResult     changeCreationResult;
     @Mock
     private RenameRefactoringSession session;
+    @Mock
+    private DialogFactory            dialogFactory;
 
     @Mock
     private Promise<RenameRefactoringSession> renameRefactoringSessionPromise;
@@ -163,7 +169,6 @@ public class RenamePresenterTest {
 
     @Before
     public void setUp() throws Exception {
-        when(loaderFactory.newLoader()).thenReturn(loader);
         when(editorAgent.getActiveEditor()).thenReturn(activeEditor);
         when(dtoFactory.createDto(CreateRenameRefactoring.class)).thenReturn(createRenameRefactoringDto);
         when(dtoFactory.createDto(RefactoringSession.class)).thenReturn(refactoringSession);
@@ -195,6 +200,8 @@ public class RenamePresenterTest {
         when(changeCreationResultPromise.catchError(Matchers.<Operation<PromiseError>>anyObject())).thenReturn(changeCreationResultPromise);
         when(refactorService.applyRefactoring(refactoringSession)).thenReturn(refactoringStatusPromise);
 
+        when(changeCreationResult.getStatus()).thenReturn(refactoringStatus);
+
         renamePresenter = new RenamePresenter(view,
                                               similarNamesConfigurationPresenter,
                                               locale,
@@ -205,7 +212,7 @@ public class RenamePresenterTest {
                                               previewPresenter,
                                               refactorService,
                                               dtoFactory,
-                                              loaderFactory);
+                                              dialogFactory);
     }
 
     @Test
@@ -544,7 +551,7 @@ public class RenamePresenterTest {
         verify(refactoringStatusPromise).then(refactoringStatusCaptor.capture());
         refactoringStatusCaptor.getValue().apply(refactoringStatus);
 
-        verify(refactoringStatus).getSeverity();
+        verify(refactoringStatus, times(2)).getSeverity();
         verify(view).hide();
         verify(refactoringUpdater).updateAfterRefactoring(refactorInfo, changes);
     }
@@ -654,6 +661,32 @@ public class RenamePresenterTest {
         verify(view).hide();
         verify(previewPresenter).show(SESSION_ID, refactorInfo);
         verify(previewPresenter).setTitle(anyString());
+    }
+
+    @Test
+    public void warningDialogShouldBeDisplayedWhenRefactoringPerformsWithWarning() throws OperationException {
+        renamePresenter.show(session);
+
+        ConfirmDialog dialog = mock(ConfirmDialog.class);
+        RefactoringStatusEntry statusEntry = mock(RefactoringStatusEntry.class);
+        List<RefactoringStatusEntry> entries = Arrays.asList(statusEntry);
+
+        when(refactoringStatus.getEntries()).thenReturn(entries);
+        when(refactoringStatus.getSeverity()).thenReturn(2);
+        when(dialogFactory.createConfirmDialog(anyString(),
+                                               anyString(),
+                                               Matchers.<ConfirmCallback>anyObject(),
+                                               Matchers.<CancelCallback>anyObject())).thenReturn(dialog);
+        renamePresenter.onAcceptButtonClicked();
+
+        verify(changeCreationResultPromise).then(changeCreationResultCaptor.capture());
+        changeCreationResultCaptor.getValue().apply(changeCreationResult);
+
+        verify(dialogFactory).createConfirmDialog(anyString(),
+                                                  anyString(),
+                                                  Matchers.<ConfirmCallback>anyObject(),
+                                                  Matchers.<CancelCallback>anyObject());
+        verify(dialog).show();
     }
 
     @Test
