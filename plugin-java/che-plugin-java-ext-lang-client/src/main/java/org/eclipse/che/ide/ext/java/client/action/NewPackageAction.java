@@ -129,7 +129,11 @@ public class NewPackageAction extends AbstractNewResourceAction {
                     @Nullable
                     @Override
                     public String getMessage() {
-                        return e.getMessage();
+                        String errorMessage = e.getMessage();
+                        if (errorMessage == null || errorMessage.isEmpty()) {
+                            return coreLocalizationConstant.invalidName();
+                        }
+                        return errorMessage;
                     }
 
                     @Nullable
