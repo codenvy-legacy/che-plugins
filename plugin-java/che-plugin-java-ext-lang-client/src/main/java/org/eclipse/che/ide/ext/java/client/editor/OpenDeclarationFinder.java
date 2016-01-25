@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.editor;
 
+import com.google.gwt.user.client.Timer;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -152,18 +153,31 @@ public class OpenDeclarationFinder {
     }
 
     private void openFile(VirtualFile result, final OpenDeclarationDescriptor descriptor) {
-        editorAgent.openEditor(result, new EditorAgent.OpenEditorCallback() {
-            @Override
-            public void onEditorOpened(EditorPartPresenter editor) {
-                fileOpened(editor, descriptor.getOffset());
-            }
-        });
+        final Map<String, EditorPartPresenter> openedEditors = editorAgent.getOpenedEditors();
+        Log.info(getClass(), result.getPath());
+        if (openedEditors.containsKey(result.getPath())) {
+            EditorPartPresenter editorPartPresenter = openedEditors.get(result.getPath());
+            editorAgent.activateEditor(editorPartPresenter);
+            fileOpened(editorPartPresenter, descriptor.getOffset());
+        } else {
+            editorAgent.openEditor(result, new EditorAgent.OpenEditorCallback() {
+                @Override
+                public void onEditorOpened(EditorPartPresenter editor) {
+                    fileOpened(editor, descriptor.getOffset());
+                }
+            });
+        }
     }
 
-    private void fileOpened(EditorPartPresenter editor, int offset) {
-        if (editor instanceof EmbeddedTextEditorPresenter) {
-            ((EmbeddedTextEditorPresenter)editor).getDocument().setSelectedRange(
-                    LinearRange.createWithStart(offset).andLength(0), true);
-        }
+    private void fileOpened(final EditorPartPresenter editor, final int offset) {
+        new Timer() { //in some reason we need here timeout otherwise it not work cursor don't set to correct position
+            @Override
+            public void run() {
+                if (editor instanceof EmbeddedTextEditorPresenter) {
+                    ((EmbeddedTextEditorPresenter)editor).getDocument().setSelectedRange(
+                            LinearRange.createWithStart(offset).andLength(0), true);
+                }
+            }
+        }.schedule(100);
     }
 }
