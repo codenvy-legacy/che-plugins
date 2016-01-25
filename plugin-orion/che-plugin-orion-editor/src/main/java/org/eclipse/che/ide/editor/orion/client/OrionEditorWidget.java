@@ -53,6 +53,7 @@ import org.eclipse.che.ide.editor.orion.client.jso.OrionEditorOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionEditorViewOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionEventTargetOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionExtRulerOverlay;
+import org.eclipse.che.ide.editor.orion.client.jso.OrionInputChangedEventOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyBindingModule;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyBindingsRelationOverlay;
 import org.eclipse.che.ide.editor.orion.client.jso.OrionKeyModeOverlay;
@@ -92,6 +93,7 @@ import org.eclipse.che.ide.jseditor.client.prefmodel.KeymapPrefReader;
 import org.eclipse.che.ide.jseditor.client.requirejs.ModuleHolder;
 import org.eclipse.che.ide.jseditor.client.text.TextRange;
 import org.eclipse.che.ide.jseditor.client.texteditor.CompositeEditorWidget;
+import org.eclipse.che.ide.jseditor.client.texteditor.ContentInitializedHandler;
 import org.eclipse.che.ide.jseditor.client.texteditor.EditorWidget;
 import org.eclipse.che.ide.jseditor.client.texteditor.LineStyler;
 import org.eclipse.che.ide.util.browser.UserAgent;
@@ -241,10 +243,20 @@ public class OrionEditorWidget extends CompositeEditorWidget implements HasChang
     }
 
     @Override
-    public void setValue(String newValue) {
+    public void setValue(String newValue, final ContentInitializedHandler initializationHandler) {
+        editorOverlay.addEventListener(OrionInputChangedEventOverlay.TYPE, new OrionEditorOverlay.EventHandler<OrionInputChangedEventOverlay>() {
+            @Override
+            public void onEvent(OrionInputChangedEventOverlay event)  {
+                if (initializationHandler != null) {
+                    initializationHandler.onContentInitialized();
+                }
+            }
+        }, true);
         this.editorViewOverlay.setContents(newValue, modeName);
         this.editorOverlay.getUndoStack().reset();
     }
+
+
 
     @Override
     public String getMode() {
