@@ -15,6 +15,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
 import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
+import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.icon.Icon;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
@@ -44,13 +45,14 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
     private static Map<String, ImageResource> images;
     private static Map<String, SVGResource>   svgs;
 
-    private final EditorPartPresenter    editor;
-    private final AnalyticsEventLogger   eventLogger;
-    private final JavaResources          javaResources;
-    private final RefactoringUpdater     refactoringUpdater;
+    private final EditorPartPresenter  editor;
+    private final AnalyticsEventLogger eventLogger;
+    private final JavaResources        resources;
+    private final RefactoringUpdater   refactoringUpdater;
 
     private       JavaCodeAssistClient   client;
-    private       DtoUnmarshallerFactory unmarshallerFactory;
+    private final EditorAgent            editorAgent;
+    private DtoUnmarshallerFactory unmarshallerFactory;
 
     private String errorMessage;
 
@@ -59,12 +61,14 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
                                    final JavaCodeAssistClient client,
                                    final JavaResources javaResources,
                                    RefactoringUpdater refactoringUpdater,
+                                   EditorAgent editorAgent,
                                    DtoUnmarshallerFactory unmarshallerFactory,
                                    final AnalyticsEventLogger eventLogger) {
         this.editor = editor;
         this.client = client;
-        this.javaResources = javaResources;
+        this.resources = javaResources;
         this.refactoringUpdater = refactoringUpdater;
+        this.editorAgent = editorAgent;
         this.unmarshallerFactory = unmarshallerFactory;
         this.eventLogger = eventLogger;
         if (images == null) {
@@ -180,11 +184,13 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
         HasLinkedMode linkedEditor = editor instanceof HasLinkedMode ? (HasLinkedMode)editor : null;
         for (final ProposalPresentation proposal : presentations) {
             final CompletionProposal completionProposal = new JavaCompletionProposal(proposal.getIndex(),
-                                                                                     insertStyle(javaResources,
-                                                                                                 proposal.getDisplayString()),
+                                                                                     insertStyle(resources, proposal.getDisplayString()),
                                                                                      getIcon(proposal.getImage()),
-                                                                                     client, respons.getSessionId(), linkedEditor,
-                                                                                     refactoringUpdater);
+                                                                                     client,
+                                                                                     respons.getSessionId(),
+                                                                                     linkedEditor,
+                                                                                     refactoringUpdater,
+                                                                                     editorAgent);
 
             proposals.add(completionProposal);
         }
