@@ -68,8 +68,7 @@ public class MavenProjectResolver {
 
         String packaging = model.getPackaging();
         if (packaging != null && packaging.equals("pom")) {
-            String workspaceId = projectFolder.getWorkspace();
-            Project project = projectManager.getProject(workspaceId, projectFolder.getPath());
+            Project project = new Project(projectFolder, projectManager);
 
             ProjectConfigImpl projectConfig = createConfig(projectFolder);
 
