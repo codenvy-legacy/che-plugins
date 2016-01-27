@@ -258,7 +258,7 @@ public class RenamePresenter implements ActionDelegate {
         prepareRenameChanges(session).then(new Operation<ChangeCreationResult>() {
             @Override
             public void apply(ChangeCreationResult arg) throws OperationException {
-                if (arg.isCanShowPreviewPage()) {
+                if (arg.isCanShowPreviewPage() || arg.getStatus().getSeverity() <= 3) {
                     previewPresenter.show(renameRefactoringSession.getSessionId(), refactorInfo);
                     previewPresenter.setTitle(locale.renameItemTitle());
                     view.hide();
@@ -283,17 +283,19 @@ public class RenamePresenter implements ActionDelegate {
             public void apply(ChangeCreationResult arg) throws OperationException {
                 int severityCode = arg.getStatus().getSeverity();
 
-                if (severityCode == 2) {
-                    showWarningDialog(session, arg);
-                    return;
+                switch (severityCode) {
+                    case 2:
+                    case 3:
+                        showWarningDialog(session, arg);
+                        break;
+                    case 4:
+                        if (!arg.isCanShowPreviewPage()) {
+                            view.showErrorMessage(arg.getStatus());
+                        }
+                        break;
+                    default:
+                        applyRefactoring(session);
                 }
-
-                if (!arg.isCanShowPreviewPage() && severityCode > 2) {
-                    view.showErrorMessage(arg.getStatus());
-                    return;
-                }
-
-                applyRefactoring(session);
             }
         }).catchError(new Operation<PromiseError>() {
             @Override
@@ -308,6 +310,8 @@ public class RenamePresenter implements ActionDelegate {
 
         dialogFactory.createConfirmDialog(locale.warningOperationTitle(),
                                           entries.isEmpty() ? locale.warningOperationContent() : entries.get(0).getMessage(),
+                                          locale.renameRename(),
+                                          locale.buttonCancel(),
                                           new ConfirmCallback() {
                                               @Override
                                               public void accepted() {
