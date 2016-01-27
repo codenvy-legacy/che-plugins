@@ -15,6 +15,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Widget;
 
+import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.icon.Icon;
 import org.eclipse.che.ide.api.text.Position;
 import org.eclipse.che.ide.ext.java.client.refactoring.RefactorInfo;
@@ -52,6 +53,7 @@ public class JavaCompletionProposal implements CompletionProposal, CompletionPro
     private final Icon                 icon;
     private final JavaCodeAssistClient client;
     private final RefactoringUpdater   refactoringUpdater;
+    private final EditorAgent editorAgent;
 
     private String              sessionId;
     private HasLinkedMode       linkedEditor;
@@ -61,7 +63,8 @@ public class JavaCompletionProposal implements CompletionProposal, CompletionPro
                                   final Icon icon,
                                   final JavaCodeAssistClient client,
                                   String sessionId, HasLinkedMode linkedEditor,
-                                  RefactoringUpdater refactoringUpdater) {
+                                  RefactoringUpdater refactoringUpdater,
+                                  EditorAgent editorAgent) {
         this.id = id;
         this.display = display;
         this.icon = icon;
@@ -69,6 +72,7 @@ public class JavaCompletionProposal implements CompletionProposal, CompletionPro
         this.sessionId = sessionId;
         this.linkedEditor = linkedEditor;
         this.refactoringUpdater = refactoringUpdater;
+        this.editorAgent = editorAgent;
     }
 
     /** {@inheritDoc} */
@@ -111,7 +115,10 @@ public class JavaCompletionProposal implements CompletionProposal, CompletionPro
             @Override
             public void onSuccess(ProposalApplyResult result) {
                 callback.onCompletion(new CompletionImpl(result.getChanges(), result.getSelection(), result.getLinkedModeModel()));
-                RefactorInfo refactorInfo = RefactorInfo.of(RefactoredItemType.JAVA_ELEMENT, null);
+                ArrayList selectedItems = new ArrayList(1);
+                selectedItems.add(editorAgent.getActiveEditor().getEditorInput().getFile());
+                RefactorInfo refactorInfo = RefactorInfo.of(RefactoredItemType.JAVA_ELEMENT, selectedItems);
+
                 ChangeInfo changeInfo = result.getChangeInfo();
                 if (changeInfo == null) {
                     return;

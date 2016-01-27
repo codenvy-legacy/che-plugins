@@ -116,7 +116,7 @@ public class RefactoringUpdater {
         switch (changeInfo.getName()) {
             case MOVE:
             case RENAME_COMPILATION_UNIT:
-                if (refactorInfo != null) {
+                if (refactorInfo != null && refactorInfo.getSelectedItems() != null) {
                     removeNodeFor(changeInfo, refactorInfo.getSelectedItems());
                 }
 

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.editor;
 
+import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.api.text.Position;
 import org.eclipse.che.ide.api.text.annotation.Annotation;
@@ -52,18 +53,21 @@ public class JavaQuickAssistProcessor implements QuickAssistProcessor {
     private final DtoUnmarshallerFactory unmarshallerFactory;
     private final DtoFactory             dtoFactory;
     private final RefactoringUpdater     refactoringUpdater;
+    private final EditorAgent editorAgent;
 
     @Inject
     public JavaQuickAssistProcessor(final JavaCodeAssistClient client,
                                     final JavaResources javaResources,
                                     DtoUnmarshallerFactory unmarshallerFactory,
                                     DtoFactory dtoFactory,
-                                    RefactoringUpdater refactoringUpdater) {
+                                    RefactoringUpdater refactoringUpdater,
+                                    EditorAgent editorAgent) {
         this.client = client;
         this.javaResources = javaResources;
         this.unmarshallerFactory = unmarshallerFactory;
         this.dtoFactory = dtoFactory;
         this.refactoringUpdater = refactoringUpdater;
+        this.editorAgent = editorAgent;
     }
 
     @Override
@@ -125,7 +129,7 @@ public class JavaQuickAssistProcessor implements QuickAssistProcessor {
                         proposal.getIndex(),
                         JavaCodeAssistProcessor.insertStyle(javaResources, proposal.getDisplayString()),
                         JavaCodeAssistProcessor.getIcon(proposal.getImage()),
-                        client, responds.getSessionId(), linkedEditor, refactoringUpdater);
+                        client, responds.getSessionId(), linkedEditor, refactoringUpdater, editorAgent);
             }
             proposals.add(completionProposal);
         }

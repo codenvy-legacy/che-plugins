@@ -15,6 +15,7 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 
 import org.eclipse.che.plugin.docker.machine.ServerConf;
+import org.eclipse.che.plugin.docker.machine.ext.provider.TerminalServerConfProvider;
 
 /**
  * Guice module for terminal feature in docker machines
@@ -35,7 +36,7 @@ public class DockerTerminalModule extends AbstractModule {
         Multibinder<ServerConf> machineServers = Multibinder.newSetBinder(binder(),
                                                                           ServerConf.class,
                                                                           Names.named("machine.docker.machine_servers"));
-        machineServers.addBinding().toInstance(new ServerConf("terminal", "4411", "http"));
+        machineServers.addBinding().toProvider(TerminalServerConfProvider.class);
 
         Multibinder<String> volumesMultibinder =
                 Multibinder.newSetBinder(binder(), String.class, Names.named("machine.docker.machine_volumes"));
