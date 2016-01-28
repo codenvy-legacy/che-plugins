@@ -14,15 +14,7 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
     <ui:with field='res' type='org.eclipse.che.ide.ext.git.client.GitResources'/>
-    <ui:style>
-        .emptyBorder {
-            margin: 6px;
-        }
-
-    </ui:style>
-    <g:DockLayoutPanel unit="PX" width="800px" height="500px" addStyleNames="{style.emptyBorder}" debugId="git-changed-files-mainForm">
-        <g:center>
-            <g:ScrollPanel ui:field="changedFilesPanel" addStyleNames="{res.gitCSS.simpleListContainer}" debugId="git-changed-filesPanel"/>
-        </g:center>
-    </g:DockLayoutPanel>
+    <g:DockLayoutPanel ui:field="changedFilesPanel" unit="PX" width="800px" height="500px"
+                       addStyleNames="{res.gitCSS.simpleListContainer}"
+                       debugId="git-changed-filesPanel"/>
 </ui:UiBinder>

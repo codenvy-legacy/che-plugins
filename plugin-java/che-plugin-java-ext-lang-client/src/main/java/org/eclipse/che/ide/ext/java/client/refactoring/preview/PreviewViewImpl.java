@@ -41,6 +41,7 @@ import org.eclipse.che.ide.orion.compare.CompareFactory;
 import org.eclipse.che.ide.orion.compare.CompareWidget;
 import org.eclipse.che.ide.orion.compare.FileOptions;
 import org.eclipse.che.ide.ui.cellview.CellTreeResources;
+import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
 import org.eclipse.che.ide.ui.window.Window;
 
 import javax.validation.constraints.NotNull;
@@ -78,14 +79,17 @@ final class PreviewViewImpl extends Window implements PreviewView {
     private ThemeAgent     themeAgent;
 
     private final CellTreeResources cellTreeResources;
+    private final LoaderFactory     loaderFactory;
     private final CompareFactory    compareFactory;
 
     @Inject
     public PreviewViewImpl(JavaLocalizationConstant locale,
                            CellTreeResources cellTreeResources,
+                           LoaderFactory loaderFactory,
                            CompareFactory compareFactory, ThemeAgent themeAgent) {
         this.locale = locale;
         this.cellTreeResources = cellTreeResources;
+        this.loaderFactory = loaderFactory;
         this.compareFactory = compareFactory;
         this.themeAgent = themeAgent;
 
@@ -218,7 +222,7 @@ final class PreviewViewImpl extends Window implements PreviewView {
         compareConfig.setShowTitle(true);
         compareConfig.setShowLineStatus(true);
 
-        compare = new CompareWidget(compareConfig, themeAgent.getCurrentThemeId());
+        compare = new CompareWidget(compareConfig, themeAgent.getCurrentThemeId(), loaderFactory);
         diff.add(compare);
     }
 

@@ -17,8 +17,8 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -37,6 +37,7 @@ import org.eclipse.che.ide.ui.smartTree.event.SelectionChangedEvent;
 import org.eclipse.che.ide.ui.window.Window;
 
 import javax.validation.constraints.NotNull;
+
 import java.util.Collections;
 import java.util.Map;
 
@@ -47,13 +48,13 @@ import java.util.Map;
  */
 @Singleton
 public class ChangedListViewImpl extends Window implements ChangedListView {
-    interface BranchViewImplUiBinder extends UiBinder<Widget, ChangedListViewImpl> {
+    interface ChangedListViewImplUiBinder extends UiBinder<Widget, ChangedListViewImpl> {
     }
 
-    private static BranchViewImplUiBinder ourUiBinder = GWT.create(BranchViewImplUiBinder.class);
+    private static ChangedListViewImplUiBinder ourUiBinder = GWT.create(ChangedListViewImplUiBinder.class);
 
     @UiField
-    ScrollPanel changedFilesPanel;
+    DockLayoutPanel changedFilesPanel;
     @UiField(provided = true)
     final GitResources res;
 
@@ -96,7 +97,7 @@ public class ChangedListViewImpl extends Window implements ChangedListView {
                 }
             }
         });
-        this.changedFilesPanel.add(tree);
+        changedFilesPanel.add(tree);
         createButtons();
 
         SafeHtmlBuilder shb = new SafeHtmlBuilder();

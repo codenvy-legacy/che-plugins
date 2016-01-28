@@ -14,27 +14,19 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
     <ui:with field='locale' type='org.eclipse.che.ide.ext.git.client.GitLocalizationConstant'/>
 
-    <ui:style>
-        .main {
-            width: 1200px;
-            height: 600px;
-        }
-
-        .comparePanel {
-            width: 100%;
-            height: 95%;
-        }
-    </ui:style>
-
-    <g:FlowPanel addStyleNames="{style.main}">
-        <g:HorizontalPanel width="100%">
+    <g:DockLayoutPanel ui:field="dockPanel">
+        <g:north size="15">
+            <g:HorizontalPanel width="100%">
                 <g:cell width="50%" horizontalAlignment="ALIGN_CENTER">
                     <g:Label text="{locale.compareYourVersionTitle}"/>
                 </g:cell>
                 <g:cell width="50%" horizontalAlignment="ALIGN_CENTER">
                     <g:Label ui:field="revision"/>
                 </g:cell>
-        </g:HorizontalPanel>
-        <g:SimplePanel ui:field="comparePanel" addStyleNames="{style.comparePanel}"/>
-    </g:FlowPanel>
+            </g:HorizontalPanel>
+        </g:north>
+        <g:center>
+            <g:SimplePanel ui:field="comparePanel"/>
+        </g:center>
+    </g:DockLayoutPanel>
 </ui:UiBinder>

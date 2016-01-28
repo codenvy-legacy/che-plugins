@@ -275,7 +275,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
     @Override
     public void setAmendCommitMessage() {
         final Unmarshallable<LogResponse> unmarshall = dtoUnmarshallerFactory.newUnmarshaller(LogResponse.class);
-        this.service.log(workspaceId, appContext.getCurrentProject().getRootProject(), false,
+        this.service.log(workspaceId, appContext.getCurrentProject().getRootProject(), null, false,
                          new AsyncRequestCallback<LogResponse>(unmarshall) {
                              @Override
                              protected void onSuccess(final LogResponse result) {
