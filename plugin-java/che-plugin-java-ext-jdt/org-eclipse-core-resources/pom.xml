@@ -21,6 +21,9 @@
     <artifactId>org.eclipse.core.resources</artifactId>
     <packaging>jar</packaging>
     <name>Che Plugin :: Java :: org.eclipse.core.resources</name>
+    <properties>
+        <findbugs.failonerror>false</findbugs.failonerror>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>com.google.inject</groupId>

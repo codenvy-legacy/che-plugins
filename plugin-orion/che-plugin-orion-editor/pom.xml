@@ -23,6 +23,7 @@
     <packaging>jar</packaging>
     <name>Che Plugin :: Orion :: Editor</name>
     <properties>
+        <findbugs.failonerror>false</findbugs.failonerror>
         <license_years>2014-2015</license_years>
         <patches.location>${basedir}/src/main/patches</patches.location>
     </properties>

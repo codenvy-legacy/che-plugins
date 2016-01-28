@@ -21,6 +21,9 @@
     <artifactId>che-plugin-machine-ext-client</artifactId>
     <packaging>jar</packaging>
     <name>Che Plugin :: Machine</name>
+    <properties>
+        <findbugs.failonerror>false</findbugs.failonerror>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>com.google.guava</groupId>

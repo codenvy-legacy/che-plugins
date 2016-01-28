@@ -21,6 +21,9 @@
     <artifactId>che-plugin-web-ext-web</artifactId>
     <packaging>jar</packaging>
     <name>Che Plugin :: Web :: File Types</name>
+    <properties>
+        <findbugs.failonerror>false</findbugs.failonerror>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>com.google.inject</groupId>
