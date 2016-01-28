@@ -107,7 +107,7 @@ public class RefactoringUpdater {
 
         final ChangeInfo changeInfo = iterator.next();
 
-        if (changeInfo == null) {
+        if (changeInfo == null || changeInfo.getName() == null) {
             return proceedGeneralChanges(promise, iterator, refactorInfo);
         }
 
