@@ -22,6 +22,9 @@
     <packaging>jar</packaging>
     <name>Che Plugin :: Java :: Eclipse JDT Core Repack</name>
     <description>We repack JAR for removing Eclipse RSA key</description>
+    <properties>
+        <findbugs.failonerror>false</findbugs.failonerror>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.eclipse.tycho</groupId>
