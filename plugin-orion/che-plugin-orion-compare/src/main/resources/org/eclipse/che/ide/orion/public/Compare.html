@@ -32,7 +32,7 @@
             });
         });
         window.addEventListener("message", function (e) {
-            var compare, options, style;
+            var compare, options;
 
             requirePromise.then(function (Compare) {
 
@@ -56,12 +56,7 @@
                     if (compare) {
                         compare.refresh();
                     } else {
-                        style = document.getElementById("cssTheme");
-                        if (style) {
-                            style.onload = function () {
-                                compare = new Compare(options);
-                            }
-                        }
+                        compare = new Compare(options);
                     }
 
                 }
@@ -74,10 +69,13 @@
                         themeUrl = "./built-compare-codenvy.css";
                     }
 
-                    style = document.createElement("link");
-                    style.id = "cssTheme";
+                    var style = document.createElement("link");
                     style.rel = "stylesheet";
                     style.href = themeUrl;
+                    style.onload = function () {
+                        var loadEvent = new Event('onThemeLoaded');
+                        document.dispatchEvent(loadEvent);
+                    }
                     document.getElementsByTagName("head")[0].appendChild(style);
                 }
             });
