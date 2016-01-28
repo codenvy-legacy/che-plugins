@@ -10,16 +10,16 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.client.editor;
 
-import com.google.web.bindery.event.shared.EventBus;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
+import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 
 import org.eclipse.che.ide.api.editor.EditorWithErrors;
-import org.eclipse.che.ide.ext.java.client.event.DependencyUpdatedEvent;
-import org.eclipse.che.ide.ext.java.client.event.DependencyUpdatedEventHandler;
 import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.api.text.Region;
-import org.eclipse.che.ide.ext.java.client.project.node.jar.JarFileNode;
+import org.eclipse.che.ide.ext.java.client.event.DependencyUpdatedEvent;
+import org.eclipse.che.ide.ext.java.client.event.DependencyUpdatedEventHandler;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
 import org.eclipse.che.ide.ext.java.shared.dto.Problem;
 import org.eclipse.che.ide.ext.java.shared.dto.ReconcileResult;
@@ -27,7 +27,6 @@ import org.eclipse.che.ide.jseditor.client.annotation.AnnotationModel;
 import org.eclipse.che.ide.jseditor.client.document.Document;
 import org.eclipse.che.ide.jseditor.client.reconciler.DirtyRegion;
 import org.eclipse.che.ide.jseditor.client.reconciler.ReconcilingStrategy;
-import org.eclipse.che.ide.jseditor.client.texteditor.EditorResources;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
 import org.eclipse.che.ide.util.loging.Log;
 
@@ -38,22 +37,19 @@ public class JavaReconcilerStrategy implements ReconcilingStrategy {
 
 
     private final EmbeddedTextEditorPresenter<?> editor;
-    private final JavaCodeAssistProcessor   codeAssistProcessor;
-    private final AnnotationModel           annotationModel;
-    private final EditorResources.EditorCss editorCss;
-    private       SemanticHighlightRenderer highlighter;
-    private       JavaReconcileClient       client;
-    private       VirtualFile               file;
-    private       Document                  document;
+    private final JavaCodeAssistProcessor        codeAssistProcessor;
+    private final AnnotationModel                annotationModel;
+    private final HandlerRegistration            handlerRegistration;
+    private       SemanticHighlightRenderer      highlighter;
+    private       JavaReconcileClient            client;
+    private       VirtualFile                    file;
     private boolean first = true;
-    private boolean sourceFromClass;
 
     @AssistedInject
     public JavaReconcilerStrategy(@Assisted @NotNull final EmbeddedTextEditorPresenter<?> editor,
                                   @Assisted final JavaCodeAssistProcessor codeAssistProcessor,
                                   @Assisted final AnnotationModel annotationModel,
                                   final JavaReconcileClient client,
-                                  final EditorResources editorResources,
                                   final SemanticHighlightRenderer highlighter,
                                   EventBus eventBus) {
         this.editor = editor;
@@ -61,9 +57,8 @@ public class JavaReconcilerStrategy implements ReconcilingStrategy {
         this.codeAssistProcessor = codeAssistProcessor;
         this.annotationModel = annotationModel;
         this.highlighter = highlighter;
-        this.editorCss = editorResources.editorCss();
 
-        eventBus.addHandler(DependencyUpdatedEvent.TYPE, new DependencyUpdatedEventHandler() {
+        handlerRegistration = eventBus.addHandler(DependencyUpdatedEvent.TYPE, new DependencyUpdatedEventHandler() {
             @Override
             public void onDependencyUpdated(DependencyUpdatedEvent event) {
                 parse();
@@ -73,9 +68,7 @@ public class JavaReconcilerStrategy implements ReconcilingStrategy {
 
     @Override
     public void setDocument(final Document document) {
-        this.document = document;
         file = editor.getEditorInput().getFile();
-        sourceFromClass = file instanceof JarFileNode || (file.getName().endsWith(".class") || file.getName().endsWith(".java"));
         highlighter.init(editor.getHasTextMarkers(), document);
     }
 
@@ -85,9 +78,6 @@ public class JavaReconcilerStrategy implements ReconcilingStrategy {
     }
 
     public void parse() {
-//        if (this.buildContext.isBuilding()) {
-//            return;
-//        }
         if (first) {
             codeAssistProcessor.disableCodeAssistant();
             first = false;
@@ -125,10 +115,10 @@ public class JavaReconcilerStrategy implements ReconcilingStrategy {
         if (this.annotationModel == null) {
             return;
         }
-        ProblemRequestor problemRequestor;
-        if (this.annotationModel instanceof ProblemRequestor) {
-            problemRequestor = (ProblemRequestor)this.annotationModel;
-            problemRequestor.beginReporting();
+        ProblemRequester problemRequester;
+        if (this.annotationModel instanceof ProblemRequester) {
+            problemRequester = (ProblemRequester)this.annotationModel;
+            problemRequester.beginReporting();
         } else {
             editor.setErrorState(EditorWithErrors.EditorState.NONE);
             return;
@@ -144,7 +134,7 @@ public class JavaReconcilerStrategy implements ReconcilingStrategy {
                 if (!warning) {
                     warning = problem.isWarning();
                 }
-                problemRequestor.acceptProblem(problem);
+                problemRequester.acceptProblem(problem);
             }
             if (error) {
                 editor.setErrorState(EditorWithErrors.EditorState.ERROR);
@@ -156,7 +146,14 @@ public class JavaReconcilerStrategy implements ReconcilingStrategy {
         } catch (final Exception e) {
             Log.error(getClass(), e);
         } finally {
-            problemRequestor.endReporting();
+            problemRequester.endReporting();
+        }
+    }
+
+    @Override
+    public void closeReconciler() {
+        if (handlerRegistration != null) {
+            handlerRegistration.removeHandler();
         }
     }
 }

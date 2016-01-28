@@ -18,7 +18,7 @@ import org.eclipse.che.ide.ext.java.shared.dto.Problem;
  *
  * @see org.eclipse.che.ide.ext.java.shared.dto.Problem
  */
-public interface ProblemRequestor {
+public interface ProblemRequester {
 
     /**
      * Notification of a Java problem.
