@@ -1221,7 +1221,10 @@ public class DeltaProcessor {
                 break;
             case IJavaElement.JAVA_PROJECT:
                 this.state.updateRoots(element.getPath(), delta, this);
-
+                //TODO: this is quick fix for https://jira.codenvycorp.com/browse/IDEX-4221
+                //we do it because we need clear cache for deleted project but we don't know how do it right way
+                //so we clean all cache totally 
+                this.state.roots.clear();
                 // remember that the project's cache must be reset
                 this.projectCachesToReset.add(element);
 
@@ -1929,14 +1932,14 @@ public class DeltaProcessor {
     public void resourceChanged(IResourceChangeEvent event) {
 
         int eventType = this.overridenEventType == -1 ? event.getType() : this.overridenEventType;
-//		IResource resource = event.getResource();
+		IResource resource = event.getResource();
         IResourceDelta delta = (IResourceDelta)event.getDelta();
 
         switch (eventType) {
             case IResourceChangeEvent.PRE_DELETE:
 //				try {
 //					if(resource.getType() == IResource.PROJECT
-//						&& ((IProject) resource).hasNature(JavaCore.NATURE_ID)) {
+//						/*&& ((IProject) resource).hasNature(JavaCore.NATURE_ID)*/) {
 //
 //						deleting((IProject)resource);
 //					}
@@ -2447,7 +2450,7 @@ public class DeltaProcessor {
                 }
                 updateIndex(element, delta);
                 elementRemoved(element, delta, rootInfo);
-                if (elementType == IJavaElement.PACKAGE_FRAGMENT_ROOT)
+//                if (elementType == IJavaElement.PACKAGE_FRAGMENT_ROOT)
 //					this.state.addClasspathValidation(rootInfo.project);
 
 //				if (deltaRes.getType() == IResource.PROJECT){

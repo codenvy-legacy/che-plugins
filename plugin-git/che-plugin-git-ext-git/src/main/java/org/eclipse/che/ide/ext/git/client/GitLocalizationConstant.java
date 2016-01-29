@@ -405,14 +405,32 @@ public interface GitLocalizationConstant extends Messages {
     String createTitle();
 
     // Compare
-    @Key("action.compare.with.latest.title")
+    @Key("view.compare.with.latest.title")
     String compareWithLatestTitle();
 
-    @Key("action.compare.with.branch.title")
+    @Key("view.compare.with.branch.title")
     String compareWithBranchTitle();
 
-    @Key("view.compare.branch.list.title")
-    String compareBranchListTitle();
+    @Key("view.compare.with.revision.title")
+    String compareWithRevisionTitle();
+
+    @Key("view.compare.revision.table.id.title")
+    String viewCompareRevisionTableIdTitle();
+
+    @Key("view.compare.revision.table.time.title")
+    String viewCompareRevisionTableTimeTitle();
+
+    @Key("view.compare.revision.table.author.title")
+    String viewCompareRevisionTableAuthorTitle();
+
+    @Key("view.compare.revision.table.title.title")
+    String viewCompareRevisionTableTitleTitle();
+
+    @Key("view.compare.revision.full.description.title")
+    String viewCompareRevisionFullDescriptionTitle();
+    
+    @Key("view.compare.revision.full.description.empty.message")
+    String viewCompareRevisionFullDescriptionEmptyMessage();
 
     @Key("view.compare.message.identical.content.title")
     String compareMessageIdenticalContentTitle();

@@ -21,6 +21,9 @@
     <artifactId>che-plugin-orion-compare</artifactId>
     <packaging>jar</packaging>
     <name>Che Plugin :: Orion :: Compare Widget</name>
+    <properties>
+        <findbugs.failonerror>false</findbugs.failonerror>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>com.google.gwt</groupId>

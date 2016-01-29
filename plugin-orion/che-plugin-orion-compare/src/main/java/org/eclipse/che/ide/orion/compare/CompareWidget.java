@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.orion.compare;
 
+import elemental.events.Event;
+import elemental.events.EventListener;
 import elemental.html.Window;
 import elemental.js.html.JsIFrameElement;
 import elemental.json.Json;
@@ -29,6 +31,8 @@ import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.callback.AsyncPromiseHelper;
 import org.eclipse.che.api.promises.client.callback.PromiseHelper;
+import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
+import org.eclipse.che.ide.ui.loaders.request.MessageLoader;
 
 /**
  * Widget for compering (diff) for two files.
@@ -36,16 +40,17 @@ import org.eclipse.che.api.promises.client.callback.PromiseHelper;
  */
 public class CompareWidget extends Composite {
 
-    private Frame frame;
-
+    private Frame           frame;
     private Promise<Window> framePromise;
     private CompareConfig   compareConfig;
 
-    public CompareWidget(final CompareConfig compareConfig, final String themeId) {
+    public CompareWidget(final CompareConfig compareConfig, final String themeId, LoaderFactory loaderFactory) {
         this.compareConfig = compareConfig;
         this.frame = new Frame(GWT.getModuleBaseURL() + "/Compare.html");
         initWidget(frame);
         setSize("100%", "100%");
+        final MessageLoader loader = loaderFactory.newLoader();
+        loader.show();
         frame.getElement().getStyle().setBorderStyle(Style.BorderStyle.NONE);
         AsyncPromiseHelper.RequestCall<Window> call = new AsyncPromiseHelper.RequestCall<Window>() {
             @Override
@@ -56,6 +61,7 @@ public class CompareWidget extends Composite {
                         frame.getElement().cast();
                         final JsIFrameElement iFrame = frame.getElement().cast();
                         callback.onSuccess(iFrame.getContentWindow());
+                        loader.hide();
                     }
                 });
             }
@@ -69,8 +75,14 @@ public class CompareWidget extends Composite {
         });
         framePromise.then(new Operation<Window>() {
             @Override
-            public void apply(Window arg) throws OperationException {
-                sendConfig(arg, compareConfig);
+            public void apply(final Window arg) throws OperationException {
+                arg.getDocument().addEventListener("onThemeLoaded", new EventListener() {
+                    @Override
+                    public void handleEvent(Event evt) {
+                        sendConfig(arg, compareConfig);
+                        loader.hide();
+                    }
+                }, false);
             }
         });
     }

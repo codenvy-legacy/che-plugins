@@ -117,7 +117,7 @@ public class CompareWithLatestAction extends GitAction {
 
             @Override
             protected void onFailure(Throwable exception) {
-                notificationManager.notify(exception.getMessage(), FAIL, false);
+                notificationManager.notify(locale.diffFailed(), FAIL, false);
             }
         });
     }

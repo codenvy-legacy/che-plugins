@@ -18,11 +18,14 @@ import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.constraints.Constraints;
 import org.eclipse.che.ide.api.extension.Extension;
+import org.eclipse.che.ide.api.keybinding.KeyBindingAgent;
+import org.eclipse.che.ide.api.keybinding.KeyBuilder;
 import org.eclipse.che.ide.ext.git.client.action.AddToIndexAction;
 import org.eclipse.che.ide.ext.git.client.action.CheckoutReferenceAction;
 import org.eclipse.che.ide.ext.git.client.action.CommitAction;
 import org.eclipse.che.ide.ext.git.client.action.CompareWithBranchAction;
 import org.eclipse.che.ide.ext.git.client.action.CompareWithLatestAction;
+import org.eclipse.che.ide.ext.git.client.action.CompareWithRevisionAction;
 import org.eclipse.che.ide.ext.git.client.action.DeleteRepositoryAction;
 import org.eclipse.che.ide.ext.git.client.action.FetchAction;
 import org.eclipse.che.ide.ext.git.client.action.HistoryAction;
@@ -78,6 +81,8 @@ public class GitExtension {
                         HistoryAction historyAction,
                         CompareWithLatestAction compareWithLatestAction,
                         CompareWithBranchAction compareWithBranchAction,
+                        CompareWithRevisionAction compareWithRevisionAction,
+                        KeyBindingAgent keyBinding,
                         AppContext appContext) {
 
         resources.gitCSS().ensureInjected();
@@ -154,5 +159,18 @@ public class GitExtension {
         compareGroup.add(compareWithLatestAction);
         actionManager.registerAction("gitCompareWithBranch", compareWithBranchAction);
         compareGroup.add(compareWithBranchAction);
+        actionManager.registerAction("gitCompareWithRevision", compareWithRevisionAction);
+        compareGroup.add(compareWithRevisionAction);
+
+        DefaultActionGroup gitCompareContextMenuGroup = new DefaultActionGroup("Git", true, actionManager);
+        actionManager.registerAction("gitCompareContextMenu", gitCompareContextMenuGroup);
+        gitCompareContextMenuGroup.add(compareWithLatestAction);
+        gitCompareContextMenuGroup.add(compareWithBranchAction);
+        gitCompareContextMenuGroup.add(compareWithRevisionAction);
+
+        DefaultActionGroup mainContextMenuGroup = (DefaultActionGroup)actionManager.getAction("resourceOperation");
+        mainContextMenuGroup.add(gitCompareContextMenuGroup);
+
+        keyBinding.getGlobal().addKey(new KeyBuilder().action().alt().charCode('d').build(), "gitCompareWithLatest");
     }
 }

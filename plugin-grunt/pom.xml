@@ -28,7 +28,6 @@
         <module>che-plugin-grunt-runner</module>
     </modules>
     <properties>
-        <findbugs.failonerror>true</findbugs.failonerror>
         <license_years>2014</license_years>
     </properties>
 </project>

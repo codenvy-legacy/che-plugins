@@ -160,7 +160,7 @@ public class BranchListPresenter implements BranchListView.ActionDelegate {
 
                             @Override
                             protected void onFailure(Throwable exception) {
-                                notificationManager.notify(exception.getMessage(), FAIL, false);
+                                notificationManager.notify(locale.diffFailed(), FAIL, false);
                             }
                         });
         view.close();
@@ -198,7 +198,7 @@ public class BranchListPresenter implements BranchListView.ActionDelegate {
                                       GitOutputConsole console = gitOutputConsoleFactory.create(BRANCH_LIST_COMMAND_NAME);
                                       console.printError(errorMessage);
                                       consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
-                                      notificationManager.notify(exception.getMessage(), FAIL, false);
+                                      notificationManager.notify(locale.branchesListFailed(), FAIL, false);
                                   }
                               }
                              );

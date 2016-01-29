@@ -112,12 +112,13 @@ public class ResetToCommitPresenterTest extends BaseTest {
                 return callback;
 
             }
-        }).when(service).log(anyString(), anyObject(), anyBoolean(), (AsyncRequestCallback<LogResponse>)anyObject());
+        }).when(service).log(anyString(), anyObject(), null,anyBoolean(), (AsyncRequestCallback<LogResponse>)anyObject());
 
         presenter.showDialog();
 
         verify(appContext).getCurrentProject();
-        verify(service).log(anyString(), eq(rootProjectConfig), eq(!IS_TEXT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
+        verify(service)
+                .log(anyString(), eq(rootProjectConfig), null, eq(!IS_TEXT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
         verify(view).setRevisions((ArrayList<Revision>)anyObject());
         verify(view).setMixMode(eq(IS_MIXED));
         verify(view).setEnableResetButton(eq(DISABLE_BUTTON));
@@ -136,12 +137,13 @@ public class ResetToCommitPresenterTest extends BaseTest {
                 return callback;
 
             }
-        }).when(service).log(anyString(), anyObject(), anyBoolean(), (AsyncRequestCallback<LogResponse>)anyObject());
+        }).when(service).log(anyString(), anyObject(), null, anyBoolean(), (AsyncRequestCallback<LogResponse>)anyObject());
 
         presenter.showDialog();
 
         verify(appContext).getCurrentProject();
-        verify(service).log(anyString(), eq(rootProjectConfig), eq(!IS_TEXT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
+        verify(service)
+                .log(anyString(), eq(rootProjectConfig), null, eq(!IS_TEXT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
         verify(constant).logFailed();
         verify(console).printError(anyString());
         verify(notificationManager).notify(anyString(), rootProjectConfig);

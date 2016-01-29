@@ -76,6 +76,7 @@ import static org.eclipse.che.ide.ext.java.shared.dto.refactoring.CreateRenameRe
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -471,7 +472,7 @@ public class RenamePresenterTest {
     @Test
     public void changesShouldNotBeAppliedAndShowErrorMessage() throws Exception {
         RefactoringStatus refactoringStatus = mock(RefactoringStatus.class);
-        when(refactoringStatus.getSeverity()).thenReturn(3);
+        when(refactoringStatus.getSeverity()).thenReturn(4);
         when(changeCreationResult.isCanShowPreviewPage()).thenReturn(false);
         when(changeCreationResult.getStatus()).thenReturn(refactoringStatus);
 
@@ -559,7 +560,7 @@ public class RenamePresenterTest {
     @Test
     public void changesShouldBeAppliedWithNotErrorStatus() throws Exception {
         when(changeCreationResult.isCanShowPreviewPage()).thenReturn(true);
-        when(refactoringStatus.getSeverity()).thenReturn(3);
+        when(refactoringStatus.getSeverity()).thenReturn(0);
         EditorPartPresenter openEditor = mock(EditorPartPresenter.class);
         NavigableMap<String, EditorPartPresenter> openEditors = new TreeMap<>();
         EditorInput editorInput = mock(EditorInput.class);
@@ -590,13 +591,15 @@ public class RenamePresenterTest {
         verify(refactoringStatusPromise).then(refactoringStatusCaptor.capture());
         refactoringStatusCaptor.getValue().apply(refactoringStatus);
 
-        verify(view).showErrorMessage(refactoringStatus);
+        verify(view).hide();
+        verify(refactoringUpdater).updateAfterRefactoring(eq(refactorInfo), Matchers.<List<ChangeInfo>>anyObject());
     }
 
     @Test
     public void previewPageIsNotReadyAndShowErrorMessage() throws Exception {
         when(changeCreationResult.isCanShowPreviewPage()).thenReturn(false);
-        when(changeCreationResult.getStatus()).thenReturn(any());
+        when(changeCreationResult.getStatus()).thenReturn(refactoringStatus);
+        when(refactoringStatus.getSeverity()).thenReturn(4);
 
         renamePresenter.show(refactorInfo);
 
@@ -613,7 +616,7 @@ public class RenamePresenterTest {
 
         verify(changeCreationResultPromise).then(changeCreationResultCaptor.capture());
         changeCreationResultCaptor.getValue().apply(changeCreationResult);
-        verify(view).showErrorMessage(null);
+        verify(view).showErrorMessage(refactoringStatus);
     }
 
     @Test
@@ -675,6 +678,8 @@ public class RenamePresenterTest {
         when(refactoringStatus.getSeverity()).thenReturn(2);
         when(dialogFactory.createConfirmDialog(anyString(),
                                                anyString(),
+                                               anyString(),
+                                               anyString(),
                                                Matchers.<ConfirmCallback>anyObject(),
                                                Matchers.<CancelCallback>anyObject())).thenReturn(dialog);
         renamePresenter.onAcceptButtonClicked();
@@ -684,6 +689,8 @@ public class RenamePresenterTest {
 
         verify(dialogFactory).createConfirmDialog(anyString(),
                                                   anyString(),
+                                                  anyString(),
+                                                  anyString(),
                                                   Matchers.<ConfirmCallback>anyObject(),
                                                   Matchers.<CancelCallback>anyObject());
         verify(dialog).show();
@@ -692,7 +699,7 @@ public class RenamePresenterTest {
     @Test
     public void previewPageShouldNotBeShow() throws Exception {
         when(changeCreationResult.isCanShowPreviewPage()).thenReturn(false);
-        when(refactoringStatus.getSeverity()).thenReturn(0);
+        when(refactoringStatus.getSeverity()).thenReturn(4);
 
         renamePresenter.show(refactorInfo);
 

@@ -14,7 +14,6 @@ import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.gwt.inject.client.assistedinject.GinFactoryModuleBuilder;
 import com.google.gwt.inject.client.multibindings.GinMultibinder;
 import com.google.inject.Singleton;
-import com.google.inject.name.Names;
 
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
 import org.eclipse.che.ide.api.preferences.PreferencePagePresenter;
@@ -29,6 +28,8 @@ import org.eclipse.che.ide.ext.git.client.compare.branchList.BranchListView;
 import org.eclipse.che.ide.ext.git.client.compare.branchList.BranchListViewImpl;
 import org.eclipse.che.ide.ext.git.client.compare.changedList.ChangedListView;
 import org.eclipse.che.ide.ext.git.client.compare.changedList.ChangedListViewImpl;
+import org.eclipse.che.ide.ext.git.client.compare.revisionsList.RevisionListView;
+import org.eclipse.che.ide.ext.git.client.compare.revisionsList.RevisionListViewImpl;
 import org.eclipse.che.ide.ext.git.client.fetch.FetchView;
 import org.eclipse.che.ide.ext.git.client.fetch.FetchViewImpl;
 import org.eclipse.che.ide.ext.git.client.history.HistoryView;
@@ -73,6 +74,7 @@ public class GitGinModule extends AbstractGinModule {
         bind(AddToIndexView.class).to(AddToIndexViewImpl.class).in(Singleton.class);
         bind(ResetToCommitView.class).to(ResetToCommitViewImpl.class).in(Singleton.class);
         bind(RemoveFromIndexView.class).to(RemoveFromIndexViewImpl.class).in(Singleton.class);
+        bind(RevisionListView.class).to(RevisionListViewImpl.class).in(Singleton.class);
         bind(CommitView.class).to(CommitViewImpl.class).in(Singleton.class);
         bind(ChangedListView.class).to(ChangedListViewImpl.class).in(Singleton.class);
         bind(BranchView.class).to(BranchViewImpl.class).in(Singleton.class);

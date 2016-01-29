@@ -71,6 +71,9 @@ public interface MachineResources extends ClientBundle {
     @Source("images/recipes-part-icon.svg")
     SVGResource recipesPartIcon();
 
+    @Source("images/edit-commands.svg")
+    SVGResource editCommands();
+
     @Source("recipe-template.txt")
     TextResource recipeTemplate();
 

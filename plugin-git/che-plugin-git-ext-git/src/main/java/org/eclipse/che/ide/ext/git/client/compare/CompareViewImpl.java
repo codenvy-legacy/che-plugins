@@ -17,6 +17,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -29,6 +30,7 @@ import org.eclipse.che.ide.orion.compare.CompareConfig;
 import org.eclipse.che.ide.orion.compare.CompareFactory;
 import org.eclipse.che.ide.orion.compare.CompareWidget;
 import org.eclipse.che.ide.orion.compare.FileOptions;
+import org.eclipse.che.ide.ui.loaders.request.LoaderFactory;
 import org.eclipse.che.ide.ui.window.Window;
 
 /**
@@ -45,28 +47,35 @@ final class CompareViewImpl extends Window implements CompareView {
     private static final PreviewViewImplUiBinder UI_BINDER = GWT.create(PreviewViewImplUiBinder.class);
 
     @UiField
-    SimplePanel comparePanel;
+    DockLayoutPanel dockPanel;
     @UiField
-    Label       revision;
+    SimplePanel     comparePanel;
+    @UiField
+    Label           revision;
 
     @UiField(provided = true)
     final GitLocalizationConstant locale;
 
     private ActionDelegate delegate;
-    private CompareWidget  compare;
     private ThemeAgent     themeAgent;
 
     private final CompareFactory compareFactory;
+    private final LoaderFactory  loaderFactory;
 
     @Inject
     public CompareViewImpl(CompareFactory compareFactory,
                            GitLocalizationConstant locale,
+                           LoaderFactory loaderFactory,
                            ThemeAgent themeAgent) {
         this.compareFactory = compareFactory;
         this.locale = locale;
+        this.loaderFactory = loaderFactory;
         this.themeAgent = themeAgent;
 
         setWidget(UI_BINDER.createAndBindUi(this));
+
+        dockPanel.setSize(String.valueOf((com.google.gwt.user.client.Window.getClientWidth() / 100) * 95) + "px",
+                          String.valueOf((com.google.gwt.user.client.Window.getClientHeight() / 100) * 90) + "px");
 
         Button closeButton = createButton(locale.buttonClose(), "git-compare-close-btn", new ClickHandler() {
             @Override
@@ -90,7 +99,6 @@ final class CompareViewImpl extends Window implements CompareView {
     @Override
     public void show(String oldContent, String newContent, String revision, String file) {
         comparePanel.clear();
-        compare = null;
 
         super.show();
 
@@ -113,7 +121,7 @@ final class CompareViewImpl extends Window implements CompareView {
         compareConfig.setShowTitle(false);
         compareConfig.setShowLineStatus(false);
 
-        compare = new CompareWidget(compareConfig, themeAgent.getCurrentThemeId());
+        CompareWidget compare = new CompareWidget(compareConfig, themeAgent.getCurrentThemeId(), loaderFactory);
         comparePanel.add(compare);
     }
 
