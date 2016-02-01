@@ -13,7 +13,6 @@ package org.eclipse.che.ide.ext.java.client.search;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -24,10 +23,10 @@ import org.eclipse.che.ide.api.project.node.interceptor.NodeInterceptor;
 import org.eclipse.che.ide.ext.java.client.JavaLocalizationConstant;
 import org.eclipse.che.ide.ext.java.client.search.node.NodeFactory;
 import org.eclipse.che.ide.ext.java.shared.dto.search.FindUsagesResponse;
-import org.eclipse.che.ide.ui.smartTree.NodeUniqueKeyProvider;
-import org.eclipse.che.ide.ui.smartTree.Tree;
 import org.eclipse.che.ide.ui.smartTree.NodeLoader;
 import org.eclipse.che.ide.ui.smartTree.NodeStorage;
+import org.eclipse.che.ide.ui.smartTree.NodeUniqueKeyProvider;
+import org.eclipse.che.ide.ui.smartTree.Tree;
 
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
@@ -42,7 +41,7 @@ import java.util.Collections;
 class FindUsagesViewImpl extends BaseView<FindUsagesView.ActionDelegate> implements FindUsagesView {
 
     private final Tree        tree;
-    private       NodeFactory nodeFactory;
+    private final NodeFactory nodeFactory;
 
     @Inject
     public FindUsagesViewImpl(PartStackUIResources resources, NodeFactory nodeFactory, JavaLocalizationConstant localizationConstant) {
@@ -60,15 +59,25 @@ class FindUsagesViewImpl extends BaseView<FindUsagesView.ActionDelegate> impleme
         });
         NodeLoader loader = new NodeLoader(Collections.<NodeInterceptor>emptySet());
         tree = new Tree(storage, loader);
-        panel.add(new ScrollPanel(tree));
+        panel.add(tree);
         setContentWidget(panel);
         panel.ensureDebugId("findUsages-panel");
+    }
+
+    @Override
+    protected void focusView() {
+        tree.setFocus(true);
     }
 
     @Override
     public void showUsages(final FindUsagesResponse usagesResponse) {
         tree.getNodeStorage().clear();
         tree.getNodeStorage().add(nodeFactory.create(usagesResponse));
+
         tree.expandAll();
+
+        if (!tree.getRootNodes().isEmpty()) {
+            tree.getSelectionModel().select(tree.getRootNodes().get(0), false);
+        }
     }
 }

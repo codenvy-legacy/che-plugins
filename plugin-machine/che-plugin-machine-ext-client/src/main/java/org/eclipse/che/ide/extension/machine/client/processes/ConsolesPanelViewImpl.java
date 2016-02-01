@@ -186,6 +186,7 @@ public class ConsolesPanelViewImpl extends BaseView<ConsolesPanelView.ActionDele
 
         setContentWidget(uiBinder.createAndBindUi(this));
         navigationPanel.getElement().setTabIndex(0);
+        minimizeButton.ensureDebugId("consoles-minimizeButton");
 
         tuneSplitter();
     }

@@ -31,23 +31,10 @@
         <module>plugin-java</module>
         <module>plugin-sdk</module>
         <module>plugin-orion</module>
-        <!--<module>plugin-php</module>-->
         <module>plugin-git</module>
         <module>plugin-github</module>
-        <!--<module>plugin-angularjs</module>-->
-        <!--<module>plugin-bower</module>-->
-        <!--<module>plugin-gulp</module>-->
-        <!--<module>plugin-grunt</module>-->
-        <!--<module>plugin-npm</module>-->
-        <!--<module>plugin-yeoman</module>-->
-        <!--<module>plugin-cpp</module>-->
-        <!--<module>plugin-ruby</module>-->
-        <!--<module>plugin-go</module>-->
-        <!--<module>plugin-python</module>-->
-        <!--<module>plugin-tour</module>-->
         <module>plugin-dashboard</module>
         <module>plugin-gwt</module>
-        <module>plugin-svn</module>
     </modules>
     <scm>
         <connection>scm:git:git@github.com:codenvy/che-plugins.git</connection>
