@@ -8,15 +8,13 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.ext.gwt.client.inject;
+package org.eclipse.che.ide.ext.gwt.client;
 
 import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.gwt.inject.client.multibindings.GinMultibinder;
 
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
-import org.eclipse.che.ide.api.project.type.wizard.ProjectWizardRegistrar;
 import org.eclipse.che.ide.ext.gwt.client.command.GwtCommandType;
-import org.eclipse.che.ide.ext.gwt.client.wizard.GwtProjectWizardRegistrar;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 
 /**
@@ -29,7 +27,6 @@ public class GwtGinModule extends AbstractGinModule {
 
     @Override
     protected void configure() {
-        GinMultibinder.newSetBinder(binder(), ProjectWizardRegistrar.class).addBinding().to(GwtProjectWizardRegistrar.class);
         GinMultibinder.newSetBinder(binder(), CommandType.class).addBinding().to(GwtCommandType.class);
     }
 }
