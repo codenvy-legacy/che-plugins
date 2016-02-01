@@ -21,6 +21,9 @@
     <artifactId>che-plugin-sdk-env-local</artifactId>
     <packaging>jar</packaging>
     <name>Che Plugin :: SDK :: Local Env</name>
+    <properties>
+        <findbugs.failonerror>false</findbugs.failonerror>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>com.google.gwt</groupId>

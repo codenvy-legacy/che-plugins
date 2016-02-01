@@ -91,7 +91,7 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
      * Show dialog.
      */
     public void showDialog() {
-        service.log(workspaceId, appContext.getCurrentProject().getRootProject(), false,
+        service.log(workspaceId, appContext.getCurrentProject().getRootProject(), null, false,
                     new AsyncRequestCallback<LogResponse>(dtoUnmarshallerFactory.newUnmarshaller(LogResponse.class)) {
                         @Override
                         protected void onSuccess(LogResponse result) {

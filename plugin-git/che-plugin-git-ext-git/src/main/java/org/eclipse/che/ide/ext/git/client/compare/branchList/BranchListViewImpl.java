@@ -49,7 +49,7 @@ public class BranchListViewImpl extends Window implements BranchListView {
     interface BranchViewImplUiBinder extends UiBinder<Widget, BranchListViewImpl> {
     }
 
-    private static BranchViewImplUiBinder ourUiBinder = GWT.create(BranchViewImplUiBinder.class);
+    private static BranchViewImplUiBinder uiBinder = GWT.create(BranchViewImplUiBinder.class);
 
     Button btnClose;
     Button btnCompare;
@@ -62,7 +62,6 @@ public class BranchListViewImpl extends Window implements BranchListView {
     private final GitLocalizationConstant locale;
     private final SimpleList<Branch>      branches;
 
-    /** Create presenter. */
     @Inject
     protected BranchListViewImpl(GitResources resources,
                                  GitLocalizationConstant locale,
@@ -71,9 +70,9 @@ public class BranchListViewImpl extends Window implements BranchListView {
         this.locale = locale;
         this.ensureDebugId("git-compare-branch-window");
 
-        Widget widget = ourUiBinder.createAndBindUi(this);
+        Widget widget = uiBinder.createAndBindUi(this);
 
-        this.setTitle(locale.compareBranchListTitle());
+        this.setTitle(locale.compareWithBranchTitle());
         this.setWidget(widget);
 
         TableElement tableElement = Elements.createTableElement();

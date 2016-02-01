@@ -21,6 +21,9 @@
     <artifactId>org.eclipse.core.filesystem</artifactId>
     <packaging>jar</packaging>
     <name>Che Plugin :: Java :: org.eclipse.core.filesystem</name>
+    <properties>
+        <findbugs.failonerror>false</findbugs.failonerror>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>ch.qos.logback</groupId>
