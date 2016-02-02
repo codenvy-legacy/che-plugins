@@ -16,9 +16,13 @@ import org.eclipse.che.ide.extension.maven.server.execution.ProcessExecutor;
 import org.eclipse.che.ide.extension.maven.server.execution.ProcessHandler;
 import org.eclipse.che.ide.extension.maven.server.rmi.RmiClient;
 import org.eclipse.che.ide.extension.maven.server.rmi.RmiObjectWrapper;
+import org.eclipse.che.maven.data.MavenModel;
 import org.eclipse.che.maven.server.MavenRemoteServer;
+import org.eclipse.che.maven.server.MavenServer;
 import org.eclipse.che.maven.server.MavenServerDownloadListener;
 import org.eclipse.che.maven.server.MavenServerLogger;
+import org.eclipse.che.maven.server.MavenSettings;
+import org.eclipse.che.maven.server.MavenTerminal;
 import org.eclipse.che.rmi.RmiObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,6 +83,24 @@ public class MavenServerManager extends RmiObjectWrapper<MavenRemoteServer> {
             CommandLine command = parameters.createCommand();
             return new ProcessHandler(command.createProcess());
         };
+    }
+
+    public MavenServerWrapper createMavenServer() {
+        return new MavenServerWrapper() {
+            @Override
+            protected MavenServer create() throws RemoteException {
+                MavenSettings mavenSettings = new MavenSettings();
+                //TODO add more user settings
+                mavenSettings.setMavenHome(new File(System.getenv("M2_HOME")));
+                mavenSettings.setGlobalSettings(new File(System.getProperty("user.home"), ".m2/settings.xml"));
+                mavenSettings.setLoggingLevel(MavenTerminal.LEVEL_INFO);
+                return MavenServerManager.this.getOrCreateWrappedObject().createServer(mavenSettings);
+            }
+        };
+    }
+
+    public MavenModel interpolateModel(MavenModel model, File projectDir) {
+        return perform(() -> getOrCreateWrappedObject().interpolateModel(model, projectDir));
     }
 
     @PreDestroy
@@ -164,6 +186,24 @@ public class MavenServerManager extends RmiObjectWrapper<MavenRemoteServer> {
         parameters.getVmParameters().add("-Xmx256m");
 
         return parameters;
+    }
+
+    private <T> T perform(RunnableRemoteWithResult<T> runnable) {
+        RemoteException exception = null;
+        for (int i = 0; i < 2; i++) {
+            try {
+                return runnable.perform();
+            } catch (RemoteException e) {
+                exception = e;
+                onError();
+            }
+        }
+        throw new RuntimeException(exception);
+    }
+
+
+    private interface RunnableRemoteWithResult<T> {
+        T perform() throws RemoteException;
     }
 
     private class RmiLogger extends RmiObject implements MavenServerLogger {

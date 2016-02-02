@@ -11,21 +11,32 @@
 package org.eclipse.che.ide.extension.maven.server.rmi;
 
 import org.eclipse.che.ide.extension.maven.server.MavenServerManager;
+import org.eclipse.che.ide.extension.maven.server.MavenServerWrapper;
 import org.eclipse.che.ide.extension.maven.server.execution.JavaParameters;
-import org.eclipse.che.maven.server.MavenRemoteServer;
-import org.eclipse.che.maven.server.MavenServer;
-import org.eclipse.che.maven.server.MavenSettings;
+import org.eclipse.che.maven.data.MavenArtifact;
+import org.eclipse.che.maven.data.MavenKey;
+import org.eclipse.che.maven.data.MavenModel;
+import org.eclipse.che.maven.data.MavenWorkspaceCache;
+import org.eclipse.che.maven.server.MavenProgressNotifier;
+import org.eclipse.che.maven.server.MavenProjectInfo;
+import org.eclipse.che.maven.server.MavenServerResult;
 import org.eclipse.che.maven.server.MavenTerminal;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Evgen Vidolob
@@ -36,6 +47,19 @@ public class MavenServerManagerTest {
 
     private MavenServerManager manager = new MavenServerManager(mavenServerPath);
 
+    private MavenServerWrapper mavenServer;
+
+    private MavenWorkspaceCache workspaceCache;
+
+
+    @Before
+    public void setUp() throws Exception {
+        workspaceCache = new MavenWorkspaceCache();
+        workspaceCache.put(new MavenKey("com.codenvy.ide", "codenvy-ide-subModule", "1.0.0-TEST-SNAPSHOT"),
+                           new File(MavenServerManagerTest.class.getResource("/multimoduleProject/subModule/pom.xml").getFile()));
+        mavenServer = manager.createMavenServer();
+        mavenServer.customize(workspaceCache, new MyMavenTerminal(), new MyMavenProgressNotifier(), true, true);
+    }
 
     @After
     public void cleanUp() {
@@ -74,23 +98,137 @@ public class MavenServerManagerTest {
 
     @Test
     public void testLaunchMavenServer() throws Exception {
-        MavenRemoteServer remoteServer = manager.getOrCreateWrappedObject();
-        MavenSettings mavenSettings = new MavenSettings();
-        mavenSettings.setLoggingLevel(MavenTerminal.LEVEL_DEBUG);
-        MavenServer server = remoteServer.createServer(mavenSettings);
+        MavenServerWrapper server = manager.createMavenServer();
         assertThat(server).isNotNull();
     }
 
     @Test
     public void testEffectivePom() throws Exception {
-        MavenRemoteServer remoteServer = manager.getOrCreateWrappedObject();
-        MavenSettings mavenSettings = new MavenSettings();
-        mavenSettings.setLoggingLevel(MavenTerminal.LEVEL_DEBUG);
-        MavenServer server = remoteServer.createServer(mavenSettings);
-        String effectivePom = server.getEffectivePom                        (new File(MavenServerManagerTest.class.getResource("/EffectivePom/pom.xml").getFile()),
+        MavenServerWrapper mavenServer = manager.createMavenServer();
+        String effectivePom =
+                mavenServer.getEffectivePom(new File(MavenServerManagerTest.class.getResource("/EffectivePom/pom.xml").getFile()),
                                                      Collections.emptyList(),
                                                      Collections.emptyList());
         assertThat(effectivePom).isNotNull().isNotEmpty().contains("<!-- Effective POM for project")
                                 .contains("'org.eclipse.che.parent:maven-parent-pom:pom:4.0.0-M6-SNAPSHOT'");
+    }
+
+    @Test
+    public void testResolveProject() throws Exception {
+        MavenServerResult resolveProject = mavenServer
+                .resolveProject(new File(MavenServerManagerTest.class.getResource("/FirstProject/pom.xml").getFile()),
+                                Collections.emptyList(),
+                                Collections.emptyList());
+        assertNotNull(resolveProject);
+        assertNotNull(resolveProject.getProjectInfo());
+    }
+
+    @Test
+    public void testProjectHasDependencies() throws Exception {
+        MavenServerResult resolveProject = mavenServer
+                .resolveProject(new File(MavenServerManagerTest.class.getResource("/FirstProject/pom.xml").getFile()),
+                                Collections.emptyList(),
+                                Collections.emptyList());
+        assertNotNull(resolveProject);
+        MavenProjectInfo projectInfo = resolveProject.getProjectInfo();
+        assertNotNull(projectInfo);
+        MavenModel mavenModel = projectInfo.getMavenModel();
+        assertNotNull(mavenModel);
+        List<MavenArtifact> dependencies = mavenModel.getDependencies();
+        assertFalse(dependencies.isEmpty());
+        assertEquals(26, dependencies.size());
+    }
+
+    @Test
+    public void testResolveBadProject() throws Exception {
+        MavenServerResult resolveProject = mavenServer
+                .resolveProject(new File(MavenServerManagerTest.class.getResource("/BadProject/pom.xml").getFile()),
+                                Collections.emptyList(),
+                                Collections.emptyList());
+        assertNotNull(resolveProject);
+        assertNotNull(resolveProject.getProblems());
+        assertEquals(1, resolveProject.getProblems().size());
+    }
+
+    @Test
+    public void testResolveMultimoduleProjectMainPom() throws Exception {
+        MavenServerResult resolveProject = mavenServer
+                .resolveProject(new File(MavenServerManagerTest.class.getResource("/multimoduleProject/pom.xml").getFile()),
+                                Collections.emptyList(),
+                                Collections.emptyList());
+        assertNotNull(resolveProject);
+        MavenProjectInfo projectInfo = resolveProject.getProjectInfo();
+        assertNotNull(projectInfo);
+
+        MavenModel mavenModel = projectInfo.getMavenModel();
+        assertNotNull(mavenModel);
+        assertThat(mavenModel.getPackaging()).isEqualTo("pom");
+        assertThat(mavenModel.getModules()).containsExactly("subModule", "test");
+        assertThat(mavenModel.getDependencies()).isEmpty();
+    }
+
+    @Test
+    public void testResolveMultimoduleProjectModulePom() throws Exception {
+        MavenServerResult resolveProject = mavenServer
+                .resolveProject(new File(MavenServerManagerTest.class.getResource("/multimoduleProject/subModule/pom.xml").getFile()),
+                                Collections.emptyList(),
+                                Collections.emptyList());
+        assertNotNull(resolveProject);
+        MavenProjectInfo projectInfo = resolveProject.getProjectInfo();
+        assertNotNull(projectInfo);
+
+        MavenModel mavenModel = projectInfo.getMavenModel();
+        assertNotNull(mavenModel);
+        assertThat(mavenModel.getPackaging()).isEqualTo("jar");
+        assertThat(mavenModel.getModules()).isEmpty();
+        assertThat(mavenModel.getDependencies()).isNotEmpty().hasSize(3);
+    }
+
+    @Test
+    public void testMultimoduleProjectModuleHasDependencyOnAnotherModule() throws Exception {
+
+        MavenServerResult resolveProject = mavenServer
+                .resolveProject(new File(MavenServerManagerTest.class.getResource("/multimoduleProject/test/pom.xml").getFile()),
+                                Collections.emptyList(),
+                                Collections.emptyList());
+        assertNotNull(resolveProject);
+        MavenProjectInfo projectInfo = resolveProject.getProjectInfo();
+        assertNotNull(projectInfo);
+
+        MavenModel mavenModel = projectInfo.getMavenModel();
+        assertNotNull(mavenModel);
+        assertThat(mavenModel.getPackaging()).isEqualTo("jar");
+        assertThat(mavenModel.getModules()).isEmpty();
+        assertThat(mavenModel.getDependencies()).isNotEmpty().hasSize(6);
+        mavenModel.getDependencies().forEach(mavenArtifact -> System.out.println(mavenArtifact.getFile().getAbsolutePath()));
+    }
+
+    private static class MyMavenTerminal implements MavenTerminal, Serializable {
+        @Override
+        public void print(int level, String message, Throwable throwable) throws RemoteException {
+            System.out.println(message);
+            if (throwable != null) {
+                throwable.printStackTrace();
+            }
+        }
+    }
+
+    private static class MyMavenProgressNotifier implements MavenProgressNotifier, Serializable {
+        @Override
+        public void setText(String text) throws RemoteException {
+        }
+
+        @Override
+        public void setPercent(double percent) throws RemoteException {
+        }
+
+        @Override
+        public void setPercentUndefined(boolean undefined) throws RemoteException {
+        }
+
+        @Override
+        public boolean isCanceled() throws RemoteException {
+            return false;
+        }
     }
 }
