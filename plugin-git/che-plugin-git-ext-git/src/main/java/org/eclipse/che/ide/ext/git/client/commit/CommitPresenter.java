@@ -20,12 +20,12 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.selection.Selection;
-import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.ext.git.client.DateTimeFormatter;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsole;
 import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsoleFactory;
 import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPresenter;
+import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
@@ -34,6 +34,7 @@ import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.RequestCallback;
 
 import javax.validation.constraints.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,17 +49,17 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAI
 public class CommitPresenter implements CommitView.ActionDelegate {
     public static final String COMMIT_COMMAND_NAME = "Git commit";
 
-    private final DtoUnmarshallerFactory  dtoUnmarshallerFactory;
-    private final AppContext              appContext;
-    private final CommitView              view;
-    private final GitServiceClient        service;
-    private final GitLocalizationConstant constant;
-    private final NotificationManager     notificationManager;
-    private final DateTimeFormatter       dateTimeFormatter;
-    private final GitOutputConsoleFactory gitOutputConsoleFactory;
-    private final ConsolesPanelPresenter  consolesPanelPresenter;
-    private final SelectionAgent          selectionAgent;
-    private final String                  workspaceId;
+    private final DtoUnmarshallerFactory   dtoUnmarshallerFactory;
+    private final AppContext               appContext;
+    private final CommitView               view;
+    private final GitServiceClient         service;
+    private final GitLocalizationConstant  constant;
+    private final NotificationManager      notificationManager;
+    private final DateTimeFormatter        dateTimeFormatter;
+    private final GitOutputConsoleFactory  gitOutputConsoleFactory;
+    private final ConsolesPanelPresenter   consolesPanelPresenter;
+    private final ProjectExplorerPresenter projectExplorer;
+    private final String                   workspaceId;
 
     @Inject
     public CommitPresenter(CommitView view,
@@ -68,7 +69,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
                            DtoUnmarshallerFactory dtoUnmarshallerFactory,
                            AppContext appContext,
                            DateTimeFormatter dateTimeFormatter,
-                           final SelectionAgent selectionAgent,
+                           ProjectExplorerPresenter projectExplorer,
                            GitOutputConsoleFactory gitOutputConsoleFactory,
                            ConsolesPanelPresenter consolesPanelPresenter) {
         this.view = view;
@@ -81,7 +82,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
         this.service = service;
         this.constant = constant;
         this.notificationManager = notificationManager;
-        this.selectionAgent = selectionAgent;
+        this.projectExplorer = projectExplorer;
         this.workspaceId = appContext.getWorkspaceId();
     }
 
@@ -118,7 +119,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
     private void commitAddSelection(final String message, final boolean amend) {
         // first git-add the selection
         @SuppressWarnings("unchecked")
-        final Selection<HasStorablePath> selection = (Selection<HasStorablePath>)this.selectionAgent.getSelection();
+        final Selection<HasStorablePath> selection = (Selection<HasStorablePath>)this.projectExplorer.getSelection();
         if (selection.isEmpty() || !(selection.getHeadElement() instanceof HasStorablePath)) {
             doCommit(message, false, amend);
         } else {
@@ -156,7 +157,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
     private void commitOnlySelection(final String message, final boolean amend) {
         // first git-add the selection
         @SuppressWarnings("unchecked")
-        final Selection<HasStorablePath> selection = (Selection<HasStorablePath>)this.selectionAgent.getSelection();
+        final Selection<HasStorablePath> selection = (Selection<HasStorablePath>)this.projectExplorer.getSelection();
         if (selection != null && !selection.isEmpty() && (selection.getHeadElement() != null)) {
             final List<String> files = buildFileList(selection);
             service.commit(workspaceId, appContext.getCurrentProject().getRootProject(), message, files, amend,
@@ -274,7 +275,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
     @Override
     public void setAmendCommitMessage() {
         final Unmarshallable<LogResponse> unmarshall = dtoUnmarshallerFactory.newUnmarshaller(LogResponse.class);
-        this.service.log(workspaceId, appContext.getCurrentProject().getRootProject(), false,
+        this.service.log(workspaceId, appContext.getCurrentProject().getRootProject(), null, false,
                          new AsyncRequestCallback<LogResponse>(unmarshall) {
                              @Override
                              protected void onSuccess(final LogResponse result) {

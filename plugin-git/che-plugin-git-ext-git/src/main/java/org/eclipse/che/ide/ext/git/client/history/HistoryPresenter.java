@@ -154,7 +154,7 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
 
     /** Get the log of the commits. If successfully received, then display in revision grid, otherwise - show error in output panel. */
     private void getCommitsLog(final ProjectConfigDto project) {
-        service.log(workspaceId, project, false,
+        service.log(workspaceId, project, null, false, 
                     new AsyncRequestCallback<LogResponse>(dtoUnmarshallerFactory.newUnmarshaller(LogResponse.class)) {
                         @Override
                         protected void onSuccess(LogResponse result) {

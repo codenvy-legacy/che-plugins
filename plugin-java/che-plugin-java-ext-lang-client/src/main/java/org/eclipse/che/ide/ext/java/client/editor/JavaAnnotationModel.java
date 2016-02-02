@@ -31,7 +31,7 @@ import java.util.Map;
 /**
  * An annotation model for java sources.
  */
-public class JavaAnnotationModel extends AnnotationModelImpl implements AnnotationModel, ProblemRequestor {
+public class JavaAnnotationModel extends AnnotationModelImpl implements AnnotationModel, ProblemRequester {
 
     private final JavaCss javaCss;
     private final EditorCss editorCss;

@@ -12,11 +12,27 @@ package org.eclipse.che.ide.editor.orion.client.jso;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.dom.client.Element;
+
+import org.eclipse.che.api.promises.client.OperationException;
 
 public class OrionEditorOverlay extends JavaScriptObject {
 
     protected OrionEditorOverlay() {
+    }
+
+
+    public final native <T extends OrionEventOverlay> void addEventListener(String eventType,
+                                                                            EventHandler<T> handler,
+                                                                            boolean useCapture) /*-{
+        var func = function (param) {
+            handler.@org.eclipse.che.ide.editor.orion.client.jso.OrionEditorOverlay.EventHandler::onEvent(*)(param);
+        };
+
+        this.addEventListener(eventType, func, useCapture);
+    }-*/;
+
+    public interface EventHandler<T extends OrionEventOverlay> {
+        void onEvent(T parameter) throws OperationException;
     }
 
     public final native String getText() /*-{
@@ -101,7 +117,7 @@ public class OrionEditorOverlay extends JavaScriptObject {
      *         additional percentage ([0,1] that must also be shown
      */
     public final native void setSelection(int start, int end, double show) /*-{
-        this.setSelection(start, end, show);
+         this.setSelection(start, end, show);
     }-*/;
 
     /**

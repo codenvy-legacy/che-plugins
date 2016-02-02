@@ -129,7 +129,7 @@ public class ContributionTemplateStore extends TemplateStore {
 				try {
 //					String translations= element.getAttribute(TRANSLATIONS);
 //					if (translations != null) {
-						String props = "/templates/default-templates.properties"; //file.substring(0, file.lastIndexOf('.'));
+						String props = "/org/eclipse/templates/default-templates.properties"; //file.substring(0, file.lastIndexOf('.'));
 						URL bundleURL= ContributionTemplateStore.class.getResource(props);
 						if (bundleURL != null) {
 							bundleStream= bundleURL.openStream();

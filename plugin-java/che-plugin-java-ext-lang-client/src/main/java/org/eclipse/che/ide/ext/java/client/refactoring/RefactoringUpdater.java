@@ -107,7 +107,7 @@ public class RefactoringUpdater {
 
         final ChangeInfo changeInfo = iterator.next();
 
-        if (changeInfo == null) {
+        if (changeInfo == null || changeInfo.getName() == null) {
             return proceedGeneralChanges(promise, iterator, refactorInfo);
         }
 
@@ -116,7 +116,10 @@ public class RefactoringUpdater {
         switch (changeInfo.getName()) {
             case MOVE:
             case RENAME_COMPILATION_UNIT:
-                removeNodeFor(changeInfo, refactorInfo.getSelectedItems());
+                if (refactorInfo != null && refactorInfo.getSelectedItems() != null) {
+                    removeNodeFor(changeInfo, refactorInfo.getSelectedItems());
+                }
+
                 derivedPromise = promise.thenPromise(proceedRefactoringMove(changeInfo));
                 break;
             case RENAME_PACKAGE:

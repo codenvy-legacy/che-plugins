@@ -69,9 +69,10 @@ import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspect
 @Extension(title = "Machine", version = "1.0.0")
 public class MachineExtension {
 
-    public static final String GROUP_MACHINE_CONSOLE_TOOLBAR = "MachineConsoleToolbar";
-    public static final String GROUP_MACHINE_TOOLBAR         = "MachineGroupToolbar";
-    public static final String GROUP_COMMANDS_LIST           = "CommandsListGroup";
+    public static final String GROUP_MACHINE_CONSOLE_TOOLBAR    = "MachineConsoleToolbar";
+    public static final String GROUP_MACHINE_TOOLBAR            = "MachineGroupToolbar";
+    public static final String GROUP_COMMANDS_LIST              = "CommandsListGroup";
+    public static final String GROUP_COMMANDS_LIST_DISPLAY_NAME = "Run";
 
     @Inject
     public MachineExtension(MachineResources machineResources,
@@ -169,10 +170,14 @@ public class MachineExtension {
         rightToolbarGroup.add(switchPerspectiveAction);
 
         // add group for command list
-        final DefaultActionGroup commandList = new DefaultActionGroup(GROUP_COMMANDS_LIST, false, actionManager);
+        final DefaultActionGroup commandList = new DefaultActionGroup(GROUP_COMMANDS_LIST_DISPLAY_NAME, true, actionManager);
+
         actionManager.registerAction(GROUP_COMMANDS_LIST, commandList);
         commandList.add(editCommandsAction, FIRST);
-        commandList.addSeparator();
+
+        final DefaultActionGroup runContextGroup = (DefaultActionGroup)actionManager.getAction(IdeActions.GROUP_RUN_CONTEXT_MENU);
+        runContextGroup.add(commandList);
+        runContextGroup.addSeparator();
 
         // Define hot-keys
         keyBinding.getGlobal().addKey(new KeyBuilder().alt().charCode(KeyCodeMap.F12).build(), "newTerminal");

@@ -16,13 +16,14 @@
     <parent>
         <artifactId>che-plugin-orion-parent</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
-        <version>4.0.0-beta-13-SNAPSHOT</version>
+        <version>4.0.0-RC1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>che-plugin-orion-editor</artifactId>
     <packaging>jar</packaging>
     <name>Che Plugin :: Orion :: Editor</name>
     <properties>
+        <findbugs.failonerror>false</findbugs.failonerror>
         <license_years>2014-2015</license_years>
         <patches.location>${basedir}/src/main/patches</patches.location>
     </properties>

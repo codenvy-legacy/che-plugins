@@ -16,13 +16,14 @@
     <parent>
         <artifactId>che-plugin-java-parent</artifactId>
         <groupId>org.eclipse.che.plugin</groupId>
-        <version>4.0.0-beta-13-SNAPSHOT</version>
+        <version>4.0.0-RC1-SNAPSHOT</version>
     </parent>
     <artifactId>che-plugin-java-generator-archetype</artifactId>
     <packaging>jar</packaging>
     <name>Che Plugin :: Java :: Archetype Generator</name>
     <properties>
         <dto-generator-out-directory>${project.build.directory}/generated-sources/dto/</dto-generator-out-directory>
+        <findbugs.failonerror>false</findbugs.failonerror>
     </properties>
     <dependencies>
         <dependency>

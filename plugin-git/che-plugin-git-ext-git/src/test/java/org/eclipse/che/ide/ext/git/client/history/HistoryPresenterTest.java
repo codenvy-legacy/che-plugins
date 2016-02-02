@@ -120,12 +120,13 @@ public class HistoryPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, logResponse);
                 return callback;
             }
-        }).when(service).log(anyObject(), anyObject(), anyBoolean(), (AsyncRequestCallback<LogResponse>)anyObject());
+        }).when(service).log(anyObject(), anyObject(), null, anyBoolean(), (AsyncRequestCallback<LogResponse>)anyObject());
 
         presenter.showDialog();
 
         verify(appContext).getCurrentProject();
-        verify(service).log(anyObject(), eq(rootProjectConfig), eq(TEXT_NOT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
+        verify(service)
+                .log(anyObject(), eq(rootProjectConfig), null, eq(TEXT_NOT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
         verify(view).selectProjectChangesButton(eq(SELECTED_ITEM));
         verify(view).selectDiffWithPrevVersionButton(eq(SELECTED_ITEM));
         verify(view).setCommitADate(eq(EMPTY_TEXT));
@@ -151,12 +152,13 @@ public class HistoryPresenterTest extends BaseTest {
                 onFailure.invoke(callback, mock(Throwable.class));
                 return callback;
             }
-        }).when(service).log(anyObject(), anyObject(), anyBoolean(), (AsyncRequestCallback<LogResponse>)anyObject());
+        }).when(service).log(anyObject(), anyObject(), null, anyBoolean(), (AsyncRequestCallback<LogResponse>)anyObject());
 
         presenter.showDialog();
 
         verify(appContext).getCurrentProject();
-        verify(service).log(anyObject(), eq(rootProjectConfig), eq(TEXT_NOT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
+        verify(service)
+                .log(anyObject(), eq(rootProjectConfig), null, eq(TEXT_NOT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
         verify(view).selectProjectChangesButton(eq(SELECTED_ITEM));
         verify(view).selectDiffWithPrevVersionButton(eq(SELECTED_ITEM));
         verify(view, times(2)).setCommitADate(eq(EMPTY_TEXT));
@@ -181,7 +183,8 @@ public class HistoryPresenterTest extends BaseTest {
         presenter.onRefreshClicked();
 
         verify(appContext).getCurrentProject();
-        verify(service).log(anyObject(), eq(rootProjectConfig), eq(TEXT_NOT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
+        verify(service)
+                .log(anyObject(), eq(rootProjectConfig), null, eq(TEXT_NOT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
     }
 
     @Test
@@ -213,7 +216,7 @@ public class HistoryPresenterTest extends BaseTest {
         verify(view).setCommitADate(anyString());
         verify(view).setCommitARevision(anyString());
         verify(view).setCompareType(anyString());
-        verify(service, times(3)).log(anyObject(), eq(rootProjectConfig), eq(false), (AsyncRequestCallback<LogResponse>)anyObject());
+        verify(service, times(3)).log(anyObject(), eq(rootProjectConfig), null, eq(false), (AsyncRequestCallback<LogResponse>)anyObject());
     }
 
     @Test
@@ -252,7 +255,7 @@ public class HistoryPresenterTest extends BaseTest {
         verify(view).setDiffContext(eq(EMPTY_TEXT));
         verify(view).setCompareType(anyString());
         verify(constant, times(2)).historyNothingToDisplay();
-        verify(service, times(3)).log(anyObject(), eq(rootProjectConfig), eq(false), (AsyncRequestCallback<LogResponse>)anyObject());
+        verify(service, times(3)).log(anyObject(), eq(rootProjectConfig), null, eq(false), (AsyncRequestCallback<LogResponse>)anyObject());
     }
 
     @Test
@@ -311,7 +314,8 @@ public class HistoryPresenterTest extends BaseTest {
                 .diff(anyObject(), anyObject(), anyObject(), anyObject(), anyBoolean(), anyInt(), anyString(), anyBoolean(), anyObject());
         verify(service, never())
                 .diff(anyObject(), anyObject(), anyObject(), anyObject(), anyBoolean(), anyInt(), anyString(), anyString(), anyObject());
-        verify(service).log(anyObject(), eq(rootProjectConfig), eq(TEXT_NOT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
+        verify(service)
+                .log(anyObject(), eq(rootProjectConfig), null, eq(TEXT_NOT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
     }
 
     @Test
@@ -327,7 +331,8 @@ public class HistoryPresenterTest extends BaseTest {
         verify(service, never())
                 .diff(anyObject(), anyObject(), anyObject(), anyObject(), anyBoolean(), anyInt(), anyString(), anyBoolean(), anyObject());
         verify(service, never()).diff(anyObject(), anyObject(), anyObject(), anyObject(), anyBoolean(), anyInt(), anyString(), anyString(), anyObject());
-        verify(service, never()).log(anyObject(), eq(projectConfig), eq(TEXT_NOT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
+        verify(service, never())
+                .log(anyObject(), eq(projectConfig), null, eq(TEXT_NOT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
     }
 
     @Test
@@ -344,7 +349,8 @@ public class HistoryPresenterTest extends BaseTest {
         verify(service).diff(anyObject(), anyObject(), anyObject(), anyObject(), anyBoolean(), anyInt(), anyString(), anyBoolean(), anyObject());
         verify(service, never())
                 .diff(anyObject(), anyObject(), anyObject(), anyObject(), anyBoolean(), anyInt(), anyString(), anyString(), anyObject());
-        verify(service).log(anyObject(), eq(rootProjectConfig), eq(TEXT_NOT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
+        verify(service)
+                .log(anyObject(), eq(rootProjectConfig), null, eq(TEXT_NOT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
     }
 
     @Test
@@ -361,7 +367,8 @@ public class HistoryPresenterTest extends BaseTest {
                 .diff(anyObject(), anyObject(), anyObject(), anyObject(), anyBoolean(), anyInt(), anyString(), anyBoolean(), anyObject());
         verify(service, never())
                 .diff(anyObject(), anyObject(), anyObject(), anyObject(), anyBoolean(), anyInt(), anyString(), anyString(), anyObject());
-        verify(service, never()).log(anyObject(), eq(projectConfig), eq(TEXT_NOT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
+        verify(service, never())
+                .log(anyObject(), eq(projectConfig), null, eq(TEXT_NOT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
     }
 
     @Test
@@ -379,7 +386,7 @@ public class HistoryPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, logResponse);
                 return callback;
             }
-        }).when(service).log(anyObject(), anyObject(), anyBoolean(), (AsyncRequestCallback<LogResponse>)anyObject());
+        }).when(service).log(anyObject(), anyObject(), null, anyBoolean(), (AsyncRequestCallback<LogResponse>)anyObject());
 
         presenter.onRefreshClicked();
         presenter.onDiffWithWorkTreeClicked();
@@ -398,7 +405,8 @@ public class HistoryPresenterTest extends BaseTest {
         verify(service)
                 .diff(anyObject(), anyObject(), (List<String>)anyObject(), (DiffRequest.DiffType)anyObject(), anyBoolean(), anyInt(),
                       anyString(), anyString(), (AsyncRequestCallback<String>)anyObject());
-        verify(service).log(anyObject(), eq(rootProjectConfig), eq(TEXT_NOT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
+        verify(service)
+                .log(anyObject(), eq(rootProjectConfig), null, eq(TEXT_NOT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
     }
 
     @Test
@@ -418,7 +426,8 @@ public class HistoryPresenterTest extends BaseTest {
         verify(service, never())
                 .diff(anyObject(), anyObject(), (List<String>)anyObject(), (DiffRequest.DiffType)anyObject(), anyBoolean(), anyInt(),
                       anyString(), anyString(), (AsyncRequestCallback<String>)anyObject());
-        verify(service, never()).log(anyObject(), eq(projectConfig), eq(TEXT_NOT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
+        verify(service, never())
+                .log(anyObject(), eq(projectConfig), null, eq(TEXT_NOT_FORMATTED), (AsyncRequestCallback<LogResponse>)anyObject());
     }
 
     @Test
@@ -436,7 +445,7 @@ public class HistoryPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, logResponse);
                 return callback;
             }
-        }).when(service).log(anyObject(), anyObject(), anyBoolean(), (AsyncRequestCallback<LogResponse>)anyObject());
+        }).when(service).log(anyObject(), anyObject(), null, anyBoolean(), (AsyncRequestCallback<LogResponse>)anyObject());
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
@@ -479,7 +488,7 @@ public class HistoryPresenterTest extends BaseTest {
                 onSuccess.invoke(callback, logResponse);
                 return callback;
             }
-        }).when(service).log(anyObject(), anyObject(), anyBoolean(), (AsyncRequestCallback<LogResponse>)anyObject());
+        }).when(service).log(anyObject(), anyObject(), null, anyBoolean(), (AsyncRequestCallback<LogResponse>)anyObject());
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {

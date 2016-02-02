@@ -25,8 +25,6 @@ import org.eclipse.che.ide.jseditor.client.quickfix.QuickAssistProcessor;
 import org.eclipse.che.ide.jseditor.client.reconciler.Reconciler;
 import org.eclipse.che.ide.jseditor.client.reconciler.ReconcilerFactory;
 import org.eclipse.che.ide.jseditor.client.texteditor.EmbeddedTextEditorPresenter;
-import org.eclipse.che.ide.util.executor.BasicIncrementalScheduler;
-import org.eclipse.che.ide.util.executor.UserActivityManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +38,6 @@ import static org.eclipse.che.ide.jseditor.client.partition.DocumentPartitioner.
 public class JsJavaEditorConfiguration extends DefaultTextEditorConfiguration {
 
     private final Map<String, CodeAssistProcessor> codeAssistProcessors;
-    private final UserActivityManager              userActivityManager;
     private final Reconciler                       reconciler;
     private final DocumentPartitioner              partitioner;
     private final DocumentPositionMap              documentPositionMap;
@@ -51,7 +48,6 @@ public class JsJavaEditorConfiguration extends DefaultTextEditorConfiguration {
 
     @AssistedInject
     public JsJavaEditorConfiguration(@Assisted final EmbeddedTextEditorPresenter<?> editor,
-                                     final UserActivityManager userActivityManager,
                                      final JavaCodeAssistProcessorFactory codeAssistProcessorFactory,
                                      final JavaQuickAssistProcessorFactory quickAssistProcessorFactory,
                                      final ReconcilerFactory reconcilerFactory,
@@ -66,8 +62,6 @@ public class JsJavaEditorConfiguration extends DefaultTextEditorConfiguration {
         this.codeAssistProcessors = new HashMap<>();
         this.codeAssistProcessors.put(DEFAULT_CONTENT_TYPE, codeAssistProcessor);
         this.quickAssistProcessors = quickAssistProcessorFactory.create(editor);
-
-        this.userActivityManager = userActivityManager;
 
         this.documentPositionMap = docPositionMapProvider.get();
         this.annotationModel = javaAnnotationModelFactory.create(this.documentPositionMap);
@@ -119,9 +113,7 @@ public class JsJavaEditorConfiguration extends DefaultTextEditorConfiguration {
 
     private Reconciler initReconciler(final ReconcilerFactory reconcilerFactory,
                                       final JavaReconcilerStrategy javaReconcilerStrategy) {
-        final BasicIncrementalScheduler scheduler = new BasicIncrementalScheduler(userActivityManager, 50, 100);
         final Reconciler reconciler = reconcilerFactory.create(DEFAULT_PARTITIONING, getPartitioner());
-        reconciler.addReconcilingStrategy(DEFAULT_CONTENT_TYPE, javaReconcilerStrategy);
         reconciler.addReconcilingStrategy(DEFAULT_CONTENT_TYPE, javaReconcilerStrategy);
         return reconciler;
     }

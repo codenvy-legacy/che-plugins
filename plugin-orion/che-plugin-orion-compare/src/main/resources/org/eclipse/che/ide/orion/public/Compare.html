@@ -72,6 +72,10 @@
                     var style = document.createElement("link");
                     style.rel = "stylesheet";
                     style.href = themeUrl;
+                    style.onload = function () {
+                        var loadEvent = new Event('onThemeLoaded');
+                        document.dispatchEvent(loadEvent);
+                    }
                     document.getElementsByTagName("head")[0].appendChild(style);
                 }
             });
