@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.server;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.google.inject.name.Named;
+
 import org.eclipse.che.ide.extension.maven.server.execution.CommandLine;
 import org.eclipse.che.ide.extension.maven.server.execution.JavaParameters;
 import org.eclipse.che.ide.extension.maven.server.execution.ProcessExecutor;
@@ -39,6 +43,7 @@ import java.util.List;
 /**
  * @author Evgen Vidolob
  */
+@Singleton
 public class MavenServerManager extends RmiObjectWrapper<MavenRemoteServer> {
     private static final Logger LOG               = LoggerFactory.getLogger(MavenServerManager.class);
     private static final String MAVEN_SERVER_MAIN = "org.eclipse.che.maven.server.MavenServerMain";
@@ -52,7 +57,8 @@ public class MavenServerManager extends RmiObjectWrapper<MavenRemoteServer> {
     private boolean listenerExported;
     private String  mavenServerPath;
 
-    public MavenServerManager(String mavenServerPath) {
+    @Inject
+    public MavenServerManager(@Named("che.maven.server.path") String mavenServerPath) {
         this.mavenServerPath = mavenServerPath;
 
         client = new RmiClient<MavenRemoteServer>(MavenRemoteServer.class) {
