@@ -35,6 +35,7 @@ import org.eclipse.che.ide.extension.maven.server.projecttype.handler.MavenProje
 import org.eclipse.che.ide.extension.maven.server.projecttype.handler.MavenProjectImportedHandler;
 import org.eclipse.che.ide.extension.maven.server.projecttype.handler.ProjectHasBecomeMaven;
 import org.eclipse.che.ide.extension.maven.server.projecttype.handler.RemoveMavenModuleHandler;
+import org.eclipse.che.ide.extension.maven.server.rest.MavenServerService;
 import org.eclipse.che.maven.server.MavenProgressNotifier;
 import org.eclipse.che.maven.server.MavenTerminal;
 
@@ -65,5 +66,7 @@ public class MavenModule extends AbstractModule {
 
         bind(MavenTerminal.class).to(MavenTerminalImpl.class).in(Singleton.class);
         bind(MavenProgressNotifier.class).to(MavenNotifier.class).in(Singleton.class);
+
+        bind(MavenServerService.class);
     }
 }
