@@ -19,6 +19,7 @@ import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.gwt.client.events.DevMachineStateEvent;
 import org.eclipse.che.api.machine.gwt.client.events.DevMachineStateHandler;
 import org.eclipse.che.api.machine.shared.dto.CommandDto;
+import org.eclipse.che.api.machine.shared.dto.MachineConfigDto;
 import org.eclipse.che.api.machine.shared.dto.MachineDto;
 import org.eclipse.che.api.machine.shared.dto.MachineProcessDto;
 import org.eclipse.che.api.promises.client.Operation;
@@ -143,7 +144,7 @@ public class ConsolesPanelPresenterTest {
     public void setUp() {
         when(appContext.getWorkspaceId()).thenReturn(WORKSPACE_ID);
 
-        when(machineService.getWorkspaceMachines(anyString())).thenReturn(machinesPromise);
+        when(machineService.getMachines(anyString())).thenReturn(machinesPromise);
         when(machineService.getMachine(anyString())).thenReturn(machinePromise);
         when(machinePromise.then(Matchers.<Operation<MachineDto>>anyObject())).thenReturn(machinePromise);
 
@@ -180,7 +181,9 @@ public class ConsolesPanelPresenterTest {
         processes.add(machineProcessDto);
 
         MachineDto machineDto = mock(MachineDto.class);
-        when(machineDto.isDev()).thenReturn(true);
+        MachineConfigDto machineConfigDto = mock(MachineConfigDto.class);
+        when(machineDto.getConfig()).thenReturn(machineConfigDto);
+        when(machineConfigDto.isDev()).thenReturn(true);
         when(machineDto.getId()).thenReturn(MACHINE_ID);
         List<MachineDto> machines = new ArrayList<>(2);
         machines.add(machineDto);
@@ -199,7 +202,9 @@ public class ConsolesPanelPresenterTest {
     @Test
     public void shouldFetchMachines() throws Exception {
         MachineDto machineDto = mock(MachineDto.class);
-        when(machineDto.isDev()).thenReturn(true);
+        MachineConfigDto machineConfigDto = mock(MachineConfigDto.class);
+        when(machineDto.getConfig()).thenReturn(machineConfigDto);
+        when(machineConfigDto.isDev()).thenReturn(true);
         List<MachineDto> machines = new ArrayList<>(2);
         machines.add(machineDto);
 
@@ -211,7 +216,7 @@ public class ConsolesPanelPresenterTest {
         devMachineStateHandler.onMachineStarted(devMachineStateEvent);
 
         verify(appContext, times(2)).getWorkspaceId();
-        verify(machineService, times(2)).getWorkspaceMachines(eq(WORKSPACE_ID));
+        verify(machineService, times(2)).getMachines(eq(WORKSPACE_ID));
         verify(machinesPromise, times(2)).then(machinesCaptor.capture());
         machinesCaptor.getValue().apply(machines);
         verify(view).setProcessesData(anyObject());
@@ -318,7 +323,9 @@ public class ConsolesPanelPresenterTest {
     @Test
     public void shouldHideStopProcessButtonAtAddingTerminal() throws Exception {
         MachineDto machineDto = mock(MachineDto.class);
-        when(machineDto.isDev()).thenReturn(true);
+        MachineConfigDto machineConfigDto = mock(MachineConfigDto.class);
+        when(machineDto.getConfig()).thenReturn(machineConfigDto);
+        when(machineConfigDto.isDev()).thenReturn(true);
 
         ProcessTreeNode machineNode = mock(ProcessTreeNode.class);
         when(machineNode.getId()).thenReturn(MACHINE_ID);
@@ -389,7 +396,9 @@ public class ConsolesPanelPresenterTest {
     @Test
     public void shouldAddTerminal() throws Exception {
         MachineDto machineDto = mock(MachineDto.class);
-        when(machineDto.isDev()).thenReturn(true);
+        MachineConfigDto machineConfigDto = mock(MachineConfigDto.class);
+        when(machineDto.getConfig()).thenReturn(machineConfigDto);
+        when(machineConfigDto.isDev()).thenReturn(true);
 
         ProcessTreeNode machineNode = mock(ProcessTreeNode.class);
         when(machineNode.getId()).thenReturn(MACHINE_ID);

@@ -19,7 +19,6 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDto;
-import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.Promise;
@@ -70,12 +69,12 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     private final MachineLocalizationConstant           locale;
     private final MachineAppliancePresenter             appliance;
     private final MachineResources                      resources;
-    private final Map<MachineStateDto, MachineTreeNode> existingMachineNodes;
-    private final Map<MachineStateDto, Machine>         cachedMachines;
+    private final Map<MachineDto, MachineTreeNode>      existingMachineNodes;
+    private final Map<MachineDto, Machine>              cachedMachines;
     private final MachineTreeNode                       rootNode;
     private final List<MachineTreeNode>                 machineNodes;
     private final AppContext                            appContext;
-    private       MachineStateDto                       selectedMachineState;
+    private       MachineDto                            selectedMachineState;
     private       boolean                               isMachineRunning;
 
     @Inject
@@ -111,25 +110,25 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     }
 
     /** Gets all machines and adds them to special place on view. */
-    public Promise<List<MachineStateDto>> showMachines() {
+    public Promise<List<MachineDto>> showMachines() {
         return showMachines(appContext.getWorkspace().getId());
     }
 
-    private Promise<List<MachineStateDto>> showMachines(String workspaceId) {
-        Promise<List<MachineStateDto>> machinesPromise = service.getMachinesStates(workspaceId);
+    private Promise<List<MachineDto>> showMachines(String workspaceId) {
+        Promise<List<MachineDto>> machinesPromise = service.getMachines(workspaceId);
 
-        return machinesPromise.then(new Operation<List<MachineStateDto>>() {
+        return machinesPromise.then(new Operation<List<MachineDto>>() {
             @Override
-            public void apply(List<MachineStateDto> machineStates) throws OperationException {
+            public void apply(List<MachineDto> machines) throws OperationException {
                 machineNodes.clear();
-                if (machineStates.isEmpty()) {
+                if (machines.isEmpty()) {
                     appliance.showStub(locale.unavailableMachineInfo());
 
                     return;
                 }
 
-                for (MachineStateDto machineState : machineStates) {
-                    addNodeToTree(machineState);
+                for (MachineDto machine : machines) {
+                    addNodeToTree(machine);
                 }
 
                 view.setData(rootNode);
@@ -139,10 +138,10 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
         });
     }
 
-    private void addNodeToTree(MachineStateDto machineState) {
-        MachineTreeNode machineNode = entityFactory.createMachineNode(rootNode, machineState, null);
+    private void addNodeToTree(MachineDto machine) {
+        MachineTreeNode machineNode = entityFactory.createMachineNode(rootNode, machine, null);
 
-        existingMachineNodes.put(machineState, machineNode);
+        existingMachineNodes.put(machine, machineNode);
 
         if (!machineNodes.contains(machineNode)) {
             machineNodes.add(machineNode);
@@ -160,13 +159,13 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     /**
      * Returns selected machine state.
      */
-    public MachineStateDto getSelectedMachineState() {
+    public MachineDto getSelectedMachineState() {
         return selectedMachineState;
     }
 
     /** {@inheritDoc} */
     @Override
-    public void onMachineSelected(final MachineStateDto selectedMachineState) {
+    public void onMachineSelected(final MachineDto selectedMachineState) {
         this.selectedMachineState = selectedMachineState;
 
         isMachineRunning = true;
@@ -192,8 +191,8 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
                 isMachineRunning = false;
 
                 // we show the loader for dev machine so this message isn't necessary for dev machine
-                if (!selectedMachineState.isDev()) {
-                    appliance.showStub(locale.unavailableMachineStarting(selectedMachineState.getName()));
+                if (!selectedMachineState.getConfig().isDev()) {
+                    appliance.showStub(locale.unavailableMachineStarting(selectedMachineState.getConfig().getName()));
                 }
             }
         });
@@ -261,13 +260,13 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     public void onMachineStarting(final MachineStartingEvent event) {
         isMachineRunning = false;
 
-        selectedMachineState = event.getMachineState();
+        selectedMachineState = event.getMachine();
 
         addNodeToTree(selectedMachineState);
 
         view.setData(rootNode);
 
-        view.selectNode(existingMachineNodes.get(event.getMachineState()));
+        view.selectNode(existingMachineNodes.get(event.getMachine()));
     }
 
     /** {@inheritDoc} */
@@ -275,7 +274,7 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
     public void onMachineRunning(final MachineStateEvent event) {
         isMachineRunning = true;
 
-        selectedMachineState = event.getMachineState();
+        selectedMachineState = event.getMachine();
 
         view.selectNode(existingMachineNodes.get(selectedMachineState));
     }
@@ -285,12 +284,12 @@ public class MachinePanelPresenter extends BasePresenter implements MachinePanel
      */
     @Override
     public void onMachineDestroyed(MachineStateEvent event) {
-        MachineStateDto machineState = event.getMachineState();
+        MachineDto machine = event.getMachine();
 
-        MachineTreeNode deletedNode = existingMachineNodes.get(machineState);
+        MachineTreeNode deletedNode = existingMachineNodes.get(machine);
 
         machineNodes.remove(deletedNode);
-        existingMachineNodes.remove(machineState);
+        existingMachineNodes.remove(machine);
 
         view.setData(rootNode);
 

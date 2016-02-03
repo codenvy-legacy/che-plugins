@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.machine.client.machine;
 
+import org.eclipse.che.api.machine.shared.dto.MachineConfigDto;
 import org.eclipse.che.api.machine.shared.dto.MachineDto;
 import org.eclipse.che.api.machine.shared.dto.MachineMetadataDto;
+import org.eclipse.che.api.machine.shared.dto.MachineRuntimeInfoDto;
 import org.eclipse.che.api.machine.shared.dto.ServerDto;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.inject.factories.EntityFactory;
@@ -41,6 +43,10 @@ public class MachineTest {
     @Mock
     private MachineDto                  descriptor;
     @Mock
+    private MachineConfigDto            machineConfig;
+    @Mock
+    private MachineRuntimeInfoDto       machineRuntimeDto;
+    @Mock
     private ServerDto                   serverDescriptor;
     @Mock
     private MachineMetadataDto          metadataDto;
@@ -58,7 +64,9 @@ public class MachineTest {
 
         machine = new Machine(locale, entityFactory, descriptor);
 
-        when(descriptor.getMetadata()).thenReturn(metadataDto);
+        when(descriptor.getRuntime()).thenReturn(machineRuntimeDto);
+        when(descriptor.getConfig()).thenReturn(machineConfig);
+        when(machineRuntimeDto.getMetadata()).thenReturn(metadataDto);
         when(serverDescriptor.getAddress()).thenReturn(SOME_TEXT);
         when(metadataDto.getServers()).thenReturn(servers);
     }
@@ -91,7 +99,7 @@ public class MachineTest {
     public void displayNameShouldBeReturned() {
         machine.getDisplayName();
 
-        verify(descriptor).getName();
+        verify(machineConfig).getName();
     }
 
     @Test
@@ -112,7 +120,7 @@ public class MachineTest {
     public void typeShouldBeReturned() {
         machine.getType();
 
-        verify(descriptor).getType();
+        verify(machineConfig).getType();
     }
 
     @Test
@@ -130,6 +138,6 @@ public class MachineTest {
     public void boundedStateShouldBeReturned() {
         machine.isDev();
 
-        verify(descriptor).isDev();
+        verify(machineConfig).isDev();
     }
 }

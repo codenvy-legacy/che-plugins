@@ -18,7 +18,6 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.machine.gwt.client.MachineServiceClient;
 import org.eclipse.che.api.machine.shared.dto.MachineDto;
-import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.api.machine.shared.dto.ServerDto;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
@@ -71,9 +70,9 @@ public class ServerPortProvider implements MachineStateHandler {
 
     @Override
     public void onMachineRunning(MachineStateEvent event) {
-        final MachineStateDto machineState = event.getMachineState();
-        if (machineState.isDev()) {
-            machineServiceClient.getMachine(machineState.getId()).then(registerProviders);
+        final MachineDto machine = event.getMachine();
+        if (machine.getConfig().isDev()) {
+            machineServiceClient.getMachine(machine.getId()).then(registerProviders);
         }
     }
 
@@ -86,15 +85,15 @@ public class ServerPortProvider implements MachineStateHandler {
                     }
                 };
 
-        Map<String, CommandPropertyValueProvider> providers = transformEntries(machine.getMetadata().getServers(), machineToProvider);
+        Map<String, CommandPropertyValueProvider> providers = transformEntries(machine.getRuntime().getMetadata().getServers(), machineToProvider);
 
         return providers.values();
     }
 
     @Override
     public void onMachineDestroyed(MachineStateEvent event) {
-        final MachineStateDto machineState = event.getMachineState();
-        if (machineState.isDev() && providers != null) {
+        final MachineDto machine = event.getMachine();
+        if (machine.getConfig().isDev() && providers != null) {
             commandPropertyRegistry.getProviders().removeAll(providers);
         }
     }

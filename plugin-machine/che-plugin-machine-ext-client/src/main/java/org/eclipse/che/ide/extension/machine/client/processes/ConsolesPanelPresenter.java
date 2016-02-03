@@ -195,7 +195,7 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
     public void fetchMachines() {
         String workspaceId = appContext.getWorkspaceId();
 
-        Promise<List<MachineDto>> machinesPromise = machineService.getWorkspaceMachines(workspaceId);
+        Promise<List<MachineDto>> machinesPromise = machineService.getMachines(workspaceId);
 
         machinesPromise.then(new Operation<List<MachineDto>>() {
             @Override
@@ -204,7 +204,7 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
 
                 rootNode = new ProcessTreeNode(ROOT_NODE, null, null, null, rootChildren);
                 for (MachineDto descriptor : machines) {
-                    if (descriptor.isDev()) {
+                    if (descriptor.getConfig().isDev()) {
                         List<ProcessTreeNode> processTreeNodes = new ArrayList<ProcessTreeNode>();
                         ProcessTreeNode machineNode = new ProcessTreeNode(MACHINE_NODE, rootNode, descriptor, null, processTreeNodes);
                         rootChildren.add(machineNode);
@@ -349,7 +349,7 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
         OutputConsole defaultConsole = commandConsoleFactory.create("SSH");
         addCommandOutput(machineId, defaultConsole);
 
-        String machineName = machine.getName();
+        String machineName = machine.getConfig().getName();
         String sshServiceAddress = getSshServerAddress(machine);
         String machineHost = "";
         String sshPort = SSH_PORT;
@@ -372,8 +372,8 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
      * @return ssh service address in format host:port
      */
     private String getSshServerAddress(MachineDto machine) {
-        if (machine.getMetadata().getServers().containsKey(SSH_PORT)) {
-            return machine.getMetadata().getServers().get(SSH_PORT).getAddress();
+        if (machine.getRuntime().getMetadata().getServers().containsKey(SSH_PORT)) {
+            return machine.getRuntime().getMetadata().getServers().get(SSH_PORT).getAddress();
         } else {
             return null;
         }
