@@ -77,6 +77,8 @@ public class MavenProjectManagerTest {
     public void testResolveProject() throws Exception {
         when(project.getFile(MavenConstants.POM_FILE_NAME)).thenReturn(pom);
         when(pom.getLocation()).thenReturn(new Path(MavenProjectManagerTest.class.getResource("/FirstProject/pom.xml").getFile()));
+        when(pom.getFullPath()).thenReturn(new Path("/FirstProject/pom.xml"));
+        when(project.getFullPath()).thenReturn(new Path("/FirstProject/"));
 
         projectManager.addListener(listener);
         MavenProject mavenProject = new MavenProject(project, workspace);
