@@ -406,7 +406,7 @@ public class DockerInstanceProvider implements InstanceProvider {
                                                           .withExtraHosts(allMachinesExtraHosts)
                                                           .withPublishAllPorts(true)
                                                           .withMemorySwap(-1)
-                                                          .withMemory((long)machineState.getLimits().getMemory() * 1024 * 1024);
+                                                          .withMemory((long)machineState.getLimits().getRam() * 1024 * 1024);
             final ContainerConfig config = new ContainerConfig().withImage(imageName)
                                                                 .withLabels(labels)
                                                                 .withExposedPorts(portsToExpose)
