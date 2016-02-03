@@ -13,6 +13,7 @@ package org.eclipse.che.ide.ext.git.server.nativegit;
 import org.eclipse.che.api.auth.oauth.OAuthTokenProvider;
 import org.eclipse.che.api.auth.shared.dto.OAuthToken;
 import org.eclipse.che.api.git.GitException;
+import org.eclipse.che.api.git.ProviderInfo;
 import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.api.git.CredentialsProvider;
 import org.eclipse.che.api.git.UserCredential;
@@ -21,7 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
+import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 
 /**
@@ -34,12 +37,14 @@ public class GitHubOAuthCredentialProvider implements CredentialsProvider {
 
     private static String OAUTH_PROVIDER_NAME = "github";
     private final OAuthTokenProvider oAuthTokenProvider;
+    private final String             authorizationServiceUrl;
 
 
     @Inject
-    public GitHubOAuthCredentialProvider(OAuthTokenProvider oAuthTokenProvider) {
+    public GitHubOAuthCredentialProvider(OAuthTokenProvider oAuthTokenProvider,
+                                         @Named("api.endpoint") String apiUrl) {
         this.oAuthTokenProvider = oAuthTokenProvider;
-
+        this.authorizationServiceUrl = apiUrl + "/oauth/authenticate";
     }
 
     @Override
@@ -65,5 +70,13 @@ public class GitHubOAuthCredentialProvider implements CredentialsProvider {
         return url.contains("github.com");
     }
 
-
+    @Override
+    public ProviderInfo getProviderInfo() {
+        return new ProviderInfo(OAUTH_PROVIDER_NAME, UriBuilder.fromUri(authorizationServiceUrl)
+                                                               .queryParam("oauth_provider", OAUTH_PROVIDER_NAME)
+                                                               .queryParam("userId", EnvironmentContext.getCurrent().getUser().getId())
+                                                               .queryParam("scope", "repo")
+                                                               .build()
+                                                               .toString());
+    }
 }
