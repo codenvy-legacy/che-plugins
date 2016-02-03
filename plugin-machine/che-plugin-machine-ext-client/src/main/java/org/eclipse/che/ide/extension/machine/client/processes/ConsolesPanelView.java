@@ -72,20 +72,12 @@ public interface ConsolesPanelView extends View<ConsolesPanelView.ActionDelegate
     ProcessTreeNode getNodeById(@NotNull String nodeId);
 
     /**
-     * Sets visibility of 'Stop process' button depending on is process selected or not
+     * Sets visibility of 'Stop process' button for node with given ID
      *
      * @param nodeId
-     *         id of selected node
+     *         id of process node
      */
-    void refreshStopProcessButtonState(String nodeId);
-
-    /**
-     * Hides stop button on process widget.
-     *
-     * @param nodeId
-     *        id of process widget
-     */
-    void hideStopButton(String nodeId);
+    void setStopButtonVisibility(String nodeId, boolean visible);
 
     interface ActionDelegate extends BaseActionDelegate {
 

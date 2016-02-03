@@ -154,7 +154,7 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
     public void onProcessFinished() {
         for (Map.Entry<String, OutputConsole> entry : commandConsoles.entrySet()) {
             if (entry.getValue().isFinished()) {
-                view.hideStopButton(entry.getKey());
+                view.setStopButtonVisibility(entry.getKey(), false);
             }
         }
     }
@@ -222,7 +222,6 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
         machineService.getProcesses(machineId).then(new Operation<List<MachineProcessDto>>() {
             @Override
             public void apply(List<MachineProcessDto> arg) throws OperationException {
-                boolean isOutputAvailable = false;
                 for (MachineProcessDto machineProcessDto : arg) {
                     final CommandDto commandDto = dtoFactory.createDto(CommandDto.class)
                                                             .withName(machineProcessDto.getName())
@@ -238,13 +237,8 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
                         console.attachToProcess(machineProcessDto);
 
                         addCommandOutput(machineId, console);
-                        isOutputAvailable = true;
                     }
 
-                }
-
-                if (isOutputAvailable) {
-                    workspaceAgent.setActivePart(ConsolesPanelPresenter.this);
                 }
             }
         }).catchError(new Operation<PromiseError>() {
@@ -279,15 +273,14 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
             commandId = processTreeNode.getId();
             view.hideProcessOutput(commandId);
         } else {
-            ProcessTreeNode commandNode =
-                    new ProcessTreeNode(COMMAND_NODE, machineTreeNode, outputConsoleTitle, outputConsole.getTitleIcon(), null);
+            ProcessTreeNode commandNode = new ProcessTreeNode(COMMAND_NODE, machineTreeNode, outputConsoleTitle, outputConsole.getTitleIcon(), null);
             commandId = commandNode.getId();
             view.addProcessNode(commandNode);
             addChildToMachineNode(commandNode, machineTreeNode);
         }
-
-        view.refreshStopProcessButtonState(commandId);
+        
         updateCommandOutput(commandId, outputConsole);
+        resfreshStopButtonState(commandId);
         workspaceAgent.setActivePart(this);
     }
 
@@ -322,8 +315,8 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
                 final String terminalId = terminalNode.getId();
                 terminals.put(terminalId, newTerminal);
                 view.addProcessNode(terminalNode);
-                view.refreshStopProcessButtonState(terminalId);
                 view.addProcessWidget(terminalId, terminalWidget);
+                resfreshStopButtonState(terminalId);
 
                 newTerminal.setVisible(true);
                 newTerminal.connect();
@@ -399,24 +392,13 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
     @Override
     public void onTerminalSelected(@NotNull String terminalId) {
         view.showProcessOutput(terminalId);
-        view.refreshStopProcessButtonState(terminalId);
+        resfreshStopButtonState(terminalId);
     }
 
     @Override
     public void onCommandSelected(@NotNull String commandId) {
         view.showProcessOutput(commandId);
-
-        for (Map.Entry<String, OutputConsole> entry : commandConsoles.entrySet()) {
-            view.hideStopButton(entry.getKey());
-        }
-
-        OutputConsole console = commandConsoles.get(commandId);
-
-        if (console.isFinished()) {
-            return;
-        }
-
-        view.refreshStopProcessButtonState(commandId);
+        resfreshStopButtonState(commandId);
     }
 
     @Override
@@ -475,12 +457,24 @@ public class ConsolesPanelPresenter extends BasePresenter implements ConsolesPan
 
         int neighborIndex = processIndex > 0 ? processIndex - 1 : processIndex + 1;
         ProcessTreeNode neighborNode = view.getNodeByIndex(neighborIndex);
+        String neighborNodeId = neighborNode.getId();
+        
         removeChildFromMachineNode(node, parentNode);
         view.selectNode(neighborNode);
-        view.hideStopButton(neighborNode.getId());
-
-        view.showProcessOutput(neighborNode.getId());
+        resfreshStopButtonState(neighborNodeId);
+        view.showProcessOutput(neighborNodeId);
         view.hideProcessOutput(processId);
+    }
+    
+    private void resfreshStopButtonState(String selectedNodeId) {
+        for (Map.Entry<String, OutputConsole> entry : commandConsoles.entrySet()) {
+            String nodeId = entry.getKey();
+            if (selectedNodeId.equals(nodeId) && !entry.getValue().isFinished()) {
+                view.setStopButtonVisibility(selectedNodeId, true);
+            } else {
+                view.setStopButtonVisibility(nodeId, false);
+            }
+        }
     }
 
     private void addChildToMachineNode(ProcessTreeNode childNode, ProcessTreeNode machineTreeNode) {

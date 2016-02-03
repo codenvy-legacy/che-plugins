@@ -40,6 +40,7 @@ import org.eclipse.che.ide.ui.tree.TreeNodeElement;
 import org.eclipse.che.ide.util.input.SignalEvent;
 
 import javax.validation.constraints.NotNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -332,22 +333,17 @@ public class ConsolesPanelViewImpl extends BaseView<ConsolesPanelView.ActionDele
         }
         return null;
     }
-
+    
     @Override
-    public void refreshStopProcessButtonState(String nodeId) {
+    public void setStopButtonVisibility(String nodeId, boolean visible) {
         for (ProcessTreeNode node : processNodes) {
-            if (nodeId.equals(node.getId())) {
+            if (!nodeId.equals(node.getId())) {
+                continue;
+            } 
+            
+            if (visible) {
                 node.getTreeNodeElement().getClassList().remove(machineResources.getCss().hideStopButton());
             } else {
-                node.getTreeNodeElement().getClassList().add(machineResources.getCss().hideStopButton());
-            }
-        }
-    }
-
-    @Override
-    public void hideStopButton(String nodeId) {
-        for (ProcessTreeNode node : processNodes) {
-            if (nodeId.equals(node.getId())) {
                 node.getTreeNodeElement().getClassList().add(machineResources.getCss().hideStopButton());
             }
         }
