@@ -27,6 +27,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import java.util.Collections;
 
+import static javax.ws.rs.core.MediaType.TEXT_XML;
+
 /**
  * Service for the maven operations.
  *
@@ -61,17 +63,21 @@ public class MavenServerService {
      */
     @GET
     @Path("effective/pom")
-    @Produces("text/plain")
+    @Produces(TEXT_XML)
     public String getEffectivePom(@QueryParam("projectpath") String projectPath) throws ServerException,
-                                                                                              NotFoundException,
-                                                                                              ForbiddenException {
+                                                                                        NotFoundException,
+                                                                                        ForbiddenException {
         VirtualFile project = fileSystemRegistry.getProvider(workspaceId).getMountPoint(false).getVirtualFile(projectPath);
+        if (project == null) {
+            throw new NotFoundException("Project " + projectPath + " doesn't exist");
+        }
+
         MavenServerWrapper mavenServer = mavenServerManager.createMavenServer();
 
         try {
             VirtualFile pomFile = project.getChild("pom.xml");
             if (pomFile == null) {
-                throw new NotFoundException("pom.xml isn't existing");
+                throw new NotFoundException("pom.xml doesn't exist");
             }
             return mavenServer.getEffectivePom(pomFile.getIoFile(), Collections.emptyList(), Collections.emptyList());
         } finally {
