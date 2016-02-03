@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.che.ide.extension.maven.server.rmi;
 
+import com.google.inject.Provider;
+
 import org.eclipse.che.ide.extension.maven.server.MavenServerManager;
 import org.eclipse.che.ide.extension.maven.server.core.MavenNotifier;
 import org.eclipse.che.ide.extension.maven.server.core.MavenProjectListener;
@@ -20,6 +22,8 @@ import org.eclipse.che.maven.data.MavenConstants;
 import org.eclipse.che.maven.data.MavenKey;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.Path;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,19 +57,31 @@ public class MavenProjectManagerTest {
     @Mock
     private MavenProjectListener listener;
 
+    @Mock
+    private Provider<IWorkspace> workspaceProvider;
+
+    @Mock
+    private IWorkspace workspace;
+
+    @Mock
+    private IWorkspaceRoot workspaceRoot;
+
     @Before
     public void setUp() throws Exception {
-        projectManager = new MavenProjectManager(manager, new MavenTerminalImpl(), new MavenNotifier());
-
+        projectManager = new MavenProjectManager(manager, new MavenTerminalImpl(), new MavenNotifier(), workspaceProvider);
+        when(workspaceProvider.get()).thenReturn(workspace);
+        when(workspace.getRoot()).thenReturn(workspaceRoot);
     }
 
     @Test
     public void testResolveProject() throws Exception {
         when(project.getFile(MavenConstants.POM_FILE_NAME)).thenReturn(pom);
-        when(pom.getFullPath()).thenReturn(new Path(MavenProjectManagerTest.class.getResource("/FirstProject/pom.xml").getFile()));
+        when(pom.getLocation()).thenReturn(new Path(MavenProjectManagerTest.class.getResource("/FirstProject/pom.xml").getFile()));
+        when(pom.getFullPath()).thenReturn(new Path("/FirstProject/pom.xml"));
+        when(project.getFullPath()).thenReturn(new Path("/FirstProject/"));
 
         projectManager.addListener(listener);
-        MavenProject mavenProject = new MavenProject();
+        MavenProject mavenProject = new MavenProject(project, workspace);
         mavenProject.read(project, manager);
         MavenKey mavenKey = mavenProject.getMavenKey();
         assertThat(mavenKey).isNotNull();
@@ -77,10 +93,12 @@ public class MavenProjectManagerTest {
     @Test
     public void testNotValidResolveProject() throws Exception {
         when(project.getFile(MavenConstants.POM_FILE_NAME)).thenReturn(pom);
-        when(pom.getFullPath()).thenReturn(new Path(MavenProjectManagerTest.class.getResource("/BadProject/pom.xml").getFile()));
+        when(pom.getLocation()).thenReturn(new Path(MavenProjectManagerTest.class.getResource("/BadProject/pom.xml").getFile()));
+        when(pom.getFullPath()).thenReturn(new Path("/BadProject/pom.xml"));
+        when(project.getFullPath()).thenReturn(new Path("/BadProject"));
 
         projectManager.addListener(listener);
-        MavenProject mavenProject = new MavenProject();
+        MavenProject mavenProject = new MavenProject(project, workspace);
         mavenProject.read(project, manager);
         MavenKey mavenKey = mavenProject.getMavenKey();
         assertThat(mavenKey).isNotNull();

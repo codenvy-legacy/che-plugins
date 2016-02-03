@@ -17,26 +17,40 @@ import org.eclipse.che.maven.data.MavenConstants;
 import org.eclipse.che.maven.data.MavenKey;
 import org.eclipse.che.maven.data.MavenModel;
 import org.eclipse.che.maven.data.MavenPlugin;
+import org.eclipse.che.maven.data.MavenProblemType;
 import org.eclipse.che.maven.data.MavenProjectProblem;
 import org.eclipse.che.maven.data.MavenRemoteRepository;
 import org.eclipse.che.maven.data.MavenResource;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.runtime.IPath;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Evgen Vidolob
  */
 public class MavenProject {
 
+    private final IProject   project;
+    private final IWorkspace workspace;
     private volatile Info info = new Info();
+
+    public MavenProject(IProject project, IWorkspace workspace) {
+        this.project = project;
+        this.workspace = workspace;
+    }
 
 
     public MavenKey getParentKey() {
@@ -82,8 +96,7 @@ public class MavenProject {
     }
 
     public List<String> getModules() {
-        //TODO
-        throw new UnsupportedOperationException();
+        return new ArrayList<>(info.modulesNameToPath.keySet());
     }
 
     public List<MavenPlugin> getPlugins() {
@@ -91,8 +104,41 @@ public class MavenProject {
     }
 
     public List<MavenProjectProblem> getProblems() {
-        //TODO
-        throw new UnsupportedOperationException();
+        synchronized (info) {
+            if (info.problemsCache == null) {
+                info.problemsCache = generateProblems();
+            }
+            return info.problemsCache;
+        }
+    }
+
+    private List<MavenProjectProblem> generateProblems() {
+        List<MavenProjectProblem> result = new ArrayList<>();
+        if (!isParentResolved()) {
+            result.add(new MavenProjectProblem(getPomPath(), "Can't find parent: " + info.parentKey.getArtifactId() + ":" +
+                                                             info.parentKey.getArtifactId() + ":" + info.parentKey.getVersion(),
+                                               MavenProblemType.DEPENDENCY));
+        }
+        result.addAll(info.problems);
+        result.addAll(info.modulesNameToPath.entrySet().stream().filter(entry -> !project.getFolder(entry.getKey()).exists())
+                                            .map(entry -> new MavenProjectProblem(getPomPath(),
+                                                                                  "Can't find module: " + entry.getKey(),
+                                                                                  MavenProblemType.DEPENDENCY))
+                                            .collect(Collectors.toList()));
+
+
+        result.addAll(getDependencies().stream().filter(artifact -> !artifact.isResolved())
+                                       .map(artifact -> new MavenProjectProblem(getPomPath(),
+                                                                                "Can't find dependency: " + artifact.getDisplayString(),
+                                                                                MavenProblemType.DEPENDENCY))
+                                       .collect(Collectors.toList()));
+
+        //TODO add unresolved plugins and extensions
+        return result;
+    }
+
+    private boolean isParentResolved() {
+        return info.unresolvedArtifacts.contains(info.parentKey);
     }
 
 
@@ -113,6 +159,10 @@ public class MavenProject {
                 reader.resolveMavenProject(getPom(project), mavenServer, info.activeProfiles, info.inactiveProfiles, serverManager);
 
         return setModel(modelReaderResult, modelReaderResult.getProblems().isEmpty(), false);
+    }
+
+    public MavenProjectModifications read(MavenServerManager manager) {
+        return read(project, manager);
     }
 
     public MavenProjectModifications read(IProject project, MavenServerManager serverManager) {
@@ -137,6 +187,8 @@ public class MavenProject {
         newInfo.resources = model.getBuild().getResources();
         newInfo.testResources = model.getBuild().getTestResources();
         newInfo.properties = model.getProperties();
+        newInfo.filters = model.getBuild().getFilters();
+
 
         Set<MavenRemoteRepository> remoteRepositories = new HashSet<>();
         Set<MavenArtifact> extensions = new HashSet<>();
@@ -173,9 +225,23 @@ public class MavenProject {
         newInfo.dependencies = new ArrayList<>(dependencies);
         newInfo.plugins = new ArrayList<>(plugins);
         newInfo.unresolvedArtifacts = unresolvedArtifacts;
+
+        newInfo.modulesNameToPath = collectModulesNameAndPath(model);
         //TODO add profiles
 
         return setInfo(newInfo);
+    }
+
+    private Map<String, String> collectModulesNameAndPath(MavenModel model) {
+        Map<String, String> result = new HashMap<>();
+        String projectPath = project.getFullPath().toOSString();
+        if (!projectPath.endsWith("/")) {
+            projectPath += "/";
+        }
+        for (String name : model.getModules()) {
+            result.put(name, projectPath + name);
+        }
+        return result;
     }
 
     private MavenProjectModifications setInfo(Info newInfo) {
@@ -191,7 +257,42 @@ public class MavenProject {
             return null;
         }
 
-        return file.getFullPath().toFile();
+        return file.getLocation().toFile();
+    }
+
+    /**
+     *
+     * @return workspace relative pom.xml path or null if pom.xml does not exist
+     */
+    public String getPomPath() {
+        IFile file = project.getFile(MavenConstants.POM_FILE_NAME);
+        if (file == null) {
+            return null;
+        }
+
+        return file.getFullPath().toOSString();
+    }
+
+    public IProject getProject() {
+        return project;
+    }
+
+    public File getPomFile() {
+        return getPom(project);
+    }
+
+    public boolean containsAsModule(IPath modulePath) {
+        if (!project.getFullPath().equals(modulePath)) {
+            return false;
+        }
+        String moduleName = modulePath.lastSegment();
+        List<String> modules = getModules();
+        return modules.contains(moduleName);
+    }
+
+    public List<IProject> getModulesProjects() {
+        Collection<String> modulesPath = info.modulesNameToPath.values();
+        return modulesPath.stream().map(path -> workspace.getRoot().getProject(path)).collect(Collectors.toList());
     }
 
 
@@ -210,6 +311,7 @@ public class MavenProject {
 
         public List<String> activeProfiles;
         public List<String> inactiveProfiles;
+        public List<String> filters;
 
         public List<MavenArtifact>         dependencies;
         public List<MavenArtifact>         extensions;
@@ -217,7 +319,10 @@ public class MavenProject {
         public List<MavenProjectProblem>   problems;
         public List<MavenRemoteRepository> remoteRepositories;
 
-        public Set<MavenKey> unresolvedArtifacts;
+        public Map<String, String> modulesNameToPath;
+
+        public Set<MavenKey>             unresolvedArtifacts;
+        public List<MavenProjectProblem> problemsCache;
 
         public Info clone() {
             try {

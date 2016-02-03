@@ -52,4 +52,16 @@ public class MavenProjectModifications {
     public void setPlugins(boolean plugins) {
         this.plugins = plugins;
     }
+
+    public MavenProjectModifications addChanges(MavenProjectModifications newMod) {
+        if (newMod != null) {
+            MavenProjectModifications result = new MavenProjectModifications();
+            result.packaging = this.packaging | newMod.packaging;
+            result.sources = this.sources | newMod.sources;
+            result.dependencies = this.dependencies | newMod.dependencies;
+            result.plugins = this.plugins | newMod.plugins;
+            return result;
+        }
+        return this;
+    }
 }
