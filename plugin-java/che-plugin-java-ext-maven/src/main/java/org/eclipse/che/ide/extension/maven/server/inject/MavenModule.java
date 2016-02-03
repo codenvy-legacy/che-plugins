@@ -23,6 +23,7 @@ import org.eclipse.che.ide.ext.java.server.classpath.ClassPathBuilder;
 import org.eclipse.che.ide.extension.maven.server.core.MavenClassPathBuilder;
 import org.eclipse.che.ide.extension.maven.server.core.MavenNotifier;
 import org.eclipse.che.ide.extension.maven.server.core.MavenTerminalImpl;
+import org.eclipse.che.ide.extension.maven.server.core.WorkspaceProvider;
 import org.eclipse.che.ide.extension.maven.server.projecttype.MavenProjectType;
 import org.eclipse.che.ide.extension.maven.server.projecttype.MavenTargetFilter;
 import org.eclipse.che.ide.extension.maven.server.projecttype.MavenValueProviderFactory;
@@ -37,6 +38,7 @@ import org.eclipse.che.ide.extension.maven.server.projecttype.handler.ProjectHas
 import org.eclipse.che.ide.extension.maven.server.projecttype.handler.RemoveMavenModuleHandler;
 import org.eclipse.che.maven.server.MavenProgressNotifier;
 import org.eclipse.che.maven.server.MavenTerminal;
+import org.eclipse.core.resources.IWorkspace;
 
 import static com.google.inject.multibindings.Multibinder.newSetBinder;
 
@@ -65,5 +67,7 @@ public class MavenModule extends AbstractModule {
 
         bind(MavenTerminal.class).to(MavenTerminalImpl.class).in(Singleton.class);
         bind(MavenProgressNotifier.class).to(MavenNotifier.class).in(Singleton.class);
+
+        bind(IWorkspace.class).toProvider(WorkspaceProvider.class).in(Singleton.class);
     }
 }
