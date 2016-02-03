@@ -9,6 +9,10 @@
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
  @external *;
+@eval matchingSearchBlockBackgroundColor org.eclipse.che.ide.api.theme.Style.theme.matchingSearchBlockBackgroundColor();
+@eval matchingSearchBlockBorderColor org.eclipse.che.ide.api.theme.Style.theme.matchingSearchBlockBorderColor();
+@eval currentSearchBlockBackgroundColor org.eclipse.che.ide.api.theme.Style.theme.currentSearchBlockBackgroundColor();
+@eval currentSearchBlockBorderColor org.eclipse.che.ide.api.theme.Style.theme.currentSearchBlockBorderColor();
 
 .orionCodenvy {
     font-family: editorFontFamily;
@@ -329,10 +333,14 @@
     outline: 1px solid red;
 }
 .orionCodenvy .annotationRange.matchingSearch {
-    background-color: primaryHighlightColor;
+    border: 1px solid matchingSearchBlockBorderColor;
+    border-radius: 2px;
+    background-color: matchingSearchBlockBackgroundColor;
 }
 .orionCodenvy .annotationRange.currentSearch {
-    background-color: primaryHighlightColor;
+    border: 1px solid currentSearchBlockBorderColor;
+    border-radius: 2px;
+    background-color: currentSearchBlockBackgroundColor;
     color: #FFFFFF;
 }
 .orionCodenvy .annotationRange.currentLinkedGroup {
