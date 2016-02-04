@@ -20,7 +20,6 @@ import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
-import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
 import org.eclipse.che.ide.api.event.project.ProjectReadyEvent;
 import org.eclipse.che.ide.extension.machine.client.machine.events.MachineStateEvent;
 import org.junit.Before;
@@ -74,13 +73,6 @@ public class CurrentProjectPathProviderTest {
     public void shouldBeRegisteredOnEventBus() throws Exception {
         verify(eventBus).addHandler(MachineStateEvent.TYPE, currentProjectPathProvider);
         verify(eventBus).addHandler(ProjectReadyEvent.TYPE, currentProjectPathProvider);
-    }
-
-    @Test
-    public void shouldReturnEmptyValueAfterClosingProject() throws Exception {
-        currentProjectPathProvider.onCloseCurrentProject(mock(CloseCurrentProjectEvent.class));
-
-        assertTrue(currentProjectPathProvider.getValue().isEmpty());
     }
 
     @Test

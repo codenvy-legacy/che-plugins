@@ -18,7 +18,7 @@ import org.eclipse.che.api.project.shared.dto.GeneratorDescription;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
-import org.eclipse.che.ide.api.project.node.HasStorablePath;
+import org.eclipse.che.ide.api.data.HasStorablePath;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.dto.DtoFactory;

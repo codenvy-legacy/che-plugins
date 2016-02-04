@@ -12,9 +12,9 @@ package org.eclipse.che.ide.ext.git.client.compare.changedList;
 
 import org.eclipse.che.api.promises.client.Promise;
 import org.eclipse.che.api.promises.client.js.Promises;
-import org.eclipse.che.ide.api.project.node.AbstractTreeNode;
-import org.eclipse.che.ide.api.project.node.HasAction;
-import org.eclipse.che.ide.api.project.node.Node;
+import org.eclipse.che.ide.api.tree.AbstractTreeNode;
+import org.eclipse.che.ide.api.tree.HasAction;
+import org.eclipse.che.ide.api.tree.Node;
 import org.eclipse.che.ide.ui.smartTree.presentation.HasPresentation;
 import org.eclipse.che.ide.ui.smartTree.presentation.NodePresentation;
 

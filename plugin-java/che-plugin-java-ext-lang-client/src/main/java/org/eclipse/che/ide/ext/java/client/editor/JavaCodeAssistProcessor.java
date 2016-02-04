@@ -18,7 +18,7 @@ import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.icon.Icon;
-import org.eclipse.che.ide.api.project.tree.VirtualFile;
+import org.eclipse.che.ide.api.file.VirtualFile;
 import org.eclipse.che.ide.ext.java.client.JavaResources;
 import org.eclipse.che.ide.ext.java.client.projecttree.JavaSourceFolderUtil;
 import org.eclipse.che.ide.ext.java.client.refactoring.RefactoringUpdater;

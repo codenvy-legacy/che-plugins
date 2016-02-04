@@ -19,7 +19,6 @@ import org.eclipse.che.api.git.shared.Revision;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
-import org.eclipse.che.ide.api.event.project.OpenProjectEvent;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.project.node.FileReferenceNode;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
@@ -178,7 +177,6 @@ public class ResetToCommitPresenterTest extends BaseTest {
         verify(appContext).getCurrentProject();
         verify(service).reset(anyString(), anyObject(), eq(PROJECT_PATH), eq(HARD), (List<String>)anyObject(),
                               (AsyncRequestCallback<Void>)anyObject());
-        verify(eventBus).fireEvent(Matchers.<Event<OpenProjectEvent>>anyObject());
         verify(console).printInfo(anyString());
         verify(notificationManager).notify(anyString(), rootProjectConfig);
     }
@@ -212,7 +210,6 @@ public class ResetToCommitPresenterTest extends BaseTest {
         verify(appContext).getCurrentProject();
         verify(service).reset(anyString(), anyObject(), eq(PROJECT_PATH), eq(HARD), (List<String>)anyObject(),
                               (AsyncRequestCallback<Void>)anyObject());
-        verify(eventBus).fireEvent(Matchers.<Event<OpenProjectEvent>>anyObject());
         verify(console).printInfo(anyString());
         verify(notificationManager).notify(anyString(), rootProjectConfig);
     }

@@ -14,7 +14,7 @@ import com.google.gwt.resources.client.ImageResource;
 
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.filetypes.FileType;
-import org.eclipse.che.ide.api.project.tree.VirtualFile;
+import org.eclipse.che.ide.api.file.VirtualFile;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.validation.constraints.NotNull;

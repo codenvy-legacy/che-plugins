@@ -13,9 +13,9 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.api.project.tree.VirtualFile;
-import org.eclipse.che.ide.api.project.tree.VirtualFileImpl;
-import org.eclipse.che.ide.api.project.tree.VirtualFileInfo;
+import org.eclipse.che.ide.api.file.VirtualFile;
+import org.eclipse.che.ide.api.file.VirtualFileImpl;
+import org.eclipse.che.ide.api.file.VirtualFileInfo;
 
 import javax.validation.constraints.NotNull;
 

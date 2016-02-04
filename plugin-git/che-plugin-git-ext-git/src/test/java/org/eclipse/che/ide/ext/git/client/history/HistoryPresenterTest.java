@@ -91,7 +91,6 @@ public class HistoryPresenterTest extends BaseTest {
         when(appContext.getWorkspaceId()).thenReturn("id");
 
         presenter = new HistoryPresenter(view,
-                                         eventBus,
                                          resources,
                                          service,
                                          workspaceAgent,

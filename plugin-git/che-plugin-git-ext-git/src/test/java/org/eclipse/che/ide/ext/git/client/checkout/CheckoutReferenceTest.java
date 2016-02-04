@@ -17,8 +17,7 @@ import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
-import org.eclipse.che.ide.api.event.project.OpenProjectEvent;
-import org.eclipse.che.ide.api.project.tree.VirtualFile;
+import org.eclipse.che.ide.api.file.VirtualFile;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.test.GwtReflectionUtils;
@@ -208,7 +207,6 @@ public class CheckoutReferenceTest extends BaseTest {
         AsyncRequestCallback<ProjectConfigDto> asyncRequestCallback = projectDescriptorCaptor.getValue();
         GwtReflectionUtils.callOnSuccess(asyncRequestCallback, projectConfig);
         verify(projectConfig).getProblems();
-        verify(eventBus).fireEvent(Matchers.<OpenProjectEvent>anyObject());
     }
 
     @Test
@@ -231,7 +229,6 @@ public class CheckoutReferenceTest extends BaseTest {
         verify(checkoutRequest).withCreateNew(false);
         verifyNoMoreInteractions(checkoutRequest);
         verify(view).close();
-        verify(eventBus, never()).fireEvent(Matchers.<OpenProjectEvent>anyObject());
         verify(gitOutputConsoleFactory).create(CHECKOUT_COMMAND_NAME);
         verify(console).printError(anyString());
         verify(consolesPanelPresenter).addCommandOutput(anyString(), eq(console));

@@ -12,8 +12,8 @@ package org.eclipse.che.ide.ext.java.jdi.client.fqn;
 
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.api.project.node.HasProjectConfig;
-import org.eclipse.che.ide.api.project.tree.VirtualFile;
+import org.eclipse.che.ide.api.project.HasProjectConfig;
+import org.eclipse.che.ide.api.file.VirtualFile;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;

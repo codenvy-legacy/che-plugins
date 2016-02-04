@@ -36,8 +36,6 @@ import org.eclipse.che.ide.api.action.CustomComponentAction;
 import org.eclipse.che.ide.api.action.DefaultActionGroup;
 import org.eclipse.che.ide.api.action.Presentation;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
-import org.eclipse.che.ide.api.event.project.CloseCurrentProjectHandler;
 import org.eclipse.che.ide.extension.machine.client.MachineLocalizationConstant;
 import org.eclipse.che.ide.extension.machine.client.MachineResources;
 import org.eclipse.che.ide.extension.machine.client.command.CommandConfiguration;
@@ -68,7 +66,6 @@ import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspect
 @Singleton
 public class SelectCommandComboBoxReady extends AbstractPerspectiveAction implements CustomComponentAction,
                                                                                      EditCommandsPresenter.ConfigurationChangedListener,
-                                                                                     CloseCurrentProjectHandler,
                                                                                      ExtServerStateHandler,
                                                                                      DropDownHeaderWidget.ActionDelegate {
 
@@ -214,12 +211,6 @@ public class SelectCommandComboBoxReady extends AbstractPerspectiveAction implem
     public void setSelectedCommand(CommandConfiguration command) {
         dropDownHeaderWidget.selectElement(command.getName());
     }
-
-    @Override
-    public void onCloseCurrentProject(CloseCurrentProjectEvent event) {
-        setCommandConfigurations(Collections.<CommandConfiguration>emptyList(), null);
-    }
-
 
     /**
      * Load all saved commands.

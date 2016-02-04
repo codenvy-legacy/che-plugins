@@ -14,7 +14,7 @@ import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.gwt.inject.client.multibindings.GinMultibinder;
 
 import org.eclipse.che.ide.api.extension.ExtensionGinModule;
-import org.eclipse.che.ide.api.project.node.interceptor.NodeInterceptor;
+import org.eclipse.che.ide.api.tree.interceptor.NodeInterceptor;
 import org.eclipse.che.ide.api.project.type.wizard.ProjectWizardRegistrar;
 import org.eclipse.che.ide.extension.machine.client.command.CommandType;
 import org.eclipse.che.ide.extension.maven.client.command.MavenCommandType;

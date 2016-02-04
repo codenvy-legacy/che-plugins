@@ -15,7 +15,6 @@ import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.git.shared.LogResponse;
@@ -23,14 +22,12 @@ import org.eclipse.che.api.git.shared.Revision;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.app.AppContext;
-import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
-import org.eclipse.che.ide.api.event.project.CloseCurrentProjectHandler;
+import org.eclipse.che.ide.api.data.HasStorablePath;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.api.parts.PartPresenter;
 import org.eclipse.che.ide.api.parts.PartStackType;
 import org.eclipse.che.ide.api.parts.WorkspaceAgent;
 import org.eclipse.che.ide.api.parts.base.BasePresenter;
-import org.eclipse.che.ide.api.project.node.HasStorablePath;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.ext.git.client.DateTimeFormatter;
@@ -86,7 +83,6 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
 
     @Inject
     public HistoryPresenter(final HistoryView view,
-                            EventBus eventBus,
                             GitResources resources,
                             GitServiceClient service,
                             final WorkspaceAgent workspaceAgent,
@@ -113,15 +109,6 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.selectionAgent = selectionAgent;
         this.workspaceId = appContext.getWorkspaceId();
-
-        eventBus.addHandler(CloseCurrentProjectEvent.TYPE, new CloseCurrentProjectHandler() {
-            @Override
-            public void onCloseCurrentProject(CloseCurrentProjectEvent event) {
-                isViewClosed = true;
-                workspaceAgent.hidePart(HistoryPresenter.this);
-                view.clear();
-            }
-        });
     }
 
     /** Show dialog. */

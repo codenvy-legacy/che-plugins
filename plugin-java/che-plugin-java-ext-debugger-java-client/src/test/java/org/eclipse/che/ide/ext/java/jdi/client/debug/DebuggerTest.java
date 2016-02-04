@@ -22,7 +22,7 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.event.project.ProjectReadyHandler;
-import org.eclipse.che.ide.api.project.tree.generic.FileNode;
+import org.eclipse.che.ide.api.file.VirtualFile;
 import org.eclipse.che.ide.debug.Breakpoint;
 import org.eclipse.che.ide.debug.BreakpointManager;
 import org.eclipse.che.ide.ext.java.jdi.client.BaseTest;
@@ -82,7 +82,7 @@ public class DebuggerTest extends BaseTest {
     @Mock
     private BreakpointManager                   gutterManager;
     @Mock
-    private FileNode                            file;
+    private VirtualFile                         file;
     @Mock
     private ItemReference                       fileReference;
     @Mock
@@ -120,7 +120,6 @@ public class DebuggerTest extends BaseTest {
     public void setUp() {
         super.setUp();
 
-        when(file.getData()).thenReturn(fileReference);
         when(fileReference.getMediaType()).thenReturn(MIME_TYPE);
         when(dtoFactory.createDto(Location.class)).thenReturn(mock(Location.class));
         when(dtoFactory.createDto(BreakPoint.class)).thenReturn(mock(BreakPoint.class));

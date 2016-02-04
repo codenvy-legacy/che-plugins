@@ -17,8 +17,6 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.eclipse.che.api.machine.shared.dto.MachineStateDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
-import org.eclipse.che.ide.api.event.project.CloseCurrentProjectEvent;
-import org.eclipse.che.ide.api.event.project.CloseCurrentProjectHandler;
 import org.eclipse.che.ide.api.event.project.CurrentProjectChangedEvent;
 import org.eclipse.che.ide.api.event.project.CurrentProjectChangedHandler;
 import org.eclipse.che.ide.api.event.project.ProjectReadyEvent;
@@ -38,7 +36,6 @@ import javax.validation.constraints.NotNull;
 @Singleton
 public class CurrentProjectPathProvider implements CommandPropertyValueProvider,
                                                    MachineStateHandler,
-                                                   CloseCurrentProjectHandler,
                                                    ProjectReadyHandler,
                                                    CurrentProjectChangedHandler {
 
@@ -93,11 +90,6 @@ public class CurrentProjectPathProvider implements CommandPropertyValueProvider,
     @Override
     public void onProjectReady(ProjectReadyEvent event) {
         updateValue();
-    }
-
-    @Override
-    public void onCloseCurrentProject(CloseCurrentProjectEvent event) {
-        value = "";
     }
 
     private void updateValue() {

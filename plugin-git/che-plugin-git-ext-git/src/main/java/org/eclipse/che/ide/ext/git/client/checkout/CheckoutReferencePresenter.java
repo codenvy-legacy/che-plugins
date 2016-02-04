@@ -22,9 +22,8 @@ import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
 import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
-import org.eclipse.che.ide.api.event.project.OpenProjectEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
-import org.eclipse.che.ide.api.project.tree.VirtualFile;
+import org.eclipse.che.ide.api.file.VirtualFile;
 import org.eclipse.che.ide.dto.DtoFactory;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsole;
@@ -123,7 +122,7 @@ public class CheckoutReferencePresenter implements CheckoutReferenceView.ActionD
                                                                @Override
                                                                protected void onSuccess(final ProjectConfigDto result) {
                                                                    if (!result.getProblems().isEmpty()) {
-                                                                       eventBus.fireEvent(new OpenProjectEvent(result));
+//                                                                       eventBus.fireEvent(new OpenProjectEvent(result));
                                                                    } else {
                                                                        projectExplorer.reloadChildren();
 

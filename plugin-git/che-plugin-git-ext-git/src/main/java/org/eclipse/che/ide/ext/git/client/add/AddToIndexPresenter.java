@@ -18,7 +18,7 @@ import org.eclipse.che.api.git.shared.Status;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.app.CurrentProject;
 import org.eclipse.che.ide.api.notification.NotificationManager;
-import org.eclipse.che.ide.api.project.node.HasStorablePath;
+import org.eclipse.che.ide.api.data.HasStorablePath;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsole;

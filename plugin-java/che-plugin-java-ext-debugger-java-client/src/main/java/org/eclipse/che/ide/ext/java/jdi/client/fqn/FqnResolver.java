@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.ext.java.jdi.client.fqn;
 
-import org.eclipse.che.ide.api.project.tree.VirtualFile;
+import org.eclipse.che.ide.api.file.VirtualFile;
 
 import javax.validation.constraints.NotNull;
 

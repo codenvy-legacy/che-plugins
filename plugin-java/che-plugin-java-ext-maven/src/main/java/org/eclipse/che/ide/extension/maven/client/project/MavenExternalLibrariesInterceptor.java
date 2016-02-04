@@ -13,7 +13,7 @@ package org.eclipse.che.ide.extension.maven.client.project;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.api.project.node.HasProjectConfig;
+import org.eclipse.che.ide.api.project.HasProjectConfig;
 import org.eclipse.che.ide.ext.java.client.project.interceptor.AbstractExternalLibrariesNodeInterceptor;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaNodeManager;
 import org.eclipse.che.ide.extension.maven.shared.MavenAttributes;

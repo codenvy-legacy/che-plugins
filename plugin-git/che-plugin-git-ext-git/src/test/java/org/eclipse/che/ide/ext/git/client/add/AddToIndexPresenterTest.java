@@ -14,7 +14,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.googlecode.gwt.test.utils.GwtReflectionUtils;
 
 import org.eclipse.che.api.git.shared.Status;
-import org.eclipse.che.ide.api.project.node.HasStorablePath;
+import org.eclipse.che.ide.api.data.HasStorablePath;
 import org.eclipse.che.ide.api.selection.Selection;
 import org.eclipse.che.ide.ext.git.client.BaseTest;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;

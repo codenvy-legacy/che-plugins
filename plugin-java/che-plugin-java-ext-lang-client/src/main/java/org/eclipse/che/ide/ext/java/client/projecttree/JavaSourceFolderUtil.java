@@ -14,9 +14,8 @@ import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.app.CurrentProject;
-import org.eclipse.che.ide.api.project.node.HasProjectConfig;
-import org.eclipse.che.ide.api.project.tree.TreeNode;
-import org.eclipse.che.ide.api.project.tree.VirtualFile;
+import org.eclipse.che.ide.api.project.HasProjectConfig;
+import org.eclipse.che.ide.api.file.VirtualFile;
 import org.eclipse.che.ide.ext.java.client.project.node.JavaFileNode;
 import org.eclipse.che.ide.ext.java.client.project.node.PackageNode;
 import org.eclipse.che.ide.ext.java.client.project.node.jar.JarFileNode;
@@ -72,18 +71,6 @@ public class JavaSourceFolderUtil {
         return false;
     }
 
-
-    /**
-     * Returns source folders list of the project to which the specified node belongs.
-     * Every path in the returned list starts and ends with separator char /.
-     */
-    @NotNull
-    public static List<String> getSourceFolders(TreeNode<?> node) {
-        HasProjectConfig project = node.getProject();
-        String projectBuilder = getProjectBuilder(project);
-
-        return doGetSourceFolders(project.getProjectConfig(), projectBuilder);
-    }
 
     /**
      * Returns source folders list of the project.

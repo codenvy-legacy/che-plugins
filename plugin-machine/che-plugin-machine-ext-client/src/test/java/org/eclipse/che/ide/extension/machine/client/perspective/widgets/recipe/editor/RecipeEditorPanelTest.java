@@ -13,10 +13,10 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.
 import com.google.gwtmockito.GwtMockitoTestRunner;
 
 import org.eclipse.che.api.machine.shared.dto.recipe.RecipeDescriptor;
+import org.eclipse.che.ide.api.file.VirtualFile;
 import org.eclipse.che.ide.api.filetypes.FileType;
 import org.eclipse.che.ide.api.filetypes.FileTypeRegistry;
 import org.eclipse.che.ide.api.notification.NotificationManager;
-import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.editor.orion.client.OrionEditorWidget;
 import org.eclipse.che.ide.editor.orion.client.OrionTextEditorFactory;
 import org.eclipse.che.ide.jseditor.client.document.Document;

@@ -11,7 +11,7 @@
 package org.eclipse.che.ide.ext.git.client.compare.changedList;
 
 import org.eclipse.che.ide.api.mvp.View;
-import org.eclipse.che.ide.api.project.node.Node;
+import org.eclipse.che.ide.api.tree.Node;
 
 import javax.validation.constraints.NotNull;
 import java.util.Map;

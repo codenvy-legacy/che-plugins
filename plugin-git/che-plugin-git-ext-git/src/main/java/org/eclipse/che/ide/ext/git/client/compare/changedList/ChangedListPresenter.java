@@ -13,7 +13,7 @@ package org.eclipse.che.ide.ext.git.client.compare.changedList;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.ide.api.project.node.Node;
+import org.eclipse.che.ide.api.tree.Node;
 import org.eclipse.che.ide.ext.git.client.compare.ComparePresenter;
 
 import javax.validation.constraints.NotNull;

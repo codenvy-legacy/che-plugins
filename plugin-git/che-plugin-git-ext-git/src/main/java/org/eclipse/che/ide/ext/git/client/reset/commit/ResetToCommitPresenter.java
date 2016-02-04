@@ -22,7 +22,6 @@ import org.eclipse.che.api.workspace.shared.dto.ProjectConfigDto;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorPartPresenter;
-import org.eclipse.che.ide.api.event.project.OpenProjectEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.ext.git.client.outputconsole.GitOutputConsole;
@@ -165,7 +164,7 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
                                   // must change the workdir
                                   //In this case we can have unconfigured state of the project,
                                   //so we must repeat the logic which is performed when we open a project
-                                  eventBus.fireEvent(new OpenProjectEvent(project));
+//                                  eventBus.fireEvent(new OpenProjectEvent(project));
                               }
                               console.printInfo(constant.resetSuccessfully());
                               consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
