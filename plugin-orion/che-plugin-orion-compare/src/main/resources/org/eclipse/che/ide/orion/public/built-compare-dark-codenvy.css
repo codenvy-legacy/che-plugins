@@ -2719,7 +2719,8 @@ html[dir="rtl"] .fileExplorerProgressDiv {
   cursor: auto;
 }
 .textviewLeftRuler {
-	border-right: 1px dotted #888888;
+	border-right: 5px solid #31353E;
+	background-color: #31353E;
 }
 .textviewRightRuler {
 	border-left: 1px solid #353535;
@@ -2739,7 +2740,6 @@ html[dir="rtl"] .fileExplorerProgressDiv {
 }
 .ruler.annotations {
 	width: 16px;
-	background-color:#272b33;
 }
 .ruler.folding {
 	width: 14px;
@@ -2749,7 +2749,6 @@ html[dir="rtl"] .fileExplorerProgressDiv {
 }
 .ruler.lines {
 	text-align: right;
-	background-color: #272b33;
 }
 .ruler.overview {
 	width: 14px;
@@ -2808,7 +2807,7 @@ html[dir="rtl"] .fileExplorerProgressDiv {
 .tooltipTheme .textviewScroll {
 	padding: 0;
 }
-.tooltipTheme .annotationLine.currentLine {
+.tooltipTheme {
 	background-color: #424242 !important;
 }
 .textviewTooltipCodeProjection {
@@ -3308,8 +3307,8 @@ html[dir="rtl"] .fileExplorerProgressDiv {
 	border: 1px solid #79aa59;
 }
 .annotationOverview.breakpoint {
-	background-color: lightblue;
-	border: 1px solid blue;
+	background-color: #4D4D4D;
+	border: 1px solid black;
 }
 .annotationOverview.bookmark {
 	background-color: #84b3cf;
@@ -3419,7 +3418,7 @@ html[dir="rtl"] .fileExplorerProgressDiv {
 .annotationLine {
 }
 .annotationLine.currentLine {
-	background-color: transparent !important;
+	background-color: #2C323B ;
 }
 .diffNormal {
 	background: #DDDDDD;
@@ -3446,7 +3445,7 @@ html[dir="rtl"] .fileExplorerProgressDiv {
 	background: #EE9999;
 }
 .compareCanvas {
-	background: #272b33;
+	background: #31353E;
 	border: 0;
 }
 .inlineRulerLeft {
@@ -3533,16 +3532,16 @@ html[dir="rtl"] .fileExplorerProgressDiv {
 	visibility: hidden;  
 }
 .annotationLine.addedBlockDiff {
-	background-color: #224A00;
+	background-color: #335041;
 }
 .annotationLine.currentAddedBlockDiff {
-	background-color: #0C4A0C;
+	background-color: #2A5A2A;
 }
 .annotationLine.deletedBlockDiff {
-	background-color: #6F0000;
+	background-color: #4D4D4D;
 }
 .annotationLine.currentDeletedBlockDiff {
-	background-color: #860000;
+	background-color: #5F5D5D;
 }
 .annotationLine.blockDiffTopOnly {
 	background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC4AAAABCAIAAAAuIQuDAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAPSURBVBhXY6yvr2cYHAAAzPsBf2hZ98wAAAAASUVORK5CYII=");
@@ -3561,16 +3560,16 @@ html[dir="rtl"] .fileExplorerProgressDiv {
 	background-color: #FFFF5B;
 }
 .annotationRange.addedWordDiff {
-	background-color: #006900;
+	background-color: #214421;
 }
 .annotationRange.currentAddedWordDiff {
-	background-color: #93FF93;
+	background-color: #2A5A2A;
 }
 .annotationRange.deletedWordDiff {
-	background-color: #A52929;
+	background-color: #3E3E3E;
 }
 .annotationRange.currentDeletedWordDiff {
-	background-color: #FF8B8B;
+	background-color: #5F5D5D;
 }
 .annotationRange.emptyDeletedWordDiffLeft {
 	background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAASCAYAAABxYA+/AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsIAAA7CARUoSoAAAAAUSURBVBhXY2RgYPgPxAxMIGIwMgCpaAEjILHq8AAAAABJRU5ErkJggg==");
