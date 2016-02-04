@@ -16,14 +16,16 @@ import com.google.inject.Singleton;
 import org.eclipse.che.api.promises.client.Operation;
 import org.eclipse.che.api.promises.client.OperationException;
 import org.eclipse.che.api.promises.client.PromiseError;
+import org.eclipse.che.ide.MimeType;
 import org.eclipse.che.ide.api.action.AbstractPerspectiveAction;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.project.tree.VirtualFileImpl;
+import org.eclipse.che.ide.api.project.tree.VirtualFileInfo;
 import org.eclipse.che.ide.extension.maven.client.MavenLocalizationConstant;
 import org.eclipse.che.ide.extension.maven.client.MavenResources;
-import org.eclipse.che.ide.extension.maven.client.effectivepom.EffectivePom;
 import org.eclipse.che.ide.extension.maven.client.service.MavenServerServiceClient;
 
 import javax.validation.constraints.NotNull;
@@ -40,10 +42,13 @@ import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspect
  */
 @Singleton
 public class GetEffectivePomAction extends AbstractPerspectiveAction {
-    private final EditorAgent         editorAgent;
-    private final NotificationManager notificationManager;
+    private final static String NAME = "effective-pom.xml";
+    private final static String PATH = "effective_pom";
+
+    private final EditorAgent              editorAgent;
+    private final NotificationManager      notificationManager;
     private final MavenServerServiceClient mavenServerServiceClient;
-    private final AppContext appContext;
+    private final AppContext               appContext;
 
     @Inject
     public GetEffectivePomAction(MavenLocalizationConstant constant,
@@ -74,7 +79,15 @@ public class GetEffectivePomAction extends AbstractPerspectiveAction {
         mavenServerServiceClient.getEffectivePom(appContext.getCurrentProject().getProjectConfig().getPath()).then(new Operation<String>() {
             @Override
             public void apply(String content) throws OperationException {
-                editorAgent.openEditor(new EffectivePom(content));
+                VirtualFileInfo fileInfo = VirtualFileInfo.newBuilder()
+                                                          .setContent(content)
+                                                          .setName(NAME)
+                                                          .setDisplayName(NAME)
+                                                          .setPath(PATH)
+                                                          .setMediaType(MimeType.TEXT_XML)
+                                                          .build();
+
+                editorAgent.openEditor(new VirtualFileImpl(fileInfo));
             }
         }).catchError(new Operation<PromiseError>() {
             @Override
