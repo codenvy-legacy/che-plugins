@@ -340,6 +340,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                     return;
                 case BREAKPOINT:
                     location = ((BreakPointEvent)event).getBreakPoint().getLocation();
+                    partStack.setActivePart(this);
                     break;
                 default:
                     Log.error(DebuggerPresenter.class, "Unknown type of debugger event: " + event.getType());
@@ -727,7 +728,6 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
 
         if (partStack == null || !partStack.containsPart(this)) {
             workspaceAgent.openPart(this, PartStackType.INFORMATION);
-            partStack.setActivePart(this);
         }
     }
 
@@ -769,6 +769,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         eventBus.fireEvent(createConnectedStateEvent(DebuggerPresenter.this));
 
         showAndUpdateView();
+        partStack.setActivePart(this);
     }
 
     private void disconnectDebugger() {
