@@ -39,7 +39,6 @@ import static org.eclipse.che.ide.extension.machine.client.perspective.widgets.r
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -90,12 +89,7 @@ public class RecipeFileFactoryTest {
     public void dockerFileShouldBeCreated() throws Exception {
         VirtualFile fileNode = factory.newInstance(SOME_TEXT);
 
-        verify(dtoFactory).createDto(ItemReference.class);
-        verify(itemReference).withName(NAME);
-        verify(itemReference).withPath(PATH);
-        verify(itemReference).withMediaType(TYPE);
-
         assertThat(fileNode, notNullValue());
-        assertThat(fileNode, instanceOf(RecipeFile.class));
+        assertThat(fileNode, instanceOf(VirtualFile.class));
     }
 }

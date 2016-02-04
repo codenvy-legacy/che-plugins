@@ -134,7 +134,7 @@ public class RecipeEditorPanel implements TabPresenter, RecipeEditorView.ActionD
         if (isInitialized) {
             return;
         }
-        RecipeFile recipeFile = recipeFileFactory.newInstance(recipeDescriptor.getScript());
+        VirtualFile recipeFile = recipeFileFactory.newInstance(recipeDescriptor.getScript());
         initializeEditor(recipeFile);
         isInitialized = true;
     }

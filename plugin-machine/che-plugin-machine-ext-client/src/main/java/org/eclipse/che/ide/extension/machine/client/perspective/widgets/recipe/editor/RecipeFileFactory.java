@@ -13,14 +13,15 @@ package org.eclipse.che.ide.extension.machine.client.perspective.widgets.recipe.
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import org.eclipse.che.api.project.shared.dto.ItemReference;
-import org.eclipse.che.ide.dto.DtoFactory;
+import org.eclipse.che.ide.api.project.tree.VirtualFile;
+import org.eclipse.che.ide.api.project.tree.VirtualFileImpl;
+import org.eclipse.che.ide.api.project.tree.VirtualFileInfo;
 
 import javax.validation.constraints.NotNull;
 
 /**
- * The factory that provides an ability to create instances of {@link RecipeFile}. The main idea of this class is to simplify work flow of
- * using  {@link RecipeFile}.
+ * The factory that provides an ability to create instances of {@link VirtualFile}. The main idea of this class is to simplify work flow of
+ * using  {@link VirtualFile}.
  *
  * @author Valeriy Svydenko
  */
@@ -31,35 +32,36 @@ public class RecipeFileFactory {
     public static final String PATH = "machine_recipe";
     public static final String TYPE = "text/x-dockerfile";
 
-    private final DtoFactory dtoFactory;
-
     @Inject
-    public RecipeFileFactory(DtoFactory dtoFactory) {
-        this.dtoFactory = dtoFactory;
+    public RecipeFileFactory() {
     }
 
     /**
-     * Create a new instance of {@link RecipeFile} for a given href.
+     * Create a new instance of {@link VirtualFile} for a given href.
      *
      * @param content
      *         script of the recipe
-     * @return an instance of {@link RecipeFile}
+     * @return an instance of {@link VirtualFile}
      * @throws IllegalStateException
      *         when no project is opened
      */
     @NotNull
-    public RecipeFile newInstance(@NotNull String content) {
+    public VirtualFile newInstance(@NotNull String content) {
         return newInstance(content, NAME, PATH);
     }
 
     @NotNull
-    private RecipeFile newInstance(@NotNull String content, @NotNull String name, @NotNull String path) {
-        ItemReference recipeFileItem = dtoFactory.createDto(ItemReference.class)
-                                                 .withName(name)
-                                                 .withPath(path)
-                                                 .withMediaType(TYPE);
+    private VirtualFile newInstance(@NotNull String content, @NotNull String name, @NotNull String path) {
+        VirtualFileInfo virtualFileInfo = VirtualFileInfo.newBuilder()
+                                                         .setName(name)
+                                                         .setDisplayName(name)
+                                                         .setMediaType(TYPE)
+                                                         .setPath(path)
+                                                         .setContent(content)
+                                                         .build();
 
-        return new RecipeFile(content, recipeFileItem);
+
+        return new VirtualFileImpl(virtualFileInfo);
     }
 
 }
