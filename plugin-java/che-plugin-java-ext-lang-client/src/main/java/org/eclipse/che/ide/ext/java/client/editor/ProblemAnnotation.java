@@ -54,16 +54,16 @@ public class ProblemAnnotation extends Annotation implements JavaAnnotation, Qui
         javaRes.css().ensureInjected();
     }
 
-    private static JsElement fgQuickFixElement = (new SVGImage(javaRes.markWarning())).getElement().cast();
+    private static JsElement fgQuickFixElement      = (new SVGImage(javaRes.markWarning())).getElement().cast();
     private static JsElement fgQuickFixErrorElement = (new SVGImage(javaRes.markError())).getElement().cast();
-    private static JsElement fgTaskElement = (new Image(javaRes.taskmrk())).getElement().cast();
-    private static JsElement fgInfoElement = (new Image(javaRes.imp_obj())).getElement().cast();
-    private static JsElement fgWarningElement = (new SVGImage(javaRes.markWarning())).getElement().cast();
-    private static JsElement fgErrorElement = (new SVGImage(javaRes.markError())).getElement().cast();
+    private static JsElement fgTaskElement          = (new SVGImage(javaRes.taskMark())).getElement().cast();
+    private static JsElement fgInfoElement          = (new SVGImage(javaRes.importItem())).getElement().cast();
+    private static JsElement fgWarningElement       = (new SVGImage(javaRes.markWarning())).getElement().cast();
+    private static JsElement fgErrorElement         = (new SVGImage(javaRes.markError())).getElement().cast();
     private List<JavaAnnotation> fOverlaids;
-    private Problem fProblem;
+    private Problem              fProblem;
     private Element fImageElement = null;
-    private int fLayer = 0;
+    private int     fLayer        = 0;
     private boolean fIsQuickFixable;
     private boolean fIsQuickFixableStateSet = false;
 

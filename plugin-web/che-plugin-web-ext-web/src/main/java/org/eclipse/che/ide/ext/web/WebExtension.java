@@ -33,8 +33,7 @@ import com.google.inject.name.Named;
 
 /**
  * Extension add editing JavaScript, HTML, CSS css type support to the IDE Application.
- * It provides configured TextEditorView with {@link org.eclipse.che.ide.ext.web.css.editor.CssEditorProvider}
- * with syntax coloring and autocomplete.
+ * It provides configured TextEditorView with syntax coloring and autocomplete.
  *
  * @author Nikolay Zamosenchuk
  */
@@ -89,10 +88,10 @@ public class WebExtension {
         actionManager.registerAction(constant.newJavaScriptFileActionId(), newJavaScriptFileAction);
 
         // set icons
-        newCssFileAction.getTemplatePresentation().setSVGIcon(resources.cssFile());
-        newLessFileAction.getTemplatePresentation().setSVGIcon(resources.lessFile());
-        newHtmlFileAction.getTemplatePresentation().setSVGIcon(resources.htmlFile());
-        newJavaScriptFileAction.getTemplatePresentation().setSVGIcon(resources.jsFile());
+        newCssFileAction.getTemplatePresentation().setSVGResource(resources.cssFile());
+        newLessFileAction.getTemplatePresentation().setSVGResource(resources.lessFile());
+        newHtmlFileAction.getTemplatePresentation().setSVGResource(resources.htmlFile());
+        newJavaScriptFileAction.getTemplatePresentation().setSVGResource(resources.jsFile());
 
         // add actions in main menu
         DefaultActionGroup newGroup = (DefaultActionGroup)actionManager.getAction(GROUP_FILE_NEW);

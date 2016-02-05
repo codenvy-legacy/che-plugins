@@ -17,7 +17,6 @@ import elemental.html.TableElement;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -31,10 +30,10 @@ import com.google.inject.Singleton;
 import org.eclipse.che.api.git.shared.Branch;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.ext.git.client.GitResources;
-import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.ui.list.SimpleList;
 import org.eclipse.che.ide.ui.window.Window;
 import org.eclipse.che.ide.util.dom.Elements;
+import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -100,7 +99,7 @@ public class BranchListViewImpl extends Window implements BranchListView {
                 sb.appendHtmlConstant("</td>");
 
                 if (itemData.isActive()) {
-                    ImageResource icon = res.currentBranch();
+                    SVGResource icon = res.currentBranch();
                     sb.appendHtmlConstant("<td><img src=\"" + icon.getSafeUri().asString() + "\"></td>");
                 }
 

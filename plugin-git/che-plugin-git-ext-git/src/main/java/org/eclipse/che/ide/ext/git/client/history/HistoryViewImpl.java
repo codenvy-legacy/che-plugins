@@ -23,7 +23,6 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.UIObject;
@@ -39,6 +38,7 @@ import org.eclipse.che.ide.api.parts.PartStackUIResources;
 import org.eclipse.che.ide.api.parts.base.BaseView;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.ext.git.client.GitResources;
+import org.vectomatic.dom.svg.ui.SVGImage;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -48,7 +48,8 @@ import java.util.List;
 /**
  * The implementation of {@link HistoryView}.
  *
- * @author <a href="mailto:aplotnikov@codenvy.com">Andrey Plotnikov</a>
+ * @author Andrey Plotnikov
+ * @author Vlad Zhukovskyi
  */
 @Singleton
 public class HistoryViewImpl extends BaseView<HistoryView.ActionDelegate> implements HistoryView {
@@ -113,12 +114,12 @@ public class HistoryViewImpl extends BaseView<HistoryView.ActionDelegate> implem
         setContentWidget(uiBinder.createAndBindUi(this));
         minimizeButton.ensureDebugId("git-showHistory-minimizeBut");
 
-        btnProjectChanges.getElement().appendChild(new Image(resources.projectLevel()).getElement());
-        btnResourceChanges.getElement().appendChild(new Image(resources.resourceLevel()).getElement());
-        btnDiffWithIndex.getElement().appendChild(new Image(resources.diffIndex()).getElement());
-        btnDiffWithWorkTree.getElement().appendChild(new Image(resources.diffWorkTree()).getElement());
-        btnDiffWithPrevCommit.getElement().appendChild(new Image(resources.diffPrevVersion()).getElement());
-        btnRefresh.getElement().appendChild(new Image(resources.refresh()).getElement());
+        btnProjectChanges.getElement().appendChild(new SVGImage(resources.projectLevel()).getElement());
+        btnResourceChanges.getElement().appendChild(new SVGImage(resources.resourceLevel()).getElement());
+        btnDiffWithIndex.getElement().appendChild(new SVGImage(resources.diffIndex()).getElement());
+        btnDiffWithWorkTree.getElement().appendChild(new SVGImage(resources.diffWorkTree()).getElement());
+        btnDiffWithPrevCommit.getElement().appendChild(new SVGImage(resources.diffPrevVersion()).getElement());
+        btnRefresh.getElement().appendChild(new SVGImage(resources.refresh()).getElement());
     }
 
     /** Creates table what contains list of available commits.

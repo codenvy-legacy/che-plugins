@@ -13,16 +13,16 @@ package org.eclipse.che.ide.ext.git.client;
 import org.eclipse.che.ide.ext.git.client.importer.page.GitImporterPageViewImpl;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
-import com.google.gwt.resources.client.ImageResource;
 
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 /**
- * @author <a href="mailto:zhulevaanna@gmail.com">Ann Zhuleva</a>
- * @version $Id: Mar 22, 2011 2:39:07 PM anya $
+ * @author Ann Zhuleva
+ * @author Vlad Zhukovskyi
  */
 public interface GitResources extends ClientBundle {
-    public interface GitCSS extends CssResource {
+
+    interface GitCSS extends CssResource {
         String textFont();
 
         String cells();
@@ -40,14 +40,8 @@ public interface GitResources extends ClientBundle {
     @Source({"git.css", "org/eclipse/che/ide/api/ui/style.css"})
     GitCSS gitCSS();
 
-    @Source("push/arrow.png")
-    ImageResource arrow();
-
-    @Source("controls/remove.svg")
-    SVGResource removeFiles();
-
-    @Source("controls/reset.svg")
-    SVGResource reset();
+    @Source("push/arrow.svg")
+    SVGResource arrow();
 
     @Source("controls/init.svg")
     SVGResource initRepo();
@@ -57,9 +51,6 @@ public interface GitResources extends ClientBundle {
 
     @Source("controls/merge.svg")
     SVGResource merge();
-
-    @Source("controls/add.svg")
-    SVGResource addToIndex();
 
     @Source("controls/branches.svg")
     SVGResource branches();
@@ -79,50 +70,35 @@ public interface GitResources extends ClientBundle {
     @Source("controls/checkoutReference.svg")
     SVGResource checkoutReference();
 
-    @Source("history/arrows.png")
-    ImageResource arrows();
+    @Source("history/history.svg")
+    SVGResource history();
 
-    @Source("history/history.png")
-    ImageResource history();
+    @Source("history/project_level.svg")
+    SVGResource projectLevel();
 
-    @Source("controls/show-history.svg")
-    SVGResource showHistory();
+    @Source("history/resource_level.svg")
+    SVGResource resourceLevel();
 
-    @Source("history/project_level.png")
-    ImageResource projectLevel();
+    @Source("history/diff_index.svg")
+    SVGResource diffIndex();
 
-    @Source("history/resource_level.png")
-    ImageResource resourceLevel();
+    @Source("history/diff_working_dir.svg")
+    SVGResource diffWorkTree();
 
-    @Source("history/diff_index.png")
-    ImageResource diffIndex();
+    @Source("history/diff_prev_version.svg")
+    SVGResource diffPrevVersion();
 
-    @Source("history/diff_working_dir.png")
-    ImageResource diffWorkTree();
-
-    @Source("history/diff_prev_version.png")
-    ImageResource diffPrevVersion();
-
-    @Source("history/refresh.png")
-    ImageResource refresh();
+    @Source("history/refresh.svg")
+    SVGResource refresh();
 
     @Source("controls/fetch.svg")
     SVGResource fetch();
 
-    @Source("controls/status.svg")
-    SVGResource status();
-
-    @Source("branch/current.png")
-    ImageResource currentBranch();
+    @Source("branch/current.svg")
+    SVGResource currentBranch();
 
     @Source("controls/remote.svg")
     SVGResource remote();
-
-    @Source("controls/revert.svg")
-    SVGResource revert();
-
-    @Source("controls/git-url.svg")
-    SVGResource projectReadOnlyGitUrl();
 
     @Source("controls/git-output-icon.svg")
     SVGResource gitOutput();

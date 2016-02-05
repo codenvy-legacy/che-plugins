@@ -12,7 +12,8 @@
 -->
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:svg='urn:import:org.vectomatic.dom.svg.ui'>
     <ui:with field='locale' type='org.eclipse.che.ide.ext.git.client.GitLocalizationConstant'/>
     <ui:with field='res' type='org.eclipse.che.ide.ext.git.client.GitResources'/>
     <ui:style>
@@ -24,14 +25,13 @@
             margin: 6px;
         }
 
-        .space {
-            margin-right: 5px;
-        }
-
         .image {
             position: relative;
-            top: 24px;
             float: left;
+            top: 31px;
+            left: 2px;
+            width: 14px;
+            height: 14px;
         }
     </ui:style>
     <g:DockLayoutPanel unit="PX" width="450px" height="90px" addStyleNames="{style.emptyBorder}" debugId="git-remotes-push-mainForm">
@@ -58,7 +58,7 @@
                 </g:west>
                 <g:center>
                     <g:FlowPanel>
-                        <g:Image resource="{res.arrow}" addStyleNames="{style.image}"/>
+                        <svg:SVGImage resource="{res.arrow}" classNameBaseVal="{style.image}"/>
                     </g:FlowPanel>
                 </g:center>
             </g:DockLayoutPanel>
