@@ -58,6 +58,7 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAI
  * and change a dedicated resource with the history-window open
  *
  * @author Ann Zhuleva
+ * @author Vlad Zhukovskyi
  */
 @Singleton
 public class HistoryPresenter extends BasePresenter implements HistoryView.ActionDelegate {
@@ -423,13 +424,13 @@ public class HistoryPresenter extends BasePresenter implements HistoryView.Actio
     /** {@inheritDoc} */
     @Override
     public ImageResource getTitleImage() {
-        return resources.history();
+        return null;
     }
 
     /** {@inheritDoc} */
     @Override
     public SVGResource getTitleSVGImage() {
-        return null;
+        return resources.history();
     }
 
     /** {@inheritDoc} */

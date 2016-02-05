@@ -21,8 +21,9 @@ import java.util.List;
  * @author <a href="mailto:aplotnikov@codenvy.com">Andrey Plotnikov</a>
  */
 public interface MergeView extends View<MergeView.ActionDelegate> {
+
     /** Needs for delegate some function into Merge view. */
-    public interface ActionDelegate {
+    interface ActionDelegate {
         /** Performs any actions appropriate in response to the user having pressed the Cancel button. */
         void onCancelClicked();
 
@@ -67,4 +68,5 @@ public interface MergeView extends View<MergeView.ActionDelegate> {
 
     /** Show dialog. */
     void showDialog();
+
 }

@@ -19,7 +19,6 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
@@ -41,14 +40,19 @@ public class OutputsContainerViewImpl extends BaseView<OutputsContainerView.Acti
 
     @UiField
     MachineResources resources;
+
     @UiField
     FlowPanel        tabsPanel;
+
     @UiField
     DeckLayoutPanel  contentPanel;
+
+    PartStackUIResources partStackUIResources;
 
     @Inject
     public OutputsContainerViewImpl(PartStackUIResources partStackUIResources, OutputsContainerViewImplUiBinder uiBinder) {
         super(partStackUIResources);
+        this.partStackUIResources = partStackUIResources;
 
         setContentWidget(uiBinder.createAndBindUi(this));
 
@@ -120,7 +124,8 @@ public class OutputsContainerViewImpl extends BaseView<OutputsContainerView.Acti
 
         FlowPanel   tabPanel;
         InlineLabel tabTitleLabel;
-        Image       image;
+
+        SVGImage    image;
 
         TabButton(SVGImage icon, String title) {
             tabPanel = new FlowPanel();
@@ -138,7 +143,7 @@ public class OutputsContainerViewImpl extends BaseView<OutputsContainerView.Acti
             tabTitleLabel.addStyleName(resources.getCss().outputsContainerConsoleTabLabel());
             tabPanel.add(tabTitleLabel);
 
-            image = new Image(resources.close());
+            image = new SVGImage(partStackUIResources.closeIcon());
             image.setStyleName(resources.getCss().outputsContainerConsoleTabCloseButton());
             tabPanel.add(image);
 

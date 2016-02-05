@@ -35,9 +35,6 @@ public class VariableTreeNodeRenderer implements NodeRenderer<DebuggerVariable> 
         @ClassName("variable-root")
         String variableRoot();
 
-        @ClassName("variable-icon")
-        String variableIcon();
-
         @ClassName("variable-label")
         String variableLabel();
     }
@@ -45,9 +42,6 @@ public class VariableTreeNodeRenderer implements NodeRenderer<DebuggerVariable> 
     public interface Resources extends Tree.Resources {
         @Source("Debug.css")
         Css variableCss();
-
-        @Source("localVariable.png")
-        ImageResource localVariable();
     }
 
     private final Css css;
@@ -67,12 +61,10 @@ public class VariableTreeNodeRenderer implements NodeRenderer<DebuggerVariable> 
     @Override
     public SpanElement renderNodeContents(@NotNull DebuggerVariable data) {
         SpanElement root = Elements.createSpanElement(css.variableRoot());
-        DivElement icon = Elements.createDivElement(css.variableIcon());
         SpanElement label = Elements.createSpanElement(css.variableLabel());
         String content = data.getName() + ": " + data.getValue();
         label.setTextContent(content);
 
-        root.appendChild(icon);
         root.appendChild(label);
 
         return root;

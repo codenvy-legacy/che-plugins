@@ -33,7 +33,7 @@ public class CompareWithBranchAction extends GitAction {
                                    AppContext appContext,
                                    GitLocalizationConstant locale,
                                    ProjectExplorerPresenter projectExplorer) {
-        super(locale.compareWithBranchTitle(), locale.compareWithBranchTitle(), null, appContext, projectExplorer);
+        super(locale.compareWithBranchTitle(), locale.compareWithBranchTitle(), appContext, projectExplorer);
         this.presenter = presenter;
     }
 

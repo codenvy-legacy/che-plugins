@@ -62,7 +62,7 @@ public class CompareWithLatestAction extends GitAction {
                                    GitServiceClient gitService,
                                    GitLocalizationConstant constant,
                                    ProjectExplorerPresenter projectExplorer) {
-        super(constant.compareWithLatestTitle(), constant.compareWithLatestTitle(), null, appContext, projectExplorer);
+        super(constant.compareWithLatestTitle(), constant.compareWithLatestTitle(), appContext, projectExplorer);
         this.comparePresenter = presenter;
         this.changedListPresenter = changedListPresenter;
         this.dialogFactory = dialogFactory;

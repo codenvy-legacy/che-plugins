@@ -43,7 +43,7 @@ import static org.eclipse.che.ide.ext.git.client.merge.Reference.RefType.REMOTE_
 /**
  * The implementation of {@link MergeView}.
  *
- * @author <a href="mailto:aplotnikov@codenvy.com">Andrey Plotnikov</a>
+ * @author Andrey Plotnikov
  */
 @Singleton
 public class MergeViewImpl extends Window implements MergeView {
@@ -84,7 +84,7 @@ public class MergeViewImpl extends Window implements MergeView {
         this.setWidget(widget);
 
         this.references =
-                Tree.create(rendererResources, new ReferenceTreeNodeDataAdapter(), new ReferenceTreeNodeRenderer(rendererResources));
+                Tree.create(rendererResources, new ReferenceTreeNodeDataAdapter(), new ReferenceTreeNodeRenderer(rendererResources, resources));
         this.references.setTreeEventHandler(new Tree.Listener<Reference>() {
             @Override
             public void onNodeAction(TreeNodeElement<Reference> node) {
@@ -213,4 +213,5 @@ public class MergeViewImpl extends Window implements MergeView {
     @Override
     protected void onClose() {
     }
+
 }

@@ -80,8 +80,8 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
         images = new HashMap<>();
         svgs = new HashMap<>();
 
-        images.put("template", resources.template());
-        images.put("javadoc", resources.javadoc());
+        svgs.put("template", resources.template());
+        svgs.put("javadoc", resources.javadoc());
         svgs.put("annotation", resources.annotationItem());
         //todo create images for annotations
         svgs.put("privateAnnotation", resources.annotationItem());
@@ -93,46 +93,42 @@ public class JavaCodeAssistProcessor implements CodeAssistProcessor {
         svgs.put("privateEnum", resources.enumItem());
         svgs.put("protectedEnum", resources.enumItem());
 
-        svgs.put("interface", resources.svgInterfaceItem());
-
-        images.put("defaultInterface", resources.interfaceItem());
-        images.put("innerInterfacePublic", resources.interfaceItem());
-        images.put("innerInterfacePrivate", resources.interfaceItem());
-        images.put("innerInterfaceProtected", resources.interfaceItem());
+        svgs.put("interface", resources.interfaceItem());
+        svgs.put("defaultInterface", resources.interfaceItem());
+        svgs.put("innerInterfacePublic", resources.interfaceItem());
+        svgs.put("innerInterfacePrivate", resources.interfaceItem());
+        svgs.put("innerInterfaceProtected", resources.interfaceItem());
 
         svgs.put("class", resources.svgClassItem());
-
-        images.put("defaultClass", resources.classDefaultItem());
-        images.put("innerClassPrivate", resources.classItem());
-        images.put("innerClassProtected", resources.classItem());
-        images.put("innerClassDefault", resources.classItem());
+        svgs.put("defaultClass", resources.svgClassItem());
+        svgs.put("innerClassPrivate", resources.svgClassItem());
+        svgs.put("innerClassProtected", resources.svgClassItem());
+        svgs.put("innerClassDefault", resources.svgClassItem());
 
         svgs.put("privateMethod", resources.privateMethod());
         svgs.put("publicMethod", resources.publicMethod());
         svgs.put("protectedMethod", resources.protectedMethod());
-        images.put("defaultMethod", resources.defaultMethod());
+        svgs.put("defaultMethod", resources.defaultMethod());
 
-        images.put("publicField", resources.publicField());
-        images.put("protectedField", resources.protectedField());
-        images.put("privateField", resources.privateField());
-        images.put("defaultField", resources.defaultField());
+        svgs.put("publicField", resources.publicField());
+        svgs.put("protectedField", resources.protectedField());
+        svgs.put("privateField", resources.privateField());
+        svgs.put("defaultField", resources.defaultField());
 
-        images.put("localVariable", resources.local_var());
-        images.put("package", resources.packageItem());
+        svgs.put("localVariable", resources.localVar());
+        svgs.put("package", resources.packageItem());
 
-        images.put("correctionLocal", resources.correction_change()); // ????
-        images.put("correctionChange", resources.correction_change());
-        images.put("correctionAdd", resources.correction_change()); //????
-        images.put("jexception", resources.exceptionProp());
-        images.put("correctionRemove", resources.remove_correction());
-        images.put("correctionCast", resources.correction_cast());
-        images.put("correctionMove", resources.remove_correction()); // ????
-        images.put("correctionDeleteImport", resources.correction_delete_import());
-        images.put("correctionRename", resources.breakpointCurrent()); //????
-        images.put("impObj", resources.add_obj()); //????
-        images.put("toolDelete", resources.delete_obj()); //????
-
-        images.put("linkedRename", resources.linkedRename());
+        svgs.put("correctionLocal", resources.correctionChange());
+        svgs.put("correctionChange", resources.correctionChange());
+        svgs.put("correctionAdd", resources.correctionChange());
+        svgs.put("jexception", resources.exceptionProp());
+        svgs.put("correctionRemove", resources.correctionRemove());
+        svgs.put("correctionCast", resources.correctionCast());
+        svgs.put("correctionMove", resources.correctionRemove());
+        svgs.put("correctionDeleteImport", resources.correctionDeleteImport());
+        svgs.put("impObj", resources.add());
+        svgs.put("toolDelete", resources.remove());
+        svgs.put("linkedRename", resources.linkedRename());
     }
 
     public static String insertStyle(final JavaResources javaResources, final String display) {

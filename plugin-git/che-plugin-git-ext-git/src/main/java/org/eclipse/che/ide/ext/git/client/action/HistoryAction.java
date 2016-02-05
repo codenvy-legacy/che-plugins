@@ -18,8 +18,8 @@ import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
-import org.eclipse.che.ide.ext.git.client.GitResources;
 import org.eclipse.che.ide.ext.git.client.history.HistoryPresenter;
+import org.eclipse.che.ide.ui.FontAwesome;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 
 /** @author Andrey Plotnikov */
@@ -31,11 +31,10 @@ public class HistoryAction extends GitAction {
     @Inject
     public HistoryAction(Provider<HistoryPresenter> presenterProvider,
                          AppContext appContext,
-                         GitResources resources,
                          GitLocalizationConstant constant,
                          AnalyticsEventLogger eventLogger,
                          ProjectExplorerPresenter projectExplorer) {
-        super(constant.historyControlTitle(), constant.historyControlPrompt(), resources.showHistory(), appContext, projectExplorer);
+        super(constant.historyControlTitle(), constant.historyControlPrompt(), FontAwesome.HISTORY, appContext, projectExplorer);
         this.presenterProvider = presenterProvider;
         this.eventLogger = eventLogger;
     }

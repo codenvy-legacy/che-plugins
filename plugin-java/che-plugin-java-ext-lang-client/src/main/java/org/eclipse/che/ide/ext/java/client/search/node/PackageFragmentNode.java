@@ -92,7 +92,7 @@ public class PackageFragmentNode extends AbstractPresentationNode {
             presentation.setInfoText(parent.getPath().substring(parent.getProjectPath().length() + 1));
         }
         presentation.setInfoTextWrapper(Pair.of("- ", ""));
-        presentation.setPresentableIcon(resources.packageIcon());
+        presentation.setPresentableIcon(resources.packageItem());
     }
 
     @Override

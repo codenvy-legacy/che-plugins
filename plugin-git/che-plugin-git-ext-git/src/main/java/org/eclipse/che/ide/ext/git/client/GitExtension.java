@@ -130,7 +130,7 @@ public class GitExtension {
         actionManager.registerAction("gitMerge", showMergeAction);
         commandGroup.add(showMergeAction);
         DefaultActionGroup remoteGroup = new DefaultActionGroup(constant.remotesControlTitle(), true, actionManager);
-        remoteGroup.getTemplatePresentation().setSVGIcon(resources.remote());
+        remoteGroup.getTemplatePresentation().setSVGResource(resources.remote());
         actionManager.registerAction("gitRemoteGroup", remoteGroup);
         commandGroup.add(remoteGroup);
         actionManager.registerAction("gitResetFiles", resetFilesAction);

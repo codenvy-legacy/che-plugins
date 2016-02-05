@@ -138,17 +138,8 @@ public class OrionEditorExtension implements Provider<OrionKeyBindingModule>{
         final LinkElement link = Document.get().createLinkElement();
         link.setRel("stylesheet");
         link.setHref(url);
-        nativeAttachToHead(link);
+        Document.get().getHead().appendChild(link);
     }
-
-    /**
-     * Attach an element to document head.
-     *
-     * @param element the element to attach
-     */
-    private static native void nativeAttachToHead(Node element) /*-{
-        $doc.getElementsByTagName("head")[0].appendChild(element);
-    }-*/;
 
     private void requireOrion(final InitializerCallback callback) {
         requireJsLoader.require(new Callback<JavaScriptObject[], Throwable>() {
