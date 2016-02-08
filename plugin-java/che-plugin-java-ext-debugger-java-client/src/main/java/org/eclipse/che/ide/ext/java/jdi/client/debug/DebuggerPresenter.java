@@ -404,8 +404,9 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         String pathSuffix = location.getClassName().replace(".", "/") + ".java";
 
         List<String> sourceFolders = JavaSourceFolderUtil.getSourceFolders(currentProject);
-        List<String> filePaths = new ArrayList<>(sourceFolders.size());
+        List<String> filePaths = new ArrayList<>(sourceFolders.size() + 1);
 
+        filePaths.add(location.getClassName());
         for (String sourceFolder : sourceFolders) {
             filePaths.add(sourceFolder + pathSuffix);
         }
@@ -967,7 +968,7 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
     }
 
     /**
-     *  Loads debug information from the local storage.
+     * Loads debug information from the local storage.
      */
     protected DebuggerInfo loadDebugInfo() {
         LocalStorage localStorage = localStorageProvider.get();
