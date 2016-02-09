@@ -18,6 +18,7 @@ import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.validation.constraints.NotNull;
+import java.util.Arrays;
 import java.util.Collections;
 
 import static org.eclipse.che.ide.workspace.perspectives.project.ProjectPerspective.PROJECT_PERSPECTIVE_ID;
