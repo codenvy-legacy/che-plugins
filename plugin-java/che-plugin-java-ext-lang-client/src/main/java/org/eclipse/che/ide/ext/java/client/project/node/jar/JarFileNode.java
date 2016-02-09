@@ -33,7 +33,6 @@ import org.eclipse.che.ide.ext.java.shared.JarEntry;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.StringUnmarshaller;
 import org.eclipse.che.ide.ui.smartTree.presentation.NodePresentation;
-import org.eclipse.che.ide.util.Pair;
 import org.vectomatic.dom.svg.ui.SVGImage;
 
 import javax.validation.constraints.NotNull;
@@ -109,13 +108,6 @@ public class JarFileNode extends AbstractJarEntryNode implements VirtualFile, Ha
         } else {
             return getData().getName();
         }
-    }
-
-    /** {@inheritDoc} */
-    @Nullable
-    @Override
-    public String getMediaType() {
-        return isClassFile() ? "application/java-class" : null;
     }
 
     /** {@inheritDoc} */
