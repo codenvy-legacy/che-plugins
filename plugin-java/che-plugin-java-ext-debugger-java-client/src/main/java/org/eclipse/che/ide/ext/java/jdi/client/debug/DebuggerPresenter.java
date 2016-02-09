@@ -406,10 +406,10 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         List<String> sourceFolders = JavaSourceFolderUtil.getSourceFolders(currentProject);
         List<String> filePaths = new ArrayList<>(sourceFolders.size() + 1);
 
-        filePaths.add(location.getClassName());
         for (String sourceFolder : sourceFolders) {
             filePaths.add(sourceFolder + pathSuffix);
         }
+        filePaths.add(location.getClassName());
 
         return filePaths;
     }
@@ -423,7 +423,16 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
                           final int pathNumber,
                           final AsyncCallback<VirtualFile> callback) {
 
+        if (pathNumber == filePaths.size()) {
+            Log.error(DebuggerPresenter.class, "Can't open resource " + location);
+            return;
+        }
+
         String filePath = filePaths.get(pathNumber);
+        if (!filePath.startsWith("/")) {
+            openExternalResource(location, callback);
+            return;
+        }
 
         projectExplorer.getNodeByPath(new HasStorablePath.StorablePath(filePath)).then(new Operation<Node>() {
             public HandlerRegistration handlerRegistration;
@@ -457,18 +466,13 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         }).catchError(new Operation<PromiseError>() {
             @Override
             public void apply(PromiseError error) throws OperationException {
-                if (pathNumber + 1 == filePaths.size()) {
-                    openExternalResource(location);
-                } else {
-                    // try another path
-                    openFile(location, filePaths, pathNumber + 1, callback);
-                }
+                // try another path
+                openFile(location, filePaths, pathNumber + 1, callback);
             }
         });
     }
 
-
-    private void openExternalResource(Location location) {
+    private void openExternalResource(Location location, final AsyncCallback<VirtualFile> callback) {
         String className = location.getClassName();
 
         JarEntry jarEntry = dtoFactory.createDto(JarEntry.class);
@@ -476,20 +480,23 @@ public class DebuggerPresenter extends BasePresenter implements DebuggerView.Act
         jarEntry.setName(className.substring(className.lastIndexOf(".") + 1) + ".class");
         jarEntry.setType(JarEntry.JarEntryType.CLASS_FILE);
 
-        JarFileNode jarFileNode =
+        final JarFileNode jarFileNode =
                 javaNodeManager.getJavaNodeFactory().newJarFileNode(jarEntry,
                                                                     null,
                                                                     appContext.getCurrentProject().getProjectConfig(),
                                                                     javaNodeManager.getJavaSettingsProvider()
                                                                                    .getSettings());
 
-        openFile(jarFileNode);
-    }
-
-    private void openFile(VirtualFile result) {
-        editorAgent.openEditor(result, new EditorAgent.OpenEditorCallback() {
+        editorAgent.openEditor(jarFileNode, new EditorAgent.OpenEditorCallback() {
             @Override
             public void onEditorOpened(EditorPartPresenter editor) {
+                // give the editor some time to fully render it's view
+                new Timer() {
+                    @Override
+                    public void run() {
+                        callback.onSuccess(jarFileNode);
+                    }
+                }.schedule(300);
             }
         });
     }
