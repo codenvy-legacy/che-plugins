@@ -181,9 +181,9 @@ public class MachineManagerImpl implements MachineManager {
                               final boolean isDev,
                               final MachineOperationType operationType) {
 
-        LimitsDto limitsDto = dtoFactory.createDto(LimitsDto.class).withMemory(1024);
+        LimitsDto limitsDto = dtoFactory.createDto(LimitsDto.class).withRam(1024);
         if (isDev) {
-            limitsDto.withMemory(3072);
+            limitsDto.withRam(3072);
         }
         MachineSourceDto sourceDto = dtoFactory.createDto(MachineSourceDto.class).withType("Recipe").withLocation(recipeURL);
 

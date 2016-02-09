@@ -16,7 +16,6 @@ import com.google.inject.Singleton;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.selection.Selection;
-import org.eclipse.che.ide.api.selection.SelectionAgent;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
 import org.eclipse.che.ide.ext.git.client.compare.revisionsList.RevisionListPresenter;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
@@ -39,7 +38,7 @@ public class CompareWithRevisionAction extends GitAction {
                                      AppContext appContext,
                                      GitLocalizationConstant locale,
                                      ProjectExplorerPresenter projectExplorer) {
-        super(locale.compareWithRevisionTitle(), locale.compareWithRevisionTitle(), null, appContext, projectExplorer);
+        super(locale.compareWithRevisionTitle(), locale.compareWithRevisionTitle(), appContext, projectExplorer);
         this.presenter = presenter;
         this.projectExplorer = projectExplorer;
     }

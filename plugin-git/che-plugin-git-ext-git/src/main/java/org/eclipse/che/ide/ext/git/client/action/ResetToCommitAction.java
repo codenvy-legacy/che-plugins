@@ -17,8 +17,8 @@ import org.eclipse.che.api.analytics.client.logger.AnalyticsEventLogger;
 import org.eclipse.che.ide.api.action.ActionEvent;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.ext.git.client.GitLocalizationConstant;
-import org.eclipse.che.ide.ext.git.client.GitResources;
 import org.eclipse.che.ide.ext.git.client.reset.commit.ResetToCommitPresenter;
+import org.eclipse.che.ide.ui.FontAwesome;
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 
 /** @author Andrey Plotnikov */
@@ -30,11 +30,10 @@ public class ResetToCommitAction extends GitAction {
     @Inject
     public ResetToCommitAction(ResetToCommitPresenter presenter,
                                AppContext appContext,
-                               GitResources resources,
                                GitLocalizationConstant constant,
                                AnalyticsEventLogger eventLogger,
                                ProjectExplorerPresenter projectExplorer) {
-        super(constant.resetToCommitControlTitle(), constant.resetToCommitControlPrompt(), resources.revert(), appContext,
+        super(constant.resetToCommitControlTitle(), constant.resetToCommitControlPrompt(), FontAwesome.BAN, appContext,
               projectExplorer);
         this.presenter = presenter;
         this.eventLogger = eventLogger;

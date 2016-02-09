@@ -71,7 +71,7 @@ public class SourceFolderNode extends FolderReferenceNode {
                 break;
             case RESOURCE:
             case TEST_RESOURCE:
-                presentation.setPresentableIcon(nodeManager.getJavaNodesResources().resourceFolder());
+                presentation.setPresentableIcon(nodeManager.getNodesResources().simpleFolder());
         }
 
         presentation.setPresentableText(getData().getName());

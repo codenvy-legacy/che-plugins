@@ -156,7 +156,7 @@ public class TypeNode extends AbstractPresentationNode {
         int flags = type.getFlags();
         SVGResource icon;
         if (Flags.isInterface(flags)) {
-            icon = resources.svgInterfaceItem();
+            icon = resources.interfaceItem();
         } else if (Flags.isEnum(flags)) {
             icon = resources.enumItem();
         } else if (Flags.isAnnotation(flags)) {

@@ -193,7 +193,7 @@ public class ConsolesPanelPresenterTest {
 
         verify(outputConsole).listenToOutput(eq(OUTPUT_CHANNEL));
         verify(outputConsole).attachToProcess(machineProcessDto);
-        verify(workspaceAgent, times(2)).setActivePart(eq(presenter));
+        verify(workspaceAgent).setActivePart(eq(presenter));
     }
 
     @Test
@@ -223,7 +223,6 @@ public class ConsolesPanelPresenterTest {
         presenter.rootNode = new ProcessTreeNode(ROOT_NODE, null, null, null, children);
 
         OutputConsole outputConsole = mock(OutputConsole.class);
-        CommandConfiguration commandConfiguration = mock(CommandConfiguration.class);
 
         presenter.addCommandOutput(MACHINE_ID, outputConsole);
         verify(notificationManager).notify(anyString(), anyString(), any(StatusNotification.Status.class), anyBoolean());
@@ -238,8 +237,36 @@ public class ConsolesPanelPresenterTest {
         children.add(machineNode);
         presenter.rootNode = new ProcessTreeNode(ROOT_NODE, null, null, null, children);
 
-        CommandConfiguration commandConfiguration = mock(CommandConfiguration.class);
-        when(commandConfiguration.getName()).thenReturn(PROCESS_NAME);
+        presenter.addCommandOutput(MACHINE_ID, outputConsole);
+
+        verify(view).addProcessNode(anyObject());
+        verify(view, never()).hideProcessOutput(anyString());
+
+        verify(outputConsole).go(acceptsOneWidgetCaptor.capture());
+        IsWidget widget = mock(IsWidget.class);
+        acceptsOneWidgetCaptor.getValue().setWidget(widget);
+
+        verify(view).addProcessWidget(anyString(), eq(widget));
+        verify(view, times(2)).selectNode(anyObject());
+        verify(view).setProcessesData(anyObject());
+        verify(view).getNodeById(anyString());
+        verify(view).setStopButtonVisibility(anyString(), anyBoolean());
+    }
+
+    @Test
+    public void shouldDisplayStopProcessButtonAtAddingCommand() throws Exception {
+        ProcessTreeNode machineNode = mock(ProcessTreeNode.class);
+        when(machineNode.getId()).thenReturn(MACHINE_ID);
+        List<ProcessTreeNode> children = new ArrayList<>();
+        children.add(machineNode);
+        presenter.rootNode = new ProcessTreeNode(ROOT_NODE, null, null, null, children);
+
+        ProcessTreeNode selectedCommandNode = new ProcessTreeNode(COMMAND_NODE, null, PROCESS_NAME, null, children);
+        children.add(selectedCommandNode);
+
+        when(outputConsole.isFinished()).thenReturn(false);
+
+        presenter.commandConsoles.clear();
 
         presenter.addCommandOutput(MACHINE_ID, outputConsole);
 
@@ -254,15 +281,81 @@ public class ConsolesPanelPresenterTest {
         verify(view, times(2)).selectNode(anyObject());
         verify(view).setProcessesData(anyObject());
         verify(view).getNodeById(anyString());
-        verify(view).refreshStopProcessButtonState(anyString());
+        verify(view).setStopButtonVisibility(anyString(), eq(true));
+    }
+
+    @Test
+    public void shouldHideStopProcessButtonAtAddingCommand() throws Exception {
+        ProcessTreeNode machineNode = mock(ProcessTreeNode.class);
+        when(machineNode.getId()).thenReturn(MACHINE_ID);
+        List<ProcessTreeNode> children = new ArrayList<>();
+        children.add(machineNode);
+        presenter.rootNode = new ProcessTreeNode(ROOT_NODE, null, null, null, children);
+
+        ProcessTreeNode selectedCommandNode = new ProcessTreeNode(COMMAND_NODE, null, PROCESS_NAME, null, children);
+        children.add(selectedCommandNode);
+
+        when(outputConsole.isFinished()).thenReturn(true);
+
+        presenter.commandConsoles.clear();
+
+        presenter.addCommandOutput(MACHINE_ID, outputConsole);
+
+        verify(view).addProcessNode(anyObject());
+        verify(view, never()).hideProcessOutput(anyString());
+
+        verify(outputConsole).go(acceptsOneWidgetCaptor.capture());
+        IsWidget widget = mock(IsWidget.class);
+        acceptsOneWidgetCaptor.getValue().setWidget(widget);
+
+        verify(view).addProcessWidget(anyString(), eq(widget));
+        verify(view, times(2)).selectNode(anyObject());
+        verify(view).setProcessesData(anyObject());
+        verify(view).getNodeById(anyString());
+        verify(view).setStopButtonVisibility(anyString(), eq(false));
+    }
+
+    @Test
+    public void shouldHideStopProcessButtonAtAddingTerminal() throws Exception {
+        MachineDto machineDto = mock(MachineDto.class);
+        when(machineDto.isDev()).thenReturn(true);
+
+        ProcessTreeNode machineNode = mock(ProcessTreeNode.class);
+        when(machineNode.getId()).thenReturn(MACHINE_ID);
+        List<ProcessTreeNode> children = new ArrayList<>();
+        children.add(machineNode);
+        presenter.rootNode = new ProcessTreeNode(ROOT_NODE, null, null, null, children);
+
+        Machine machine = mock(Machine.class);
+        when(entityFactory.createMachine(anyObject())).thenReturn(machine);
+        TerminalPresenter terminal = mock(TerminalPresenter.class);
+        when(terminalFactory.create(machine)).thenReturn(terminal);
+        IsWidget terminalWidget = mock(IsWidget.class);
+        when(terminal.getView()).thenReturn(terminalWidget);
+
+        presenter.addCommandOutput(MACHINE_ID, outputConsole);
+        presenter.onAddTerminal(MACHINE_ID);
+
+        verify(machinePromise).then(machineCaptor.capture());
+        machineCaptor.getValue().apply(machineDto);
+
+        verify(entityFactory).createMachine(anyObject());
+        verify(terminalFactory).create(eq(machine));
+        verify(terminal).getView();
+        verify(view, times(2)).setProcessesData(anyObject());
+        verify(view, times(2)).selectNode(anyObject());
+        verify(view).addProcessWidget(anyString(), eq(terminalWidget));
+        verify(view, times(2)).addProcessNode(anyObject());
+        verify(terminal).setVisible(eq(true));
+        verify(terminal).connect();
+        verify(terminal).setListener(anyObject());
+        verify(view).setStopButtonVisibility(anyString(), eq(false));
     }
 
     @Test
     public void shouldReplaceCommandOutput() throws Exception {
         MachineDto machineDto = mock(MachineDto.class);
-        CommandConfiguration commandConfiguration = mock(CommandConfiguration.class);
         when(machineDto.getId()).thenReturn(MACHINE_ID);
-        when(commandConfiguration.getName()).thenReturn(PROCESS_NAME);
 
         List<ProcessTreeNode> children = new ArrayList<>();
         ProcessTreeNode commandNode = new ProcessTreeNode(COMMAND_NODE, null, PROCESS_NAME, null, children);
@@ -326,7 +419,6 @@ public class ConsolesPanelPresenterTest {
         verify(terminal).setVisible(eq(true));
         verify(terminal).connect();
         verify(terminal).setListener(anyObject());
-        verify(view).refreshStopProcessButtonState(anyString());
     }
 
     @Test
@@ -336,7 +428,7 @@ public class ConsolesPanelPresenterTest {
         presenter.onCommandSelected(PROCESS_ID);
 
         verify(view).showProcessOutput(eq(PROCESS_ID));
-        verify(view).refreshStopProcessButtonState(eq(PROCESS_ID));
+        verify(view).setStopButtonVisibility(anyString(), eq(true));
     }
 
     @Test
@@ -346,8 +438,7 @@ public class ConsolesPanelPresenterTest {
 
         presenter.onCommandSelected(PROCESS_ID);
 
-        verify(view).hideStopButton(PROCESS_ID);
-        verify(view, never()).refreshStopProcessButtonState(PROCESS_ID);
+        verify(view).setStopButtonVisibility(PROCESS_ID, false);
     }
 
     @Test
@@ -357,7 +448,7 @@ public class ConsolesPanelPresenterTest {
 
         presenter.onCommandSelected(PROCESS_ID);
 
-        verify(view).refreshStopProcessButtonState(PROCESS_ID);
+        verify(view).setStopButtonVisibility(PROCESS_ID, true);
     }
 
     @Test
@@ -367,7 +458,7 @@ public class ConsolesPanelPresenterTest {
 
         presenter.onProcessFinished();
 
-        verify(view).hideStopButton(PROCESS_ID);
+        verify(view).setStopButtonVisibility(PROCESS_ID, false);
     }
 
     @Test
@@ -452,7 +543,7 @@ public class ConsolesPanelPresenterTest {
         presenter.onTerminalSelected(PROCESS_ID);
 
         verify(view).showProcessOutput(eq(PROCESS_ID));
-        verify(view).refreshStopProcessButtonState(eq(PROCESS_ID));
+        verify(view, never()).setStopButtonVisibility(PROCESS_ID, true);
     }
 
     @Test

@@ -76,7 +76,7 @@ public class ProjectsAndPackagesModel implements TreeViewModel {
                                                         new AbstractCell<PackageFragment>() {
                                                             @Override
                                                             public void render(Context context, PackageFragment value, SafeHtmlBuilder sb) {
-                                                                sb.appendHtmlConstant(resources.packageIcon()
+                                                                sb.appendHtmlConstant(resources.packageItem()
                                                                                                .getSvg()
                                                                                                .getElement()
                                                                                                .getString())

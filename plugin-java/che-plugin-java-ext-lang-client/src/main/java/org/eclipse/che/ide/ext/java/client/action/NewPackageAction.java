@@ -54,7 +54,7 @@ public class NewPackageAction extends AbstractNewResourceAction {
                             AppContext appContex) {
         super(localizationConstant.actionNewPackageTitle(),
               localizationConstant.actionNewPackageDescription(),
-              javaResources.packageIcon());
+              javaResources.packageItem());
         this.appContext = appContex;
     }
 

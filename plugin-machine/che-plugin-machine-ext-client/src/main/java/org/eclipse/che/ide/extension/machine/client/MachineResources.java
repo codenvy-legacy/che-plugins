@@ -77,8 +77,6 @@ public interface MachineResources extends ClientBundle {
     @Source("recipe-template.txt")
     TextResource recipeTemplate();
 
-    ImageResource close();
-
     /** Returns the CSS resource for the Machine extension. */
     @Source({"machine.css", "org/eclipse/che/ide/api/ui/style.css"})
     Css getCss();

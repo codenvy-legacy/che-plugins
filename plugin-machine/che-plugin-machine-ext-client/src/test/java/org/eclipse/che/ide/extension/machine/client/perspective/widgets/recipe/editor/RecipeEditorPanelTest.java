@@ -16,6 +16,7 @@ import org.eclipse.che.api.machine.shared.dto.recipe.RecipeDescriptor;
 import org.eclipse.che.ide.api.filetypes.FileType;
 import org.eclipse.che.ide.api.filetypes.FileTypeRegistry;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.api.project.tree.VirtualFile;
 import org.eclipse.che.ide.editor.orion.client.OrionEditorWidget;
 import org.eclipse.che.ide.editor.orion.client.OrionTextEditorFactory;
 import org.eclipse.che.ide.jseditor.client.document.Document;
@@ -57,7 +58,7 @@ public class RecipeEditorPanelTest {
     private NotificationManager    notificationManager;
 
     @Mock
-    private RecipeFile                                     recipeFile;
+    private VirtualFile                                    recipeFile;
     @Mock
     private RecipeEditorPanel.ActionDelegate               delegate;
     @Mock

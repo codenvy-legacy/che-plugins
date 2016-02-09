@@ -36,9 +36,6 @@ public interface JavaRuntimeResources extends ClientBundle {
     @Source("stepreturn.svg")
     SVGResource stepReturnButton();
 
-    @Source("debugApp.png")
-    ImageResource debugApp();
-
     @Source("debug.svg")
     SVGResource debug();
 

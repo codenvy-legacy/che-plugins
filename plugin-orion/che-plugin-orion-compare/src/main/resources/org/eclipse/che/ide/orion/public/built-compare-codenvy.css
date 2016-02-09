@@ -2721,7 +2721,8 @@ html[dir="rtl"] .fileExplorerProgressDiv {
   cursor: auto;
 }
 .textviewLeftRuler {
-	border-right: 1px solid #eaeaea;
+	border-right: 5px solid #F6F6F6;
+	background-color: #F6F6F6;
 }
 .textviewRightRuler {
 	border-left: 1px solid #eaeaea;
@@ -2759,7 +2760,7 @@ html[dir="rtl"] .fileExplorerProgressDiv {
 	height: 100%;
 }
 .rulerLines {
-	color: silver;
+	color: #8E8E8E;
 }
 .rulerLines.even
 .rulerLines.odd {
@@ -2805,7 +2806,7 @@ html[dir="rtl"] .fileExplorerProgressDiv {
 .tooltipTheme .textviewScroll {
 	padding: 0;
 }
-.tooltipTheme .annotationLine.currentLine {
+.tooltipTheme {
 	background-color: transparent !important;
 }
 .textviewTooltipCodeProjection {
@@ -3303,8 +3304,8 @@ html[dir="rtl"] .fileExplorerProgressDiv {
 	border: 1px solid #79aa59;
 }
 .annotationOverview.breakpoint {
-	background-color: lightblue;
-	border: 1px solid blue;
+	background-color: #C68076;
+	border: 1px solid black;
 }
 .annotationOverview.bookmark {
 	background-color: #84b3cf;
@@ -3414,7 +3415,7 @@ html[dir="rtl"] .fileExplorerProgressDiv {
 .annotationLine {
 }
 .annotationLine.currentLine {
-	background-color: #EAF2FE;
+	background-color: #EDEDED ;
 }
 .diffNormal {
 	background: #DDDDDD;
@@ -3441,7 +3442,7 @@ html[dir="rtl"] .fileExplorerProgressDiv {
 	background: #EE9999;
 }
 .compareCanvas {
-	background: white;
+	background: #F6F6F6;
 	border: 0;
 }
 .inlineRulerLeft {
@@ -3528,16 +3529,16 @@ html[dir="rtl"] .fileExplorerProgressDiv {
 	visibility: hidden;  
 }
 .annotationLine.addedBlockDiff {
-	background-color: #E5FFCF;
+	background-color: #9EC676;
 }
 .annotationLine.currentAddedBlockDiff {
-	background-color: #CFFFCF;
+	background-color: #CCE2B8;
 }
 .annotationLine.deletedBlockDiff {
-	background-color: #FAE6E6;
+	background-color: #C68076;
 }
 .annotationLine.currentDeletedBlockDiff {
-	background-color: #FCD6D6;
+	background-color: #E49489;
 }
 .annotationLine.blockDiffTopOnly {
 	background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC4AAAABCAIAAAAuIQuDAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAPSURBVBhXY6yvr2cYHAAAzPsBf2hZ98wAAAAASUVORK5CYII=");
@@ -3556,16 +3557,16 @@ html[dir="rtl"] .fileExplorerProgressDiv {
 	background-color: #FFFF5B;
 }
 .annotationRange.addedWordDiff {
-	background-color: #B8E8B8;
+	background-color: #ABDE7D;
 }
 .annotationRange.currentAddedWordDiff {
-	background-color: #93FF93;
+	background-color: #A5DA6F;
 }
 .annotationRange.deletedWordDiff {
-	background-color: #F9BDBD;
+	background-color: #D07668;
 }
 .annotationRange.currentDeletedWordDiff {
-	background-color: #FF8B8B;
+	background-color: #E48071;
 }
 .annotationRange.emptyDeletedWordDiffLeft {
 	background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAASCAYAAABxYA+/AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsIAAA7CARUoSoAAAAAUSURBVBhXY2RgYPgPxAxMIGIwMgCpaAEjILHq8AAAAABJRU5ErkJggg==");
@@ -4116,7 +4117,7 @@ a.breadcrumb.currentLocation {
 .commandInactiveItem {
 }
 .split {
-	background: #3B4B54;
+	background: #C3C3C3;
 }
 .splitTracking {
 	background: #3B4B54;

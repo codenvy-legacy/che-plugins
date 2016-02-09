@@ -29,35 +29,32 @@ public interface JavaResources extends ClientBundle {
     @Source("svg/annotation_type.svg")
     SVGResource annotationItem();
 
-    @Source("org/eclipse/che/ide/ext/java/client/images/class.gif")
-    ImageResource classItem();
-
     @Source("org/eclipse/che/ide/ext/java/client/images/class.svg")
     SVGResource svgClassItem();
 
-    @Source("org/eclipse/che/ide/ext/java/client/images/innerinterface_public.gif")
-    ImageResource interfaceItem();
-
     @Source("org/eclipse/che/ide/ext/java/client/images/interface.svg")
-    SVGResource svgInterfaceItem();
+    SVGResource interfaceItem();
 
     @Source("svg/enum_type.svg")
     SVGResource enumItem();
 
-    @Source("org/eclipse/che/ide/ext/java/client/images/default-field.png")
-    ImageResource defaultField();
+    @Source("org/eclipse/che/ide/ext/java/client/images/default_field.svg")
+    SVGResource defaultField();
 
-    @Source("org/eclipse/che/ide/ext/java/client/images/private-field.png")
-    ImageResource privateField();
+    @Source("org/eclipse/che/ide/ext/java/client/images/private_field.svg")
+    SVGResource privateField();
 
-    @Source("org/eclipse/che/ide/ext/java/client/images/protected-field.png")
-    ImageResource protectedField();
+    @Source("org/eclipse/che/ide/ext/java/client/images/protected_field.svg")
+    SVGResource protectedField();
 
-    @Source("org/eclipse/che/ide/ext/java/client/images/public-field.png")
-    ImageResource publicField();
+    @Source("org/eclipse/che/ide/ext/java/client/images/public_field.svg")
+    SVGResource publicField();
 
-    @Source("org/eclipse/che/ide/ext/java/client/images/default-method.png")
-    ImageResource defaultMethod();
+    @Source("org/eclipse/che/ide/ext/java/client/images/package.svg")
+    SVGResource packageItem();
+
+    @Source("org/eclipse/che/ide/ext/java/client/images/default_method.svg")
+    SVGResource defaultMethod();
 
     @Source("svg/private_method.svg")
     SVGResource privateMethod();
@@ -68,50 +65,44 @@ public interface JavaResources extends ClientBundle {
     @Source("svg/publicMethod.svg")
     SVGResource publicMethod();
 
-    @Source("org/eclipse/che/ide/ext/java/client/images/package.png")
-    ImageResource packageItem();
+    @Source("org/eclipse/che/ide/ext/java/client/images/template.svg")
+    SVGResource template();
 
-    @Source("org/eclipse/che/ide/ext/java/client/images/class-default.png")
-    ImageResource classDefaultItem();
+    @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/correction_change.svg")
+    SVGResource correctionChange();
 
-    @Source("org/eclipse/che/ide/ext/java/client/images/template.png")
-    ImageResource template();
+    @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/remove.svg")
+    SVGResource remove();
 
-    @Source("org/eclipse/che/ide/ext/java/client/images/breakpoint-current.gif")
-    ImageResource breakpointCurrent();
+    @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/correction_cast.svg")
+    SVGResource correctionCast();
 
-    @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/correction_change.gif")
-    ImageResource correction_change();
+    @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/local.svg")
+    SVGResource localVar();
 
-    @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/delete_obj.gif")
-    ImageResource delete_obj();
+    @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/correction_delete_import.svg")
+    SVGResource correctionDeleteImport();
 
-    @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/correction_cast.gif")
-    ImageResource correction_cast();
+    @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/import.svg")
+    SVGResource importItem();
 
-    @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/local.png")
-    ImageResource local_var();
+    @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/add.svg")
+    SVGResource add();
 
-    @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/correction_delete_import.gif")
-    ImageResource correction_delete_import();
+    @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/remove_correction.svg")
+    SVGResource correctionRemove();
 
-    @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/imp_obj.gif")
-    ImageResource imp_obj();
+    @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/jexception_obj.svg")
+    SVGResource exceptionProp();
 
-    @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/add_obj.gif")
-    ImageResource add_obj();
+    @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/javadoc.svg")
+    SVGResource javadoc();
 
-    @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/remove_correction.gif")
-    ImageResource remove_correction();
+    @Source("internal/text/correction/proposals/correction_rename.svg")
+    SVGResource linkedRename();
 
-    @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/jexception_obj.gif")
-    ImageResource exceptionProp();
-
-    @Source("org/eclipse/che/ide/ext/java/client/internal/text/correction/proposals/javadoc.gif")
-    ImageResource javadoc();
-
-    @Source("org/eclipse/che/ide/ext/java/client/images/taskmrk.gif")
-    ImageResource taskmrk();
+    @Source("org/eclipse/che/ide/ext/java/client/images/taskmrk.svg")
+    SVGResource taskMark();
 
     @Source("svg/mark-error.svg")
     SVGResource markError();
@@ -128,9 +119,6 @@ public interface JavaResources extends ClientBundle {
     @Source("svg/jspFile.svg")
     SVGResource jspFile();
 
-    @Source("svg/packageIcon.svg")
-    SVGResource packageIcon();
-
     @Source("svg/update-dependencies.svg")
     SVGResource updateDependencies();
 
@@ -143,17 +131,11 @@ public interface JavaResources extends ClientBundle {
     @Source("svg/jarFileIcon.svg")
     SVGResource jarFileIcon();
 
-    @Source("internal/text/correction/proposals/correction_linked_rename.gif")
-    ImageResource linkedRename();
-
     @Source("svg/sourceFolder.svg")
     SVGResource sourceFolder();
 
     @Source("svg/testFolder.svg")
     SVGResource testFolder();
-
-    @Source("svg/resourceFolder.svg")
-    SVGResource resourceFolder();
 
     @Source("svg/openDeclaration.svg")
     SVGResource openDeclaration();

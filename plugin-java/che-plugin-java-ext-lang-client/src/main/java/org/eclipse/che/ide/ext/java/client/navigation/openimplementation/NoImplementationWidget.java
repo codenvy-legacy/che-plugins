@@ -120,7 +120,7 @@ public class NoImplementationWidget extends PopupWidget<Type> {
     private SVGImage getSvgImage(int flag) {
         SVGResource icon;
         if (Flags.isInterface(flag)) {
-            icon = javaResources.svgInterfaceItem();
+            icon = javaResources.interfaceItem();
         } else if (Flags.isEnum(flag)) {
             icon = javaResources.enumItem();
         } else if (Flags.isAnnotation(flag)) {
