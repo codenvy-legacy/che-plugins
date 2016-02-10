@@ -31,6 +31,8 @@ import org.eclipse.che.ide.extension.machine.client.processes.ConsolesPanelPrese
 import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
+import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
+import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -56,6 +58,7 @@ public class MergePresenter implements MergeView.ActionDelegate {
 
     private final DtoUnmarshallerFactory   dtoUnmarshallerFactory;
     private final MergeView                view;
+    private final DialogFactory            dialogFactory;
     private final ProjectExplorerPresenter projectExplorer;
     private final GitOutputConsoleFactory  gitOutputConsoleFactory;
     private final ConsolesPanelPresenter   consolesPanelPresenter;
@@ -77,11 +80,13 @@ public class MergePresenter implements MergeView.ActionDelegate {
                           GitLocalizationConstant constant,
                           AppContext appContext,
                           NotificationManager notificationManager,
+                          DialogFactory dialogFactory,
                           DtoUnmarshallerFactory dtoUnmarshallerFactory,
                           ProjectExplorerPresenter projectExplorer,
                           GitOutputConsoleFactory gitOutputConsoleFactory,
                           ConsolesPanelPresenter consolesPanelPresenter) {
         this.view = view;
+        this.dialogFactory = dialogFactory;
         this.projectExplorer = projectExplorer;
         this.gitOutputConsoleFactory = gitOutputConsoleFactory;
         this.consolesPanelPresenter = consolesPanelPresenter;
@@ -180,6 +185,15 @@ public class MergePresenter implements MergeView.ActionDelegate {
 
                           @Override
                           protected void onFailure(Throwable exception) {
+                              if ("Git user name and (or) email wasn't set.".equals(exception.getMessage())) {
+                                  dialogFactory.createMessageDialog(constant.mergeTitle(), constant.committerIdentityInfoEmpty(), new ConfirmCallback() {
+                                      @Override
+                                      public void accepted() {
+                                          //do nothing
+                                      }
+                                  }).show();
+                                  return;
+                              }
                               console.printError(exception.getMessage());
                               consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
                               notificationManager

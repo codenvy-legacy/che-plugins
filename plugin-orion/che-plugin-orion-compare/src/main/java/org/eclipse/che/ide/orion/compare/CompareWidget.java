@@ -61,7 +61,6 @@ public class CompareWidget extends Composite {
                         frame.getElement().cast();
                         final JsIFrameElement iFrame = frame.getElement().cast();
                         callback.onSuccess(iFrame.getContentWindow());
-                        loader.hide();
                     }
                 });
             }

@@ -29,6 +29,8 @@ import org.eclipse.che.ide.part.explorer.project.ProjectExplorerPresenter;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.Unmarshallable;
+import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
+import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 import org.eclipse.che.ide.util.loging.Log;
 import org.eclipse.che.ide.websocket.WebSocketException;
 import org.eclipse.che.ide.websocket.rest.RequestCallback;
@@ -49,6 +51,7 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAI
 public class CommitPresenter implements CommitView.ActionDelegate {
     public static final String COMMIT_COMMAND_NAME = "Git commit";
 
+    private final DialogFactory            dialogFactory;
     private final DtoUnmarshallerFactory   dtoUnmarshallerFactory;
     private final AppContext               appContext;
     private final CommitView               view;
@@ -66,6 +69,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
                            GitServiceClient service,
                            GitLocalizationConstant constant,
                            NotificationManager notificationManager,
+                           DialogFactory dialogFactory,
                            DtoUnmarshallerFactory dtoUnmarshallerFactory,
                            AppContext appContext,
                            DateTimeFormatter dateTimeFormatter,
@@ -73,6 +77,7 @@ public class CommitPresenter implements CommitView.ActionDelegate {
                            GitOutputConsoleFactory gitOutputConsoleFactory,
                            ConsolesPanelPresenter consolesPanelPresenter) {
         this.view = view;
+        this.dialogFactory = dialogFactory;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.appContext = appContext;
         this.dateTimeFormatter = dateTimeFormatter;
@@ -135,11 +140,11 @@ public class CommitPresenter implements CommitView.ActionDelegate {
 
                     @Override
                     protected void onFailure(final Throwable exception) {
-                        handleError(exception);
+                        handleError(exception.getMessage());
                     }
                 });
             } catch (final WebSocketException e) {
-                handleError(new Exception("Communication error with the server", e));
+                handleError("Communication error with the server");
             }
         }
     }
@@ -167,17 +172,13 @@ public class CommitPresenter implements CommitView.ActionDelegate {
                                    if (!result.isFake()) {
                                        onCommitSuccess(result);
                                    } else {
-                                       GitOutputConsole console = gitOutputConsoleFactory.create(COMMIT_COMMAND_NAME);
-                                       console.printError(result.getMessage());
-                                       consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
-                                       notificationManager.notify(constant.commited(), result.getMessage(),
-                                                                  appContext.getCurrentProject().getRootProject());
+                                       handleError(result.getMessage());
                                    }
                                }
 
                                @Override
                                protected void onFailure(final Throwable exception) {
-                                   handleError(exception);
+                                   handleError(exception.getMessage());
                                }
                            }
                           );
@@ -193,17 +194,13 @@ public class CommitPresenter implements CommitView.ActionDelegate {
                                if (!result.isFake()) {
                                    onCommitSuccess(result);
                                } else {
-                                   GitOutputConsole console = gitOutputConsoleFactory.create(COMMIT_COMMAND_NAME);
-                                   console.printError(result.getMessage());
-                                   consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
-                                   notificationManager.notify(constant.commitFailed(), result.getMessage(), FAIL, true,
-                                                              appContext.getCurrentProject().getRootProject());
+                                   handleError(result.getMessage());
                                }
                            }
 
                            @Override
                            protected void onFailure(final Throwable exception) {
-                               handleError(exception);
+                               handleError(exception.getMessage());
                            }
                        }
                       );
@@ -246,13 +243,22 @@ public class CommitPresenter implements CommitView.ActionDelegate {
     }
 
     /**
-     * Handler some action whether some exception happened.
+     * Handler some action whether some error happened.
      *
-     * @param e
-     *         exception what happened
+     * @param message
+     *         exception message about what happened
      */
-    private void handleError(@NotNull Throwable e) {
-        String errorMessage = (e.getMessage() != null && !e.getMessage().isEmpty()) ? e.getMessage() : constant.commitFailed();
+    private void handleError(String message) {
+        String errorMessage = (message != null && !message.isEmpty()) ? message : constant.commitFailed();
+        if ("Git user name and (or) email wasn't set.".equals(errorMessage)) {
+            dialogFactory.createMessageDialog(constant.commitTitle(), constant.committerIdentityInfoEmpty(), new ConfirmCallback() {
+                @Override
+                public void accepted() {
+                    //do nothing
+                }
+            }).show();
+            return;
+        }
         GitOutputConsole console = gitOutputConsoleFactory.create(COMMIT_COMMAND_NAME);
         console.printError(errorMessage);
         consolesPanelPresenter.addCommandOutput(appContext.getDevMachineId(), console);
