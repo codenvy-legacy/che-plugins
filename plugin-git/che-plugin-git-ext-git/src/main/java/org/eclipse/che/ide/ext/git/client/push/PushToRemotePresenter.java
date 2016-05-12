@@ -221,7 +221,7 @@ public class PushToRemotePresenter implements PushToRemoteView.ActionDelegate {
 
         final String configBranchRemote = "branch." + view.getLocalBranch() + ".remote";
         final String configUpstreamBranch = "branch." + view.getLocalBranch() + ".merge";
-        service.config(project.getRootProject(), Arrays.asList(configUpstreamBranch, configBranchRemote), false,
+        service.config(project.getRootProject(), Arrays.asList(configUpstreamBranch, configBranchRemote),
                        new AsyncRequestCallback<Map<String, String>>(new StringMapUnmarshaller()) {
                            @Override
                            protected void onSuccess(Map<String, String> configs) {
