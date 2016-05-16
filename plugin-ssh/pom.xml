@@ -25,5 +25,6 @@
     <modules>
         <module>che-plugin-ssh-ext-sshkey</module>
         <module>che-plugin-ssh-git-native</module>
+        <module>che-plugin-ssh-git-jgit</module>
     </modules>
 </project>

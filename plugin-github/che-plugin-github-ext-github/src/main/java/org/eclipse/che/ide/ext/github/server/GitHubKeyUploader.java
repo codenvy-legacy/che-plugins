@@ -19,7 +19,7 @@ import org.eclipse.che.api.core.UnauthorizedException;
 import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.commons.json.JsonHelper;
 import org.eclipse.che.dto.server.DtoFactory;
-import org.eclipse.che.git.impl.nativegit.GitUrl;
+import org.eclipse.che.api.git.GitUrl;
 import org.eclipse.che.ide.MimeType;
 import org.eclipse.che.ide.ext.github.shared.GitHubKey;
 import org.eclipse.che.ide.ext.ssh.server.SshKey;

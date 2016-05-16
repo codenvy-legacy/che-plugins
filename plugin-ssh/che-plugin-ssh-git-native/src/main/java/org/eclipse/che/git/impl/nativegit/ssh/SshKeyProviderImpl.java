@@ -14,7 +14,7 @@ import com.google.inject.Inject;
 
 import org.eclipse.che.api.core.UnauthorizedException;
 import org.eclipse.che.api.git.GitException;
-import org.eclipse.che.git.impl.nativegit.GitUrl;
+import org.eclipse.che.api.git.GitUrl;
 import org.eclipse.che.ide.ext.ssh.server.SshKey;
 import org.eclipse.che.ide.ext.ssh.server.SshKeyStore;
 import org.eclipse.che.ide.ext.ssh.server.SshKeyStoreException;
