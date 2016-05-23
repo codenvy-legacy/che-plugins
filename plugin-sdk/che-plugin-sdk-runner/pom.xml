@@ -119,7 +119,7 @@
                                 <artifactItem>
                                     <groupId>com.codenvy.resources</groupId>
                                     <artifactId>codenvy-tomcat8-slf4j-logback</artifactId>
-                                    <version>${version.resource-bundle}</version>
+                                    <version>${che.tomcat.version}</version>
                                     <type>zip</type>
                                     <outputDirectory>${project.build.directory}/classes</outputDirectory>
                                     <destFileName>tomcat.zip</destFileName>
