@@ -19,7 +19,7 @@ import org.eclipse.che.api.core.UnauthorizedException;
 import org.eclipse.che.commons.env.EnvironmentContext;
 import org.eclipse.che.commons.json.JsonHelper;
 import org.eclipse.che.dto.server.DtoFactory;
-import org.eclipse.che.api.git.GitUrl;
+import org.eclipse.che.api.git.GitUrlUtils;
 import org.eclipse.che.ide.MimeType;
 import org.eclipse.che.ide.ext.github.shared.GitHubKey;
 import org.eclipse.che.ide.ext.ssh.server.SshKey;
@@ -60,7 +60,7 @@ public class GitHubKeyUploader implements SshKeyUploader {
 
     @Override
     public boolean match(String url) {
-        return GitUrl.isSSH(url) && GITHUB_URL_PATTERN.matcher(url).matches();
+        return GitUrlUtils.isSSH(url) && GITHUB_URL_PATTERN.matcher(url).matches();
     }
 
     @Override
@@ -84,7 +84,7 @@ public class GitHubKeyUploader implements SshKeyUploader {
         }
 
         final Map<String, String> postParams = new HashMap<>(2);
-        postParams.put("title", GitUrl.getCodenvyTimeStampKeyLabel());
+        postParams.put("title", GitUrlUtils.getCodenvyTimeStampKeyLabel());
         postParams.put("key", new String(publicKey.getBytes()));
 
         final String postBody = JsonHelper.toJson(postParams);

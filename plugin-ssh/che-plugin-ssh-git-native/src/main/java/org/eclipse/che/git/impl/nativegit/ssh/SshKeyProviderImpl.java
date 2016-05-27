@@ -14,7 +14,7 @@ import com.google.inject.Inject;
 
 import org.eclipse.che.api.core.UnauthorizedException;
 import org.eclipse.che.api.git.GitException;
-import org.eclipse.che.api.git.GitUrl;
+import org.eclipse.che.api.git.GitUrlUtils;
 import org.eclipse.che.ide.ext.ssh.server.SshKey;
 import org.eclipse.che.ide.ext.ssh.server.SshKeyStore;
 import org.eclipse.che.ide.ext.ssh.server.SshKeyStoreException;
@@ -54,7 +54,7 @@ public class SshKeyProviderImpl implements SshKeyProvider {
      */
     @Override
     public byte[] getPrivateKey(String url) throws GitException {
-        String host = GitUrl.getHost(url);
+        String host = GitUrlUtils.getHost(url);
         SshKey publicKey;
         SshKey privateKey;
 

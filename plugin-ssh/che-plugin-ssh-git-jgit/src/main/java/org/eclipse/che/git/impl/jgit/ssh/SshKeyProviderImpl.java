@@ -13,15 +13,10 @@ package org.eclipse.che.git.impl.jgit.ssh;
 import com.google.inject.Inject;
 
 import org.eclipse.che.api.git.GitException;
-import org.eclipse.che.api.git.GitUrl;
+import org.eclipse.che.api.git.GitUrlUtils;
 import org.eclipse.che.ide.ext.ssh.server.SshKey;
 import org.eclipse.che.ide.ext.ssh.server.SshKeyStore;
 import org.eclipse.che.ide.ext.ssh.server.SshKeyStoreException;
-import org.eclipse.che.ide.ext.ssh.server.SshKeyUploader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Set;
 
 /**
  * Implementation SshKeyProvider that provides private key
@@ -48,7 +43,7 @@ public class SshKeyProviderImpl implements SshKeyProvider {
      */
     @Override
     public byte[] getPrivateKey(String url) throws GitException {
-        String host = GitUrl.getHost(url);
+        String host = GitUrlUtils.getHost(url);
         SshKey privateKey;
 
         // check keys existence
